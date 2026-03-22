@@ -175,7 +175,7 @@ export function CardsPage() {
 function CardItem({ card }: { card: CardSummary }) {
   return (
     <Link to={`/cards/${card.cardCode}`} className="block">
-      <Card className="flex flex-col hover:shadow-md transition-shadow h-full">
+      <Card className="flex flex-col hover:shadow-md transition-shadow h-full overflow-hidden">
         <CardHeader className="pb-3">
           <div className="flex items-start justify-between gap-2">
             <div className="flex items-center gap-2 min-w-0">

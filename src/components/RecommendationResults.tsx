@@ -100,8 +100,8 @@ function TopPickCard({ rec }: { rec: CardRecommendation }) {
   const [expanded, setExpanded] = useState(false)
 
   return (
-    <Card className="border-primary/50 bg-gradient-to-br from-primary/5 to-transparent shadow-md">
-      <CardContent className="pt-5 space-y-4">
+    <Card className="border-primary/50 bg-gradient-to-br from-primary/5 to-transparent shadow-md overflow-hidden">
+      <CardContent className="pt-5 space-y-4 overflow-hidden">
         {/* Header row */}
         <div className="flex items-start justify-between gap-4">
           <div className="flex items-center gap-3 min-w-0">
@@ -138,8 +138,8 @@ function RunnerUpCard({ rec, rank }: { rec: CardRecommendation; rank: number }) 
   const [expanded, setExpanded] = useState(false)
 
   return (
-    <Card>
-      <CardContent className="pt-4 space-y-3">
+    <Card className="overflow-hidden">
+      <CardContent className="pt-4 space-y-3 overflow-hidden">
         <div className="flex items-start justify-between gap-4">
           <div className="flex items-center gap-3 min-w-0">
             <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground text-sm font-semibold">
