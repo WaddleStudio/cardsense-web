@@ -10,8 +10,9 @@ import {
   Medal,
   ExternalLink,
   Sparkles,
-  TrendingUp,
   Info,
+  Check,
+  Minus,
 } from 'lucide-react'
 import type { CardRecommendation, RecommendationResponse } from '@/types'
 
@@ -48,15 +49,15 @@ export function RecommendationResults({ result }: Props) {
   return (
     <div key={result.requestId} className="space-y-4">
       {/* Summary stats */}
-      <div className="animate-fade-slide-up flex items-center gap-4 rounded-lg bg-muted/50 px-4 py-2.5 text-sm">
+      <div className="animate-fade-slide-up flex flex-wrap items-center gap-x-4 gap-y-1 rounded-lg bg-muted/50 px-4 py-2.5 text-sm">
         <span className="text-muted-foreground">
           評估 <strong className="text-foreground">{comparison.evaluatedPromotionCount}</strong> 個優惠
         </span>
-        <Separator orientation="vertical" className="h-4" />
+        <Separator orientation="vertical" className="h-4 hidden sm:block" />
         <span className="text-muted-foreground">
           符合 <strong className="text-foreground">{comparison.eligiblePromotionCount}</strong> 個
         </span>
-        <Separator orientation="vertical" className="h-4" />
+        <Separator orientation="vertical" className="h-4 hidden sm:block" />
         <span className="text-muted-foreground">
           排名 <strong className="text-foreground">{comparison.rankedCardCount}</strong> 張卡
         </span>
@@ -161,23 +162,20 @@ function RunnerUpCard({ rec, rank }: { rec: CardRecommendation; rank: number }) 
   )
 }
 
-/** Prominent cashback value display */
+/** Prominent cashback value display — always show estimatedReturn as primary */
 function CashbackDisplay({ rec, size }: { rec: CardRecommendation; size: 'lg' | 'sm' }) {
   const isLg = size === 'lg'
 
   return (
     <div className="text-right shrink-0">
       <p className={`font-bold text-primary ${isLg ? 'text-2xl' : 'text-lg'}`}>
-        {rec.cashbackType === 'PERCENT'
-          ? `${rec.cashbackValue}%`
-          : `NT$ ${rec.estimatedReturn}`}
+        NT$ {rec.estimatedReturn.toLocaleString()}
       </p>
-      <div className="flex items-center justify-end gap-1 text-muted-foreground">
-        <TrendingUp className={isLg ? 'h-3.5 w-3.5' : 'h-3 w-3'} />
-        <p className={isLg ? 'text-sm' : 'text-xs'}>
-          回饋 NT$ {rec.estimatedReturn}
+      {rec.cashbackType === 'PERCENT' && (
+        <p className={`text-muted-foreground ${isLg ? 'text-sm' : 'text-xs'}`}>
+          {rec.cashbackValue}% 回饋
         </p>
-      </div>
+      )}
     </div>
   )
 }
@@ -241,19 +239,29 @@ function PromotionBreakdown({
           {rec.promotionBreakdown.map((promo) => (
             <div
               key={promo.promoVersionId}
-              className="rounded-md bg-muted/50 p-3 text-xs space-y-1.5"
+              className={`rounded-md p-3 text-xs space-y-1.5 ${promo.contributesToCardTotal ? 'bg-muted/50' : 'bg-muted/25 opacity-60'}`}
             >
               <div className="flex justify-between font-medium gap-2">
-                <span className="truncate">{promo.title ?? promo.promotionId}</span>
-                <span className="shrink-0 text-primary font-semibold">
-                  {promo.cashbackType === 'PERCENT'
-                    ? `${promo.cashbackValue}%`
-                    : `NT$ ${promo.cappedReturn}`}
-                </span>
+                <div className="flex items-center gap-1.5 min-w-0">
+                  {promo.contributesToCardTotal ? (
+                    <Check className="h-3 w-3 text-green-600 shrink-0" />
+                  ) : (
+                    <Minus className="h-3 w-3 text-muted-foreground shrink-0" />
+                  )}
+                  <span className="truncate">{promo.title ?? promo.promotionId}</span>
+                </div>
+                <div className="shrink-0 text-right">
+                  <span className="text-primary font-semibold">
+                    NT$ {promo.cappedReturn.toLocaleString()}
+                  </span>
+                  {promo.cashbackType === 'PERCENT' && (
+                    <span className="text-muted-foreground ml-1">({promo.cashbackValue}%)</span>
+                  )}
+                </div>
               </div>
-              <p className="text-muted-foreground">{promo.reason}</p>
+              <p className="text-muted-foreground pl-[18px]">{promo.reason}</p>
               {promo.conditions.length > 0 && (
-                <div className="flex flex-wrap gap-1">
+                <div className="flex flex-wrap gap-1 pl-[18px]">
                   {promo.conditions.map((c, i) => (
                     <Badge key={i} variant="outline" className="text-xs">
                       {c.label}

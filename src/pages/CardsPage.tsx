@@ -77,7 +77,7 @@ export function CardsPage() {
       {/* Filters */}
       <div className="space-y-3">
         {/* Search + Sort */}
-        <div className="flex gap-3">
+        <div className="flex gap-3 min-w-0">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
@@ -96,7 +96,7 @@ export function CardsPage() {
             )}
           </div>
           <Select value={sort} onValueChange={(v) => setSort(v as SortKey)}>
-            <SelectTrigger className="w-[140px] shrink-0">
+            <SelectTrigger className="w-[120px] sm:w-[140px] shrink-0">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
