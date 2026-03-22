@@ -7,6 +7,15 @@
     <title>cardsense-web</title>
   </head>
   <body>
+    <script>
+      try {
+        if (localStorage.getItem('cardsense-dark-mode') === 'true' ||
+          (localStorage.getItem('cardsense-dark-mode') === null &&
+           window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+          document.documentElement.classList.add('dark')
+        }
+      } catch (e) {}
+    </script>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

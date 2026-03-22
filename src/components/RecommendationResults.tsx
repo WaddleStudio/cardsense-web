@@ -24,7 +24,10 @@ export function RecommendationResults({ result }: Props) {
     return (
       <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-12 text-muted-foreground gap-3">
         <Sparkles className="h-8 w-8 opacity-40" />
-        <p className="text-sm">填寫左側表單後，推薦結果將顯示在此</p>
+        <p className="text-sm">
+          <span className="hidden lg:inline">填寫左側表單後，推薦結果將顯示在此</span>
+          <span className="lg:hidden">填寫上方表單後，推薦結果將顯示在此</span>
+        </p>
       </div>
     )
   }
@@ -43,9 +46,9 @@ export function RecommendationResults({ result }: Props) {
   const topRec = recommendations[0]
 
   return (
-    <div className="space-y-4">
+    <div key={result.requestId} className="space-y-4">
       {/* Summary stats */}
-      <div className="flex items-center gap-4 rounded-lg bg-muted/50 px-4 py-2.5 text-sm">
+      <div className="animate-fade-slide-up flex items-center gap-4 rounded-lg bg-muted/50 px-4 py-2.5 text-sm">
         <span className="text-muted-foreground">
           評估 <strong className="text-foreground">{comparison.evaluatedPromotionCount}</strong> 個優惠
         </span>
@@ -60,7 +63,9 @@ export function RecommendationResults({ result }: Props) {
       </div>
 
       {/* Top pick highlight */}
-      <TopPickCard rec={topRec} />
+      <div className="animate-fade-slide-up" style={{ animationDelay: '100ms' }}>
+        <TopPickCard rec={topRec} />
+      </div>
 
       {/* Runner-ups */}
       {recommendations.length > 1 && (
@@ -69,7 +74,9 @@ export function RecommendationResults({ result }: Props) {
             其他推薦
           </p>
           {recommendations.slice(1).map((rec, i) => (
-            <RunnerUpCard key={rec.cardCode ?? i} rec={rec} rank={i + 2} />
+            <div key={rec.cardCode ?? i} className="animate-fade-slide-up" style={{ animationDelay: `${(i + 2) * 100}ms` }}>
+              <RunnerUpCard rec={rec} rank={i + 2} />
+            </div>
           ))}
         </div>
       )}
@@ -92,7 +99,7 @@ function TopPickCard({ rec }: { rec: CardRecommendation }) {
   const [expanded, setExpanded] = useState(false)
 
   return (
-    <Card className="border-primary/30 bg-gradient-to-br from-primary/5 to-transparent">
+    <Card className="border-primary/50 bg-gradient-to-br from-primary/5 to-transparent shadow-md">
       <CardContent className="pt-5 space-y-4">
         {/* Header row */}
         <div className="flex items-start justify-between gap-4">

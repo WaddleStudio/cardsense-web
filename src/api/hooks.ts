@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { useQuery, useMutation } from '@tanstack/react-query'
 import { get, post } from './client'
 import type {
@@ -34,6 +35,15 @@ export function useCards(params?: { bank?: string; scope?: string }) {
     queryKey: ['cards', params],
     queryFn: () => get<CardSummary[]>(`/v1/cards${qs ? `?${qs}` : ''}`),
   })
+}
+
+export function useCard(cardCode: string) {
+  const { data: cards, isLoading, error } = useCards()
+  const card = useMemo(
+    () => cards?.find((c) => c.cardCode === cardCode) ?? null,
+    [cards, cardCode],
+  )
+  return { data: card, isLoading, error }
 }
 
 export function useRecommendation() {

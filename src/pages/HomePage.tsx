@@ -1,9 +1,12 @@
 import { useState } from 'react'
+import { useLocation } from 'react-router-dom'
 import { RecommendationForm } from '@/components/RecommendationForm'
 import { RecommendationResults } from '@/components/RecommendationResults'
 import type { RecommendationResponse } from '@/types'
 
 export function HomePage() {
+  const location = useLocation()
+  const prefillCard = (location.state as { prefillCard?: string } | null)?.prefillCard
   const [result, setResult] = useState<RecommendationResponse | null>(null)
 
   return (
@@ -16,7 +19,7 @@ export function HomePage() {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[400px_1fr]">
-        <RecommendationForm onResult={setResult} />
+        <RecommendationForm onResult={setResult} prefillCard={prefillCard} />
         <RecommendationResults result={result} />
       </div>
     </div>
