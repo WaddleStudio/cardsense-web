@@ -18,9 +18,13 @@ export function HomePage() {
         </p>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-[380px_1fr] overflow-hidden">
-        <RecommendationForm onResult={setResult} prefillCard={prefillCard} />
-        <RecommendationResults result={result} />
+      <div className="grid gap-6 lg:grid-cols-[380px_1fr]">
+        <div className="min-w-0">
+          <RecommendationForm onResult={setResult} prefillCard={prefillCard} />
+        </div>
+        <div className="min-w-0">
+          <RecommendationResults result={result} />
+        </div>
       </div>
     </div>
   )
