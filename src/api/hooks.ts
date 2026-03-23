@@ -38,12 +38,12 @@ export function useCards(params?: { bank?: string; scope?: string }) {
 }
 
 export function useCard(cardCode: string) {
-  const { data: cards, isLoading, error } = useCards()
+  const { data: cards, isLoading, error, refetch } = useCards()
   const card = useMemo(
     () => cards?.find((c) => c.cardCode === cardCode) ?? null,
     [cards, cardCode],
   )
-  return { data: card, isLoading, error }
+  return { data: card, isLoading, error, refetch }
 }
 
 export function useRecommendation() {
