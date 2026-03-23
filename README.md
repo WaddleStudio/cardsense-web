@@ -1,73 +1,84 @@
-# React + TypeScript + Vite
+# CardSense — 情境式信用卡回饋推薦平台
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+根據消費情境（金額、類別、通路）即時比較各家信用卡回饋，找出最佳選擇。
 
-Currently, two official plugins are available:
+**線上版本：** https://cardsense-web.vercel.app
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+---
 
-## React Compiler
+## 功能
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **情境式推薦** — 輸入消費金額、類別、通路，比較所有已收錄卡片的預估回饋
+- **兩種比較模式** — 最佳單一優惠 / 所有可疊加優惠
+- **優惠明細展開** — 逐一列出每個優惠的回饋金額、條件與有效期
+- **損益平衡分析** — 疊加模式下自動計算兩張卡片的損益平衡消費點
+- **卡片目錄** — 依銀行、名稱篩選與排序所有已收錄卡片
+- **深色模式** — 跟隨系統偏好，可手動切換
 
-## Expanding the ESLint configuration
+## 技術棧
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+| 層次 | 套件 |
+|------|------|
+| 框架 | React 19 + TypeScript + Vite |
+| 路由 | React Router v7 |
+| 樣式 | Tailwind CSS v4 + OKLCH 語意色彩 token |
+| 元件 | Radix UI + shadcn/ui |
+| 圖示 | Lucide React |
+| 資料請求 | TanStack Query v5 |
+| 部署 | Vercel |
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## 本地開發
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+### 環境需求
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+- Node.js 20+
+- 後端 API 服務（`cardsense` 或相容介面）
+
+### 安裝與啟動
+
+```bash
+# 安裝相依套件
+npm install
+
+# 設定環境變數
+cp .env.example .env.local
+# 編輯 .env.local，填入 VITE_API_BASE_URL
+
+# 啟動開發伺服器
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### 環境變數
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+| 變數 | 說明 | 範例 |
+|------|------|------|
+| `VITE_API_BASE_URL` | 後端 API 根路徑 | `http://localhost:8080` |
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### 常用指令
+
+```bash
+npm run dev      # 開發伺服器（含 HMR）
+npm run build    # 生產版本建置
+npm run preview  # 預覽生產建置結果
+npm run lint     # ESLint 檢查
 ```
+
+## 專案結構
+
+```
+src/
+├── api/           # API client、React Query hooks
+├── components/
+│   ├── ui/        # shadcn/ui 基礎元件
+│   ├── Layout.tsx
+│   ├── RecommendationForm.tsx
+│   └── RecommendationResults.tsx
+├── hooks/         # use-dark-mode、use-debounce
+├── pages/         # HomePage、CardsPage、CardDetailPage
+├── types/         # TypeScript 型別與 enum
+└── index.css      # 全域樣式 + 色彩 token
+```
+
+## 部署
+
+推送到 `master` 分支後，Vercel 自動觸發部署。需在 Vercel 專案設定中配置 `VITE_API_BASE_URL` 環境變數。
