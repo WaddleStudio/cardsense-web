@@ -14,9 +14,10 @@ import {
   Check,
   Minus,
   TrendingUp,
+  ArrowLeftRight,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import type { CardRecommendation, RecommendationResponse } from '@/types'
+import type { BreakEvenAnalysis, CardRecommendation, RecommendationResponse } from '@/types'
 
 interface Props {
   result: RecommendationResponse | null
@@ -85,6 +86,18 @@ export function RecommendationResults({ result }: Props) {
             >
               <RunnerUpCard rec={rec} rank={i + 2} />
             </div>
+          ))}
+        </div>
+      )}
+
+      {/* Break-even analysis */}
+      {comparison.breakEvenEvaluated && comparison.breakEvenAnalyses.length > 0 && (
+        <div className="animate-fade-slide-up space-y-2" style={{ animationDelay: '320ms' }}>
+          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-widest px-0.5">
+            損益平衡分析
+          </p>
+          {comparison.breakEvenAnalyses.map((analysis, i) => (
+            <BreakEvenCard key={i} analysis={analysis} />
           ))}
         </div>
       )}
@@ -316,6 +329,69 @@ function PromotionBreakdown({
         </div>
       )}
     </>
+  )
+}
+
+/** Break-even analysis card */
+function BreakEvenCard({ analysis }: { analysis: BreakEvenAnalysis }) {
+  return (
+    <Card className="overflow-hidden">
+      <CardContent className="pt-4 space-y-3">
+        {/* Header */}
+        <div className="flex items-center gap-2">
+          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-muted">
+            <ArrowLeftRight className="h-3.5 w-3.5 text-muted-foreground" />
+          </div>
+          <div className="min-w-0">
+            <p className="text-xs font-semibold leading-tight truncate">
+              {analysis.leftCardCode} vs {analysis.rightCardCode}
+            </p>
+          </div>
+          {analysis.breakEvenAmount > 0 && (
+            <div className="ml-auto shrink-0 text-right">
+              <p className="text-xs text-muted-foreground">損益平衡點</p>
+              <p className="text-sm font-bold tabular-nums text-foreground">
+                NT$ {analysis.breakEvenAmount.toLocaleString()}
+              </p>
+            </div>
+          )}
+        </div>
+
+        {/* Cap amounts */}
+        {analysis.variableRewardCapAmount != null && (
+          <div className="flex justify-between text-xs text-muted-foreground">
+            <span>回饋上限消費金額</span>
+            <span className="tabular-nums font-medium text-foreground">
+              NT$ {analysis.variableRewardCapAmount.toLocaleString()}
+            </span>
+          </div>
+        )}
+
+        {(analysis.leftMinAmount != null || analysis.rightMinAmount != null) && (
+          <div className="flex gap-3 text-xs">
+            {analysis.leftMinAmount != null && (
+              <div className="flex-1 rounded-md bg-muted/50 px-2.5 py-2">
+                <p className="text-muted-foreground truncate">{analysis.leftCardCode}</p>
+                <p className="font-medium tabular-nums mt-0.5">
+                  最低 NT$ {analysis.leftMinAmount.toLocaleString()}
+                </p>
+              </div>
+            )}
+            {analysis.rightMinAmount != null && (
+              <div className="flex-1 rounded-md bg-muted/50 px-2.5 py-2">
+                <p className="text-muted-foreground truncate">{analysis.rightCardCode}</p>
+                <p className="font-medium tabular-nums mt-0.5">
+                  最低 NT$ {analysis.rightMinAmount.toLocaleString()}
+                </p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Summary */}
+        <p className="text-xs text-muted-foreground leading-relaxed">{analysis.summary}</p>
+      </CardContent>
+    </Card>
   )
 }
 

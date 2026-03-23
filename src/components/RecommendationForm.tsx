@@ -68,7 +68,7 @@ export function RecommendationForm({ onResult, prefillCard }: Props) {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-5">
+        <form onSubmit={handleSubmit} className="space-y-5" noValidate>
           {/* Selected card indicator */}
           {selectedCard && (
             <div className="flex items-center gap-2 rounded-lg border border-primary/20 bg-primary/5 px-3 py-2.5 text-sm">
@@ -97,7 +97,7 @@ export function RecommendationForm({ onResult, prefillCard }: Props) {
               id="amount"
               type="number"
               min={0}
-              placeholder="例：1,200"
+              placeholder="例：1200"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               onBlur={() => setAmountTouched(true)}
@@ -117,7 +117,7 @@ export function RecommendationForm({ onResult, prefillCard }: Props) {
                   key={v}
                   type="button"
                   onClick={() => { setAmount(String(v)); setAmountTouched(false) }}
-                  className="min-h-[36px] rounded-lg border border-border bg-background px-3 text-xs font-medium text-muted-foreground hover:border-primary/50 hover:text-primary hover:bg-primary/5 transition-colors cursor-pointer"
+                  className="min-h-[44px] rounded-lg border border-border bg-background px-3 text-xs font-medium text-muted-foreground hover:border-primary/50 hover:text-primary hover:bg-primary/5 focus-visible:outline-2 focus-visible:outline-primary transition-colors cursor-pointer"
                 >
                   {v.toLocaleString()}
                 </button>

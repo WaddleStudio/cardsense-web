@@ -82,6 +82,7 @@ export function CardsPage() {
           <div className="relative flex-1 min-w-0">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
             <Input
+              type="search"
               placeholder="搜尋卡片名稱或銀行..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -118,7 +119,7 @@ export function CardsPage() {
         >
           <button
             className={cn(
-              'min-h-[36px] shrink-0 rounded-full border px-3 text-xs font-medium transition-colors cursor-pointer',
+              'min-h-[44px] shrink-0 rounded-full border px-3 text-xs font-medium focus-visible:outline-2 focus-visible:outline-primary transition-colors cursor-pointer',
               bankFilter === ''
                 ? 'bg-primary text-primary-foreground border-primary'
                 : 'border-border text-muted-foreground hover:border-primary/40 hover:text-foreground',
@@ -131,7 +132,7 @@ export function CardsPage() {
             <button
               key={b.code}
               className={cn(
-                'min-h-[36px] shrink-0 rounded-full border px-3 text-xs font-medium transition-colors cursor-pointer',
+                'min-h-[44px] shrink-0 rounded-full border px-3 text-xs font-medium focus-visible:outline-2 focus-visible:outline-primary transition-colors cursor-pointer',
                 bankFilter === b.code
                   ? 'bg-primary text-primary-foreground border-primary'
                   : 'border-border text-muted-foreground hover:border-primary/40 hover:text-foreground',
