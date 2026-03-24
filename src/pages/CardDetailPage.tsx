@@ -91,12 +91,12 @@ export function CardDetailPage() {
       <Card className="shadow-sm">
         <CardHeader>
           <div className="flex items-start justify-between gap-4">
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 min-w-0">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground">
                 <CreditCard className="h-5 w-5" />
               </div>
-              <div>
-                <CardTitle className="text-lg">{card.cardName}</CardTitle>
+              <div className="min-w-0">
+                <CardTitle className="text-lg leading-tight">{card.cardName}</CardTitle>
                 <p className="text-sm text-muted-foreground mt-0.5">{card.bankName}</p>
               </div>
             </div>

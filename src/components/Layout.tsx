@@ -23,7 +23,7 @@ export function Layout() {
           {/* Logo */}
           <Link
             to="/"
-            className="flex items-center gap-2 font-semibold text-base tracking-tight hover:opacity-80 transition-opacity"
+            className="flex shrink-0 items-center gap-2 font-semibold text-base tracking-tight hover:opacity-80 transition-opacity"
           >
             <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary">
               <CreditCard className="h-4 w-4 text-primary-foreground" />
