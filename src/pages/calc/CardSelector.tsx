@@ -9,9 +9,10 @@ interface CardSelectorProps {
   selected: string[]
   onChange: (codes: string[]) => void
   error?: string
+  isUpdating?: boolean
 }
 
-export function CardSelector({ selected, onChange, error }: CardSelectorProps) {
+export function CardSelector({ selected, onChange, error, isUpdating }: CardSelectorProps) {
   const [search, setSearch] = useState('')
   const { data: cards, isLoading } = useCards()
 
@@ -45,7 +46,13 @@ export function CardSelector({ selected, onChange, error }: CardSelectorProps) {
     <div className="space-y-2">
       <div className="flex items-center justify-between">
         <label className="text-sm font-medium">持有卡片</label>
-        <span className="text-xs text-muted-foreground">已選 {selected.length} 張</span>
+        <span className="text-xs text-muted-foreground">
+          {isUpdating ? (
+            <span className="animate-pulse">依類別推薦中...</span>
+          ) : (
+            `已選 ${selected.length} 張`
+          )}
+        </span>
       </div>
 
       <div className="relative">

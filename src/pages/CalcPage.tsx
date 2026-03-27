@@ -10,7 +10,9 @@ import { ResultPanel } from './calc/ResultPanel'
 
 const DEFAULT_AMOUNT = '1200'
 const DEFAULT_CATEGORY: Category = 'DINING'
-const DEFAULT_CARD_COUNT = 4
+// Amount used purely for auto-selecting popular cards per category
+const AUTO_SELECT_AMOUNT = 1200
+const AUTO_SELECT_COUNT = 6
 
 export function CalcPage() {
   const [amount, setAmount] = useState(DEFAULT_AMOUNT)
@@ -19,18 +21,43 @@ export function CalcPage() {
   const [selectedCards, setSelectedCards] = useState<string[]>([])
   const [cardSelectorError, setCardSelectorError] = useState<string | undefined>()
   const resultRef = useRef<HTMLDivElement>(null)
-  const initialized = useRef(false)
+  const cardsReadyRef = useRef(false)
 
   const { data: cards } = useCards()
+  // Main mutation: user-triggered, result shown on right panel
   const { mutate: getRecommendation, data: result, isPending } = useRecommendation()
+  // Secondary mutation: category-change-triggered, only used to update selectedCards
+  const { mutate: autoSelectCards, isPending: isAutoSelecting } = useRecommendation()
 
-  // Pre-select first N cards once loaded
+  // When cards load or category changes: auto-select popular cards via API ranking
   useEffect(() => {
-    if (cards && cards.length > 0 && !initialized.current) {
-      initialized.current = true
-      setSelectedCards(cards.slice(0, DEFAULT_CARD_COUNT).map((c) => c.cardCode))
-    }
-  }, [cards])
+    if (!cards || cards.length === 0) return
+    cardsReadyRef.current = true
+
+    autoSelectCards(
+      {
+        amount: AUTO_SELECT_AMOUNT,
+        category,
+        cardCodes: cards.map((c) => c.cardCode),
+        comparison: {
+          mode: 'BEST_SINGLE_PROMOTION',
+          includePromotionBreakdown: false,
+          maxResults: AUTO_SELECT_COUNT,
+        },
+      },
+      {
+        onSuccess: (res) => {
+          const topCodes = res.recommendations
+            .filter((r) => r.cardCode)
+            .slice(0, AUTO_SELECT_COUNT)
+            .map((r) => r.cardCode!)
+          // Only update if we got results; otherwise keep current selection
+          if (topCodes.length >= 2) setSelectedCards(topCodes)
+        },
+      },
+    )
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cards, category])
 
   const amountNum = parseInt(amount, 10)
   const amountError =
@@ -99,9 +126,10 @@ export function CalcPage() {
               setCardSelectorError(undefined)
             }}
             error={cardSelectorError}
+            isUpdating={isAutoSelecting}
           />
 
-          <Button className="w-full gap-2" onClick={handleSubmit} disabled={isPending}>
+          <Button className="w-full gap-2" onClick={handleSubmit} disabled={isPending || isAutoSelecting}>
             <Calculator className="h-4 w-4" />
             {isPending ? '計算中...' : '算出我的損失'}
           </Button>
