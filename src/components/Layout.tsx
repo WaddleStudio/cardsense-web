@@ -1,5 +1,5 @@
 import { Link, Outlet, useLocation } from 'react-router-dom'
-import { CreditCard, LayoutGrid, Sparkles, Sun, Moon, Wifi, WifiOff } from 'lucide-react'
+import { Calculator, CreditCard, LayoutGrid, Sparkles, Sun, Moon, Wifi, WifiOff } from 'lucide-react'
 import { useHealth } from '@/api'
 import { useDarkMode } from '@/hooks/use-dark-mode'
 import { Button } from '@/components/ui/button'
@@ -8,6 +8,7 @@ import { cn } from '@/lib/utils'
 const NAV_ITEMS = [
   { to: '/', label: '推薦', icon: Sparkles },
   { to: '/cards', label: '卡片目錄', icon: LayoutGrid },
+  { to: '/calc', label: '計算機', icon: Calculator },
 ] as const
 
 export function Layout() {
