@@ -6,9 +6,9 @@ import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
 const NAV_ITEMS = [
-  { to: '/', label: '推薦', icon: Sparkles },
+  { to: '/', label: '計算機', icon: Calculator },
+  { to: '/recommend', label: '推薦', icon: Sparkles },
   { to: '/cards', label: '卡片目錄', icon: LayoutGrid },
-  { to: '/calc', label: '計算機', icon: Calculator },
 ] as const
 
 export function Layout() {

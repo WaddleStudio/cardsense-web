@@ -21,10 +21,10 @@ export default function App() {
       <BrowserRouter>
         <Routes>
           <Route element={<Layout />}>
-            <Route index element={<HomePage />} />
+            <Route index element={<CalcPage />} />
+            <Route path="recommend" element={<HomePage />} />
             <Route path="cards" element={<CardsPage />} />
             <Route path="cards/:cardCode" element={<CardDetailPage />} />
-            <Route path="calc" element={<CalcPage />} />
           </Route>
         </Routes>
       </BrowserRouter>

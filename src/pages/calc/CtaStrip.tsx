@@ -15,7 +15,7 @@ export function CtaStrip({ amount, category }: CtaStripProps) {
     <div className="flex flex-col sm:flex-row gap-2">
       <Button
         className="flex-1 gap-2"
-        onClick={() => navigate(`/?amount=${amount}&category=${category}`)}
+        onClick={() => navigate(`/recommend?amount=${amount}&category=${category}`)}
       >
         查看完整推薦細節
         <ArrowRight className="h-4 w-4" />
