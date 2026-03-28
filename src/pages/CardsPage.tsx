@@ -10,7 +10,16 @@ import { Separator } from '@/components/ui/separator'
 import { CreditCard, Search, X, ExternalLink, AlertCircle, RotateCcw } from 'lucide-react'
 import { useDebouncedValue } from '@/hooks/use-debounce'
 import { cn } from '@/lib/utils'
-import type { CardSummary } from '@/types'
+import {
+  CATEGORIES,
+  CATEGORY_LABELS,
+  ELIGIBILITY_TYPES,
+  ELIGIBILITY_TYPE_LABELS,
+  ANNUAL_FEE_RANGES,
+  ANNUAL_FEE_RANGE_LABELS,
+  RECOMMENDATION_SCOPES,
+} from '@/types'
+import type { CardSummary, Category, EligibilityType, AnnualFeeRange, RecommendationScope } from '@/types'
 
 const SCOPE_LABELS: Record<string, string> = {
   RECOMMENDABLE: '可推薦',
@@ -22,6 +31,10 @@ type SortKey = 'name' | 'annualFee' | 'bank'
 
 export function CardsPage() {
   const [bankFilter, setBankFilter] = useState<string>('')
+  const [eligibilityFilter, setEligibilityFilter] = useState<EligibilityType | ''>('')
+  const [categoryFilter, setCategoryFilter] = useState<Category | ''>('')
+  const [feeRangeFilter, setFeeRangeFilter] = useState<AnnualFeeRange | ''>('')
+  const [scopeFilter, setScopeFilter] = useState<RecommendationScope | ''>('')
   const [search, setSearch] = useState('')
   const [sort, setSort] = useState<SortKey>('name')
   const { data: banks } = useBanks()
@@ -43,6 +56,25 @@ export function CardsPage() {
           c.bankName.toLowerCase().includes(q),
       )
     }
+    if (eligibilityFilter) {
+      result = result.filter((c) => (c.eligibilityType || 'GENERAL') === eligibilityFilter)
+    }
+    if (categoryFilter) {
+      result = result.filter((c) => c.availableCategories?.includes(categoryFilter))
+    }
+    if (feeRangeFilter) {
+      result = result.filter((c) => {
+        const fee = c.annualFee ?? 0
+        switch (feeRangeFilter) {
+          case 'FREE': return fee === 0
+          case 'LOW': return fee >= 1 && fee <= 999
+          case 'HIGH': return fee >= 1000
+        }
+      })
+    }
+    if (scopeFilter) {
+      result = result.filter((c) => c.recommendationScopes.includes(scopeFilter))
+    }
     result = [...result].sort((a, b) => {
       switch (sort) {
         case 'name':
@@ -54,7 +86,7 @@ export function CardsPage() {
       }
     })
     return result
-  }, [cards, bankFilter, debouncedSearch, sort])
+  }, [cards, bankFilter, debouncedSearch, eligibilityFilter, categoryFilter, feeRangeFilter, scopeFilter, sort])
 
   const bankCounts = useMemo(() => {
     if (!cards) return {}
@@ -144,6 +176,134 @@ export function CardsPage() {
             </button>
           ))}
         </div>
+
+        {/* Eligibility type filter */}
+        <div className="space-y-1.5">
+          <p className="text-xs font-medium text-muted-foreground">資格類型</p>
+          <div className="flex gap-2 flex-wrap" role="group" aria-label="依資格類型篩選">
+            <button
+              className={cn(
+                'min-h-[36px] shrink-0 rounded-full border px-3 text-xs font-medium focus-visible:outline-2 focus-visible:outline-primary transition-colors cursor-pointer',
+                eligibilityFilter === ''
+                  ? 'bg-primary text-primary-foreground border-primary'
+                  : 'border-border text-muted-foreground hover:border-primary/40 hover:text-foreground',
+              )}
+              onClick={() => setEligibilityFilter('')}
+            >
+              全部
+            </button>
+            {ELIGIBILITY_TYPES.map((t) => (
+              <button
+                key={t}
+                className={cn(
+                  'min-h-[36px] shrink-0 rounded-full border px-3 text-xs font-medium focus-visible:outline-2 focus-visible:outline-primary transition-colors cursor-pointer',
+                  eligibilityFilter === t
+                    ? 'bg-primary text-primary-foreground border-primary'
+                    : 'border-border text-muted-foreground hover:border-primary/40 hover:text-foreground',
+                )}
+                onClick={() => setEligibilityFilter(eligibilityFilter === t ? '' : t)}
+              >
+                {ELIGIBILITY_TYPE_LABELS[t]}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Category filter */}
+        <div className="space-y-1.5">
+          <p className="text-xs font-medium text-muted-foreground">優惠類別</p>
+          <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide sm:flex-wrap sm:overflow-x-visible sm:pb-0" role="group" aria-label="依優惠類別篩選">
+            <button
+              className={cn(
+                'min-h-[36px] shrink-0 rounded-full border px-3 text-xs font-medium focus-visible:outline-2 focus-visible:outline-primary transition-colors cursor-pointer',
+                categoryFilter === ''
+                  ? 'bg-primary text-primary-foreground border-primary'
+                  : 'border-border text-muted-foreground hover:border-primary/40 hover:text-foreground',
+              )}
+              onClick={() => setCategoryFilter('')}
+            >
+              全部
+            </button>
+            {CATEGORIES.map((c) => (
+              <button
+                key={c}
+                className={cn(
+                  'min-h-[36px] shrink-0 rounded-full border px-3 text-xs font-medium focus-visible:outline-2 focus-visible:outline-primary transition-colors cursor-pointer',
+                  categoryFilter === c
+                    ? 'bg-primary text-primary-foreground border-primary'
+                    : 'border-border text-muted-foreground hover:border-primary/40 hover:text-foreground',
+                )}
+                onClick={() => setCategoryFilter(categoryFilter === c ? '' : c)}
+              >
+                {CATEGORY_LABELS[c]}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Annual fee range filter */}
+        <div className="space-y-1.5">
+          <p className="text-xs font-medium text-muted-foreground">年費區間</p>
+          <div className="flex gap-2 flex-wrap" role="group" aria-label="依年費區間篩選">
+            <button
+              className={cn(
+                'min-h-[36px] shrink-0 rounded-full border px-3 text-xs font-medium focus-visible:outline-2 focus-visible:outline-primary transition-colors cursor-pointer',
+                feeRangeFilter === ''
+                  ? 'bg-primary text-primary-foreground border-primary'
+                  : 'border-border text-muted-foreground hover:border-primary/40 hover:text-foreground',
+              )}
+              onClick={() => setFeeRangeFilter('')}
+            >
+              全部
+            </button>
+            {ANNUAL_FEE_RANGES.map((r) => (
+              <button
+                key={r}
+                className={cn(
+                  'min-h-[36px] shrink-0 rounded-full border px-3 text-xs font-medium focus-visible:outline-2 focus-visible:outline-primary transition-colors cursor-pointer',
+                  feeRangeFilter === r
+                    ? 'bg-primary text-primary-foreground border-primary'
+                    : 'border-border text-muted-foreground hover:border-primary/40 hover:text-foreground',
+                )}
+                onClick={() => setFeeRangeFilter(feeRangeFilter === r ? '' : r)}
+              >
+                {ANNUAL_FEE_RANGE_LABELS[r]}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Recommendation scope filter */}
+        <div className="space-y-1.5">
+          <p className="text-xs font-medium text-muted-foreground">推薦範圍</p>
+          <div className="flex gap-2 flex-wrap" role="group" aria-label="依推薦範圍篩選">
+            <button
+              className={cn(
+                'min-h-[36px] shrink-0 rounded-full border px-3 text-xs font-medium focus-visible:outline-2 focus-visible:outline-primary transition-colors cursor-pointer',
+                scopeFilter === ''
+                  ? 'bg-primary text-primary-foreground border-primary'
+                  : 'border-border text-muted-foreground hover:border-primary/40 hover:text-foreground',
+              )}
+              onClick={() => setScopeFilter('')}
+            >
+              全部
+            </button>
+            {RECOMMENDATION_SCOPES.filter((s) => s !== 'FUTURE_SCOPE').map((s) => (
+              <button
+                key={s}
+                className={cn(
+                  'min-h-[36px] shrink-0 rounded-full border px-3 text-xs font-medium focus-visible:outline-2 focus-visible:outline-primary transition-colors cursor-pointer',
+                  scopeFilter === s
+                    ? 'bg-primary text-primary-foreground border-primary'
+                    : 'border-border text-muted-foreground hover:border-primary/40 hover:text-foreground',
+                )}
+                onClick={() => setScopeFilter(scopeFilter === s ? '' : s)}
+              >
+                {SCOPE_LABELS[s] ?? s}
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
 
       <Separator />
@@ -209,7 +369,7 @@ export function CardsPage() {
       )}
 
       {/* Results count */}
-      {!isLoading && filteredCards.length > 0 && (bankFilter || debouncedSearch) && (
+      {!isLoading && filteredCards.length > 0 && (bankFilter || debouncedSearch || eligibilityFilter || categoryFilter || feeRangeFilter || scopeFilter) && (
         <p className="text-xs text-muted-foreground tabular-nums">
           顯示 {filteredCards.length} 張卡片
         </p>
