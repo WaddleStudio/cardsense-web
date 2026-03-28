@@ -1,11 +1,14 @@
+import { useMemo } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
-import { useCard } from '@/api'
+import { useCard, useCardPromotions } from '@/api'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
-import { CreditCard, ArrowLeft, ExternalLink, Search, AlertCircle, RotateCcw } from 'lucide-react'
+import { CreditCard, ArrowLeft, ExternalLink, Search, AlertCircle, RotateCcw, AlertTriangle } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { CATEGORY_LABELS } from '@/types'
+import type { CardPromotion, Category } from '@/types'
 
 const SCOPE_LABELS: Record<string, string> = {
   RECOMMENDABLE: '可推薦',
@@ -17,6 +20,18 @@ export function CardDetailPage() {
   const { cardCode } = useParams<{ cardCode: string }>()
   const navigate = useNavigate()
   const { data: card, isLoading, error, refetch } = useCard(cardCode!)
+  const { data: promotions } = useCardPromotions(cardCode!)
+
+  const groupedPromotions = useMemo(() => {
+    if (!promotions) return {}
+    const groups: Record<string, CardPromotion[]> = {}
+    for (const p of promotions) {
+      const cat = p.category || 'OTHER'
+      if (!groups[cat]) groups[cat] = []
+      groups[cat].push(p)
+    }
+    return groups
+  }, [promotions])
 
   if (isLoading) {
     return (
@@ -163,6 +178,100 @@ export function CardDetailPage() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Promotions */}
+      {promotions && promotions.length > 0 && (
+        <Card className="shadow-sm">
+          <CardHeader>
+            <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
+              優惠資訊
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {Object.entries(groupedPromotions).map(([cat, promos]) => (
+              <div key={cat}>
+                <p className="text-sm font-semibold mb-3">
+                  {CATEGORY_LABELS[cat as Category] ?? cat}
+                </p>
+                <div className="space-y-3">
+                  {promos.map((p) => (
+                    <PromotionItem key={p.promoVersionId} promotion={p} />
+                  ))}
+                </div>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      )}
+    </div>
+  )
+}
+
+function PromotionItem({ promotion }: { promotion: CardPromotion }) {
+  const isMutuallyExclusive = promotion.stackability?.relationshipMode === 'MUTUALLY_EXCLUSIVE'
+  const cashbackDisplay = promotion.cashbackType === 'FIXED'
+    ? `NT$ ${promotion.cashbackValue}`
+    : `${promotion.cashbackValue}%`
+
+  const modeHint = promotion.conditions?.find(
+    (c) => c.type === 'TEXT' && c.value?.includes('切換'),
+  )
+
+  return (
+    <div className="rounded-lg border p-3 space-y-2 text-sm">
+      <div className="flex items-start justify-between gap-2">
+        <p className="font-medium leading-tight">{promotion.title ?? cashbackDisplay}</p>
+        <span className={cn(
+          'shrink-0 font-semibold tabular-nums',
+          'text-reward',
+        )}>
+          {cashbackDisplay}
+        </span>
+      </div>
+
+      {/* Validity */}
+      {(promotion.validFrom || promotion.validUntil) && (
+        <p className="text-xs text-muted-foreground">
+          {promotion.validFrom ?? '—'} ~ {promotion.validUntil ?? '—'}
+        </p>
+      )}
+
+      {/* Conditions */}
+      <div className="flex flex-wrap gap-1.5">
+        {promotion.minAmount != null && promotion.minAmount > 0 && (
+          <Badge variant="outline" className="text-xs rounded-full">
+            最低消費 {promotion.minAmount} 元
+          </Badge>
+        )}
+        {promotion.maxCashback != null && (
+          <Badge variant="outline" className="text-xs rounded-full">
+            封頂 {promotion.maxCashback} 元
+          </Badge>
+        )}
+        {promotion.requiresRegistration && (
+          <Badge variant="outline" className="text-xs rounded-full">
+            需登錄
+          </Badge>
+        )}
+        {promotion.frequencyLimit && promotion.frequencyLimit !== 'NONE' && (
+          <Badge variant="outline" className="text-xs rounded-full">
+            {promotion.frequencyLimit}
+          </Badge>
+        )}
+        {promotion.conditions?.filter((c) => c.type !== 'TEXT').map((c, i) => (
+          <Badge key={i} variant="outline" className="text-xs rounded-full">
+            {c.label || `${c.type}: ${c.value}`}
+          </Badge>
+        ))}
+      </div>
+
+      {/* Mutually exclusive warning */}
+      {isMutuallyExclusive && (
+        <div className="flex items-center gap-1.5 text-xs text-amber-600 dark:text-amber-400">
+          <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
+          <span>{modeHint?.label || modeHint?.value || '需切換權益模式'}</span>
+        </div>
+      )}
     </div>
   )
 }

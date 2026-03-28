@@ -3,6 +3,7 @@ import { useQuery, useMutation } from '@tanstack/react-query'
 import { get, post } from './client'
 import type {
   BankSummary,
+  CardPromotion,
   CardSummary,
   HealthResponse,
   RecommendationRequest,
@@ -44,6 +45,14 @@ export function useCard(cardCode: string) {
     [cards, cardCode],
   )
   return { data: card, isLoading, error, refetch }
+}
+
+export function useCardPromotions(cardCode: string) {
+  return useQuery({
+    queryKey: ['cards', cardCode, 'promotions'],
+    queryFn: () => get<CardPromotion[]>(`/v1/cards/${cardCode}/promotions`),
+    enabled: !!cardCode,
+  })
 }
 
 export function useRecommendation() {
