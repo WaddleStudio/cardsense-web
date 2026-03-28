@@ -5,17 +5,14 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
-import { Loader2, Search, HelpCircle, X, AlertCircle, RotateCcw } from 'lucide-react'
+import { Loader2, Search, X, AlertCircle, RotateCcw } from 'lucide-react'
 import {
   CATEGORIES,
   CATEGORY_LABELS,
   CHANNELS,
   CHANNEL_LABELS,
-  COMPARISON_MODES,
-  COMPARISON_MODE_LABELS,
 } from '@/types'
-import type { RecommendationResponse, Category, Channel, ComparisonMode } from '@/types'
+import type { RecommendationResponse, Category, Channel } from '@/types'
 
 const QUICK_AMOUNTS = [500, 1000, 3000, 5000]
 
@@ -29,7 +26,6 @@ export function RecommendationForm({ onResult, prefillCard }: Props) {
   const [amountTouched, setAmountTouched] = useState(false)
   const [category, setCategory] = useState<Category | ''>('')
   const [channel, setChannel] = useState<Channel | ''>('')
-  const [mode, setMode] = useState<ComparisonMode>('BEST_SINGLE_PROMOTION')
   const [selectedCard, setSelectedCard] = useState<string | undefined>(prefillCard)
 
   const mutation = useRecommendation()
@@ -50,9 +46,8 @@ export function RecommendationForm({ onResult, prefillCard }: Props) {
         ...(channel && { scenario: { channel: channel as Channel } }),
         ...(selectedCard && { cardCodes: [selectedCard] }),
         comparison: {
-          mode,
           includePromotionBreakdown: true,
-          includeBreakEvenAnalysis: mode === 'STACK_ALL_ELIGIBLE',
+          includeBreakEvenAnalysis: true,
           maxResults: 10,
         },
       },
@@ -160,44 +155,6 @@ export function RecommendationForm({ onResult, prefillCard }: Props) {
                 {CHANNELS.map((c) => (
                   <SelectItem key={c} value={c}>
                     {CHANNEL_LABELS[c]}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Comparison mode */}
-          <div className="space-y-2">
-            <div className="flex items-center gap-1.5">
-              <Label>比較模式</Label>
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <button
-                      type="button"
-                      className="cursor-help text-muted-foreground hover:text-foreground transition-colors"
-                      aria-label="比較模式說明"
-                    >
-                      <HelpCircle className="h-3.5 w-3.5" />
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent side="top" className="max-w-[260px] text-xs">
-                    <p className="font-semibold mb-1">最佳單一優惠</p>
-                    <p className="mb-2 text-muted-foreground">只考慮單筆最高回饋的優惠方案</p>
-                    <p className="font-semibold mb-1">所有可疊加優惠</p>
-                    <p className="text-muted-foreground">計算所有可同時適用的優惠總和回饋</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </div>
-            <Select value={mode} onValueChange={(v: string) => setMode(v as ComparisonMode)}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {COMPARISON_MODES.map((m) => (
-                  <SelectItem key={m} value={m}>
-                    {COMPARISON_MODE_LABELS[m]}
                   </SelectItem>
                 ))}
               </SelectContent>

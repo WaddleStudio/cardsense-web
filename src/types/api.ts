@@ -1,4 +1,4 @@
-import type { BankCode, CashbackType, Category, Channel, ComparisonMode } from './enums'
+import type { BankCode, CashbackType, Category, Channel } from './enums'
 
 // --- Bank ---
 
@@ -19,6 +19,8 @@ export interface CardSummary {
   bankCode: BankCode
   bankName: string
   recommendationScopes: string[]
+  eligibilityType: string
+  availableCategories: string[]
 }
 
 // --- Recommendation Request ---
@@ -46,7 +48,6 @@ export interface RecommendationScenario {
 }
 
 export interface RecommendationComparisonOptions {
-  mode?: ComparisonMode
   includePromotionBreakdown?: boolean
   includeBreakEvenAnalysis?: boolean
   maxResults?: number
@@ -101,7 +102,7 @@ export interface BreakEvenAnalysis {
 }
 
 export interface RecommendationComparisonSummary {
-  mode: ComparisonMode
+  mode: string
   evaluatedPromotionCount: number
   eligiblePromotionCount: number
   rankedCardCount: number
@@ -119,7 +120,6 @@ export interface CardRecommendation {
   cashbackValue: number
   estimatedReturn: number
   matchedPromotionCount: number
-  rankingMode: ComparisonMode
   reason: string
   promotionId: string | null
   promoVersionId: string | null
@@ -136,6 +136,29 @@ export interface RecommendationResponse {
   recommendations: CardRecommendation[]
   generatedAt: string
   disclaimer: string
+}
+
+// --- Card Promotions ---
+
+export interface CardPromotion {
+  promoId: string
+  promoVersionId: string
+  title: string | null
+  category: string
+  channel: string | null
+  cashbackType: CashbackType
+  cashbackValue: number
+  minAmount: number | null
+  maxCashback: number | null
+  validFrom: string | null
+  validUntil: string | null
+  frequencyLimit: string | null
+  requiresRegistration: boolean
+  conditions: PromotionCondition[]
+  stackability: {
+    relationshipMode: string | null
+    groupId: string | null
+  } | null
 }
 
 // --- Health ---

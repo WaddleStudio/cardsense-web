@@ -33,13 +33,23 @@ export const CHANNEL_LABELS: Record<Channel, string> = {
 export const CASHBACK_TYPES = ['PERCENT', 'FIXED', 'POINTS'] as const
 export type CashbackType = (typeof CASHBACK_TYPES)[number]
 
-export const COMPARISON_MODES = ['BEST_SINGLE_PROMOTION', 'STACK_ALL_ELIGIBLE'] as const
-export type ComparisonMode = (typeof COMPARISON_MODES)[number]
-
-export const COMPARISON_MODE_LABELS: Record<ComparisonMode, string> = {
-  BEST_SINGLE_PROMOTION: '最佳單一優惠',
-  STACK_ALL_ELIGIBLE: '所有可疊加優惠',
-}
-
 export const RECOMMENDATION_SCOPES = ['RECOMMENDABLE', 'CATALOG_ONLY', 'FUTURE_SCOPE'] as const
 export type RecommendationScope = (typeof RECOMMENDATION_SCOPES)[number]
+
+export const ELIGIBILITY_TYPES = ['GENERAL', 'PROFESSION_SPECIFIC', 'BUSINESS'] as const
+export type EligibilityType = (typeof ELIGIBILITY_TYPES)[number]
+
+export const ELIGIBILITY_TYPE_LABELS: Record<EligibilityType, string> = {
+  GENERAL: '一般',
+  PROFESSION_SPECIFIC: '職業限定',
+  BUSINESS: '商務卡',
+}
+
+export const ANNUAL_FEE_RANGES = ['FREE', 'LOW', 'HIGH'] as const
+export type AnnualFeeRange = (typeof ANNUAL_FEE_RANGES)[number]
+
+export const ANNUAL_FEE_RANGE_LABELS: Record<AnnualFeeRange, string> = {
+  FREE: '免年費',
+  LOW: '低年費 (1-999)',
+  HIGH: '高年費 (1000+)',
+}
