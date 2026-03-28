@@ -4,6 +4,7 @@ import { Layout } from '@/components/Layout'
 import { HomePage } from '@/pages/HomePage'
 import { CardsPage } from '@/pages/CardsPage'
 import { CardDetailPage } from '@/pages/CardDetailPage'
+import { CalcPage } from '@/pages/CalcPage'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -20,7 +21,8 @@ export default function App() {
       <BrowserRouter>
         <Routes>
           <Route element={<Layout />}>
-            <Route index element={<HomePage />} />
+            <Route index element={<CalcPage />} />
+            <Route path="recommend" element={<HomePage />} />
             <Route path="cards" element={<CardsPage />} />
             <Route path="cards/:cardCode" element={<CardDetailPage />} />
           </Route>
