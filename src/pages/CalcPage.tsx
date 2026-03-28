@@ -40,7 +40,6 @@ export function CalcPage() {
         category,
         cardCodes: cards.map((c) => c.cardCode),
         comparison: {
-          mode: 'BEST_SINGLE_PROMOTION',
           includePromotionBreakdown: false,
           maxResults: AUTO_SELECT_COUNT,
         },
@@ -80,7 +79,6 @@ export function CalcPage() {
         category,
         cardCodes: selectedCards,
         comparison: {
-          mode: 'BEST_SINGLE_PROMOTION',
           includePromotionBreakdown: false,
           maxResults: 10,
         },
