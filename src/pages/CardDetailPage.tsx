@@ -211,7 +211,9 @@ function PromotionItem({ promotion }: { promotion: CardPromotion }) {
   const isMutuallyExclusive = promotion.stackability?.relationshipMode === 'MUTUALLY_EXCLUSIVE'
   const cashbackDisplay = promotion.cashbackType === 'FIXED'
     ? `NT$ ${promotion.cashbackValue}`
-    : `${promotion.cashbackValue}%`
+    : promotion.cashbackType === 'POINTS'
+      ? `${promotion.cashbackValue} 點`
+      : `${promotion.cashbackValue}%`
 
   const modeHint = promotion.conditions?.find(
     (c) => c.type === 'TEXT' && c.value?.includes('切換'),
