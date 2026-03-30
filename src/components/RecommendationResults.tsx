@@ -17,7 +17,7 @@ import {
   ArrowLeftRight,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import type { BreakEvenAnalysis, CardRecommendation, RecommendationResponse } from '@/types'
+import type { ActivePlan, BreakEvenAnalysis, CardRecommendation, RecommendationResponse } from '@/types'
 
 interface Props {
   result: RecommendationResponse | null
@@ -159,6 +159,7 @@ function TopPickCard({ rec }: { rec: CardRecommendation }) {
 
         {/* Conditions */}
         <ConditionBadges rec={rec} />
+        <PlanSwitchBadge rec={rec} />
 
         {/* Promotion breakdown */}
         <PromotionBreakdown rec={rec} expanded={expanded} onToggle={() => setExpanded(!expanded)} />
@@ -197,6 +198,7 @@ function RunnerUpCard({ rec, rank }: { rec: CardRecommendation; rank: number }) 
 
         <p className="text-sm text-muted-foreground">{rec.reason}</p>
         <ConditionBadges rec={rec} />
+        <PlanSwitchBadge rec={rec} />
         <PromotionBreakdown rec={rec} expanded={expanded} onToggle={() => setExpanded(!expanded)} />
         <ApplyLink url={rec.applyUrl} />
       </CardContent>
@@ -246,6 +248,25 @@ function ConditionBadges({ rec }: { rec: CardRecommendation }) {
           有效至 {rec.validUntil}
         </Badge>
       )}
+    </div>
+  )
+}
+
+/** Plan switching prompt */
+function PlanSwitchBadge({ rec }: { rec: CardRecommendation }) {
+  if (!rec.activePlan) return null
+
+  return (
+    <div className="flex items-start gap-2 rounded-lg border border-primary/20 bg-primary/5 px-3 py-2.5">
+      <Info className="h-4 w-4 mt-0.5 shrink-0 text-primary" />
+      <div className="text-xs space-y-0.5">
+        <p className="font-medium text-foreground">
+          需切換至「{rec.activePlan.planName}」方案
+        </p>
+        <p className="text-muted-foreground">
+          {rec.activePlan.switchFrequency}
+        </p>
+      </div>
     </div>
   )
 }

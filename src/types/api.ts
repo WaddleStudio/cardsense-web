@@ -74,6 +74,13 @@ export interface PromotionCondition {
   label: string
 }
 
+export interface ActivePlan {
+  planId: string
+  planName: string
+  switchRequired: boolean
+  switchFrequency: string
+}
+
 export interface PromotionRewardBreakdown {
   promotionId: string
   promoVersionId: string
@@ -127,6 +134,7 @@ export interface CardRecommendation {
   conditions: PromotionCondition[]
   promotionBreakdown: PromotionRewardBreakdown[]
   applyUrl: string | null
+  activePlan: ActivePlan | null
 }
 
 export interface RecommendationResponse {
