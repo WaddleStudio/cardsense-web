@@ -17,7 +17,7 @@ import {
   ArrowLeftRight,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import type { ActivePlan, BreakEvenAnalysis, CardRecommendation, RecommendationResponse } from '@/types'
+import type { BreakEvenAnalysis, CardRecommendation, RecommendationResponse } from '@/types'
 
 interface Props {
   result: RecommendationResponse | null
