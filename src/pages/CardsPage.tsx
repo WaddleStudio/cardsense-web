@@ -35,6 +35,7 @@ export function CardsPage() {
   const [categoryFilter, setCategoryFilter] = useState<Category | ''>('')
   const [feeRangeFilter, setFeeRangeFilter] = useState<AnnualFeeRange | ''>('')
   const [scopeFilter, setScopeFilter] = useState<RecommendationScope | ''>('')
+  const [benefitPlanFilter, setBenefitPlanFilter] = useState(false)
   const [search, setSearch] = useState('')
   const [sort, setSort] = useState<SortKey>('name')
   const { data: banks } = useBanks()
@@ -75,6 +76,9 @@ export function CardsPage() {
     if (scopeFilter) {
       result = result.filter((c) => c.recommendationScopes.includes(scopeFilter))
     }
+    if (benefitPlanFilter) {
+      result = result.filter((c) => c.hasBenefitPlans)
+    }
     result = [...result].sort((a, b) => {
       switch (sort) {
         case 'name':
@@ -86,7 +90,7 @@ export function CardsPage() {
       }
     })
     return result
-  }, [cards, bankFilter, debouncedSearch, eligibilityFilter, categoryFilter, feeRangeFilter, scopeFilter, sort])
+  }, [cards, bankFilter, debouncedSearch, eligibilityFilter, categoryFilter, feeRangeFilter, scopeFilter, benefitPlanFilter, sort])
 
   const bankCounts = useMemo(() => {
     if (!cards) return {}
@@ -273,6 +277,24 @@ export function CardsPage() {
           </div>
         </div>
 
+        {/* Benefit plan filter */}
+        <div className="space-y-1.5">
+          <p className="text-xs font-medium text-muted-foreground">卡片特性</p>
+          <div className="flex gap-2 flex-wrap" role="group" aria-label="依卡片特性篩選">
+            <button
+              className={cn(
+                'min-h-[36px] shrink-0 rounded-full border px-3 text-xs font-medium focus-visible:outline-2 focus-visible:outline-primary transition-colors cursor-pointer',
+                benefitPlanFilter
+                  ? 'bg-primary text-primary-foreground border-primary'
+                  : 'border-border text-muted-foreground hover:border-primary/40 hover:text-foreground',
+              )}
+              onClick={() => setBenefitPlanFilter(!benefitPlanFilter)}
+            >
+              可切換權益方案
+            </button>
+          </div>
+        </div>
+
         {/* Recommendation scope filter */}
         <div className="space-y-1.5">
           <p className="text-xs font-medium text-muted-foreground">推薦範圍</p>
@@ -369,7 +391,7 @@ export function CardsPage() {
       )}
 
       {/* Results count */}
-      {!isLoading && filteredCards.length > 0 && (bankFilter || debouncedSearch || eligibilityFilter || categoryFilter || feeRangeFilter || scopeFilter) && (
+      {!isLoading && filteredCards.length > 0 && (bankFilter || debouncedSearch || eligibilityFilter || categoryFilter || feeRangeFilter || scopeFilter || benefitPlanFilter) && (
         <p className="text-xs text-muted-foreground tabular-nums">
           顯示 {filteredCards.length} 張卡片
         </p>

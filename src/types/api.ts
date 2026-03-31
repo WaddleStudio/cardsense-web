@@ -21,6 +21,7 @@ export interface CardSummary {
   recommendationScopes: string[]
   eligibilityType: string
   availableCategories: string[]
+  hasBenefitPlans: boolean
 }
 
 // --- Recommendation Request ---
