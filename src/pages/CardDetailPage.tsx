@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
-import { CreditCard, ArrowLeft, ExternalLink, Search, AlertCircle, RotateCcw, AlertTriangle, RefreshCw } from 'lucide-react'
+import { CreditCard, ArrowLeft, ExternalLink, Search, AlertCircle, RotateCcw, AlertTriangle, RefreshCw, Clock } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { CATEGORY_LABELS } from '@/types'
 import type { BenefitPlan, CardPromotion, Category } from '@/types'
@@ -302,11 +302,40 @@ const SWITCH_FREQ_LABELS: Record<string, string> = {
   UNLIMITED: '不限切換',
 }
 
+function isTimeLimitedPlan(plan: BenefitPlan): boolean {
+  if (!plan.validUntil) return false
+  const until = new Date(plan.validUntil)
+  const sixMonthsFromNow = new Date()
+  sixMonthsFromNow.setMonth(sixMonthsFromNow.getMonth() + 6)
+  return until < sixMonthsFromNow
+}
+
+function isPlanExpired(plan: BenefitPlan): boolean {
+  if (!plan.validUntil) return false
+  return new Date(plan.validUntil) < new Date()
+}
+
 function PlanItem({ plan }: { plan: BenefitPlan }) {
+  const expired = isPlanExpired(plan)
+  const timeLimited = isTimeLimitedPlan(plan)
+
   return (
-    <div className="rounded-lg border p-3 space-y-1.5 text-sm">
+    <div className={cn(
+      'rounded-lg border p-3 space-y-1.5 text-sm',
+      expired && 'opacity-50',
+    )}>
       <div className="flex items-start justify-between gap-2">
-        <p className="font-medium leading-tight">{plan.planName}</p>
+        <div className="flex items-center gap-1.5">
+          <p className="font-medium leading-tight">{plan.planName}</p>
+          {expired && (
+            <Badge variant="secondary" className="text-[10px] rounded-full px-1.5 py-0">已到期</Badge>
+          )}
+          {!expired && timeLimited && (
+            <Badge className="text-[10px] rounded-full px-1.5 py-0 bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 border-0">
+              <Clock className="h-2.5 w-2.5 mr-0.5" />限時
+            </Badge>
+          )}
+        </div>
         <div className="flex items-center gap-1 text-xs text-muted-foreground shrink-0">
           <RefreshCw className="h-3 w-3" />
           <span>{SWITCH_FREQ_LABELS[plan.switchFrequency] ?? plan.switchFrequency}</span>
@@ -317,13 +346,18 @@ function PlanItem({ plan }: { plan: BenefitPlan }) {
       )}
       <div className="flex flex-wrap gap-1.5">
         {plan.requiresSubscription && plan.subscriptionCost && (
-          <Badge variant="outline" className="text-xs rounded-full">
+          <Badge variant="outline" className="text-xs rounded-full text-amber-600 dark:text-amber-400 border-amber-300 dark:border-amber-700">
             訂閱費 {plan.subscriptionCost}
           </Badge>
         )}
         {plan.switchMaxPerMonth != null && (
           <Badge variant="outline" className="text-xs rounded-full">
             每月上限 {plan.switchMaxPerMonth} 次
+          </Badge>
+        )}
+        {plan.validFrom && plan.validUntil && (
+          <Badge variant="outline" className="text-xs rounded-full">
+            {plan.validFrom} ~ {plan.validUntil}
           </Badge>
         )}
       </div>

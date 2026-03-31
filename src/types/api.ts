@@ -80,6 +80,8 @@ export interface ActivePlan {
   planName: string
   switchRequired: boolean
   switchFrequency: string
+  requiresSubscription: boolean
+  subscriptionCost: string | null
 }
 
 export interface PromotionRewardBreakdown {

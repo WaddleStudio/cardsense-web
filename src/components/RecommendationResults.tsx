@@ -265,6 +265,11 @@ function PlanSwitchBadge({ rec }: { rec: CardRecommendation }) {
         </p>
         <p className="text-muted-foreground">
           {rec.activePlan.switchFrequency}
+          {rec.activePlan.requiresSubscription && rec.activePlan.subscriptionCost && (
+            <span className="ml-1.5 text-amber-600 dark:text-amber-400">
+              · 訂閱費 {rec.activePlan.subscriptionCost}
+            </span>
+          )}
         </p>
       </div>
     </div>
