@@ -169,6 +169,24 @@ export interface CardPromotion {
   } | null
 }
 
+// --- BenefitPlan ---
+
+export interface BenefitPlan {
+  planId: string
+  bankCode: string
+  cardCode: string
+  planName: string
+  planDescription: string
+  switchFrequency: string
+  switchMaxPerMonth: number | null
+  requiresSubscription: boolean
+  subscriptionCost: string | null
+  exclusiveGroup: string
+  status: string
+  validFrom: string
+  validUntil: string
+}
+
 // --- Health ---
 
 export interface HealthResponse {
