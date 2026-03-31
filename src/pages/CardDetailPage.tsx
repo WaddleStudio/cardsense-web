@@ -1,14 +1,14 @@
 import { useMemo } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
-import { useCard, useCardPromotions } from '@/api'
+import { useCard, useCardPromotions, useCardPlans } from '@/api'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
-import { CreditCard, ArrowLeft, ExternalLink, Search, AlertCircle, RotateCcw, AlertTriangle } from 'lucide-react'
+import { CreditCard, ArrowLeft, ExternalLink, Search, AlertCircle, RotateCcw, AlertTriangle, RefreshCw } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { CATEGORY_LABELS } from '@/types'
-import type { CardPromotion, Category } from '@/types'
+import type { BenefitPlan, CardPromotion, Category } from '@/types'
 
 const SCOPE_LABELS: Record<string, string> = {
   RECOMMENDABLE: '可推薦',
@@ -21,6 +21,7 @@ export function CardDetailPage() {
   const navigate = useNavigate()
   const { data: card, isLoading, error, refetch } = useCard(cardCode!)
   const { data: promotions } = useCardPromotions(cardCode!)
+  const { data: plans } = useCardPlans(cardCode!)
 
   const groupedPromotions = useMemo(() => {
     if (!promotions) return {}
@@ -156,6 +157,23 @@ export function CardDetailPage() {
             </div>
           </div>
 
+          {/* Benefit Plans */}
+          {plans && plans.length > 0 && (
+            <>
+              <Separator />
+              <div>
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2.5">
+                  方案切換
+                </p>
+                <div className="space-y-2">
+                  {plans.map((plan) => (
+                    <PlanItem key={plan.planId} plan={plan} />
+                  ))}
+                </div>
+              </div>
+            </>
+          )}
+
           <Separator />
 
           {/* Actions */}
@@ -274,6 +292,41 @@ function PromotionItem({ promotion }: { promotion: CardPromotion }) {
           <span>{modeHint?.label || modeHint?.value || '需切換權益模式'}</span>
         </div>
       )}
+    </div>
+  )
+}
+
+const SWITCH_FREQ_LABELS: Record<string, string> = {
+  DAILY: '每日可切換',
+  MONTHLY: '每月可切換',
+  UNLIMITED: '不限切換',
+}
+
+function PlanItem({ plan }: { plan: BenefitPlan }) {
+  return (
+    <div className="rounded-lg border p-3 space-y-1.5 text-sm">
+      <div className="flex items-start justify-between gap-2">
+        <p className="font-medium leading-tight">{plan.planName}</p>
+        <div className="flex items-center gap-1 text-xs text-muted-foreground shrink-0">
+          <RefreshCw className="h-3 w-3" />
+          <span>{SWITCH_FREQ_LABELS[plan.switchFrequency] ?? plan.switchFrequency}</span>
+        </div>
+      </div>
+      {plan.planDescription && (
+        <p className="text-xs text-muted-foreground">{plan.planDescription}</p>
+      )}
+      <div className="flex flex-wrap gap-1.5">
+        {plan.requiresSubscription && plan.subscriptionCost && (
+          <Badge variant="outline" className="text-xs rounded-full">
+            訂閱費 {plan.subscriptionCost}
+          </Badge>
+        )}
+        {plan.switchMaxPerMonth != null && (
+          <Badge variant="outline" className="text-xs rounded-full">
+            每月上限 {plan.switchMaxPerMonth} 次
+          </Badge>
+        )}
+      </div>
     </div>
   )
 }
