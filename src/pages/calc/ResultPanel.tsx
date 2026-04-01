@@ -35,9 +35,19 @@ export function ResultPanel({ recommendations, amount, category }: ResultPanelPr
   if (!result) return null
 
   const maxReturn = result.ranked[0].estimatedReturn
+  const hasAnomalousRate = result.ranked.some(
+    (rec) => amount > 0 && rec.estimatedReturn / amount > 0.2,
+  )
 
   return (
     <div className="space-y-4 animate-fade-slide-up">
+      {/* Anomaly warning */}
+      {hasAnomalousRate && (
+        <div className="rounded-xl border border-amber-400/60 bg-amber-50 dark:bg-amber-950/30 p-3 text-xs text-amber-800 dark:text-amber-300 leading-relaxed">
+          <span className="font-semibold">注意：</span>部分卡片的預估回饋率超過 20%，可能受限時活動、固定回饋或資料偏差影響，建議以銀行官網公告為準。
+        </div>
+      )}
+
       {/* Bar chart */}
       <div className="rounded-xl border bg-card p-4 shadow-sm">
         <h3 className="text-sm font-semibold mb-3">回饋排名</h3>
@@ -45,6 +55,7 @@ export function ResultPanel({ recommendations, amount, category }: ResultPanelPr
           {result.ranked.map((rec, i) => {
             const isFirst = i === 0
             const isLast = i === result.ranked.length - 1
+            const isAnomalous = amount > 0 && rec.estimatedReturn / amount > 0.2
             const pct = maxReturn > 0 ? Math.max(4, (rec.estimatedReturn / maxReturn) * 100) : 4
             const barColor = isFirst
               ? 'bg-reward'
@@ -78,6 +89,9 @@ export function ResultPanel({ recommendations, amount, category }: ResultPanelPr
                   )}
                 >
                   NT${rec.estimatedReturn.toLocaleString()}
+                  {isAnomalous && (
+                    <span className="ml-0.5 text-amber-500" title="回饋率超過 20%">⚠</span>
+                  )}
                 </div>
               </div>
             )
