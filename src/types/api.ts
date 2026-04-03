@@ -34,6 +34,7 @@ export interface BenefitUsage {
 export interface RecommendationScenario {
   amount?: number
   category?: Category
+  subcategory?: string
   date?: string
   location?: string
   channel?: Channel
@@ -58,6 +59,7 @@ export interface RecommendationComparisonOptions {
 export interface RecommendationRequest {
   amount?: number
   category?: Category
+  subcategory?: string
   cardCodes?: string[]
   registeredPromotionIds?: string[]
   benefitUsage?: BenefitUsage[]
@@ -126,6 +128,7 @@ export interface CardRecommendation {
   cardName: string
   bankCode: BankCode | null
   bankName: string
+  subcategory?: string
   cashbackType: CashbackType
   cashbackValue: number
   estimatedReturn: number

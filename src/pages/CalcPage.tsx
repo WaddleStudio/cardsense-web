@@ -5,6 +5,7 @@ import { useCards, useRecommendation } from '@/api'
 import type { Category } from '@/types'
 import { AmountInput } from './calc/AmountInput'
 import { CategoryGrid } from './calc/CategoryGrid'
+import { SubcategoryGrid } from './calc/SubcategoryGrid'
 import { CardSelector } from './calc/CardSelector'
 import { ResultPanel } from './calc/ResultPanel'
 
@@ -18,6 +19,7 @@ export function CalcPage() {
   const [amount, setAmount] = useState(DEFAULT_AMOUNT)
   const [amountTouched, setAmountTouched] = useState(false)
   const [category, setCategory] = useState<Category>(DEFAULT_CATEGORY)
+  const [subcategory, setSubcategory] = useState<string | null>(null)
   const [selectedCards, setSelectedCards] = useState<string[]>([])
   const [cardSelectorError, setCardSelectorError] = useState<string | undefined>()
   const resultRef = useRef<HTMLDivElement>(null)
@@ -38,6 +40,7 @@ export function CalcPage() {
       {
         amount: AUTO_SELECT_AMOUNT,
         category,
+        subcategory: subcategory ?? undefined,
         cardCodes: cards.map((c) => c.cardCode),
         comparison: {
           includePromotionBreakdown: false,
@@ -77,6 +80,7 @@ export function CalcPage() {
       {
         amount: amountNum,
         category,
+        subcategory: subcategory ?? undefined,
         cardCodes: selectedCards,
         comparison: {
           includePromotionBreakdown: false,
@@ -115,7 +119,9 @@ export function CalcPage() {
             error={amountError}
           />
 
-          <CategoryGrid value={category} onChange={setCategory} />
+          <CategoryGrid value={category} onChange={(c) => { setCategory(c); setSubcategory(null) }} />
+
+          <SubcategoryGrid category={category} value={subcategory} onChange={setSubcategory} />
 
           <CardSelector
             selected={selectedCards}

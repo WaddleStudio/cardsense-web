@@ -21,6 +21,35 @@ export const CATEGORY_LABELS: Record<Category, string> = {
   OTHER: '其他',
 }
 
+export const SUBCATEGORIES: Partial<Record<Category, { value: string; label: string }[]>> = {
+  ENTERTAINMENT: [
+    { value: 'MOVIE', label: '電影' },
+    { value: 'THEME_PARK', label: '遊樂園' },
+    { value: 'VENUE', label: 'KTV/娛樂' },
+    { value: 'STREAMING', label: '串流訂閱' },
+  ],
+  DINING: [
+    { value: 'DELIVERY', label: '外送' },
+    { value: 'RESTAURANT', label: '指定餐廳' },
+    { value: 'CAFE', label: '咖啡/飲料' },
+    { value: 'HOTEL_DINING', label: '飯店餐飲' },
+  ],
+  SHOPPING: [
+    { value: 'DEPARTMENT', label: '百貨' },
+    { value: 'WAREHOUSE', label: '量販' },
+    { value: 'ELECTRONICS', label: '3C家電' },
+  ],
+  ONLINE: [
+    { value: 'ECOMMERCE', label: '電商平台' },
+    { value: 'MOBILE_PAY', label: '行動支付' },
+    { value: 'SUBSCRIPTION', label: '訂閱服務' },
+  ],
+}
+
+export const SUBCATEGORY_LABELS: Record<string, string> = Object.fromEntries(
+  Object.values(SUBCATEGORIES).flatMap((subs) => subs?.map((s) => [s.value, s.label]) ?? []),
+)
+
 export const CHANNELS = ['ONLINE', 'OFFLINE', 'ALL'] as const
 export type Channel = (typeof CHANNELS)[number]
 

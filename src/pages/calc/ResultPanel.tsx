@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { cn } from '@/lib/utils'
-import { CATEGORY_LABELS } from '@/types'
+import { CATEGORY_LABELS, SUBCATEGORY_LABELS } from '@/types'
 import type { CardRecommendation, Category } from '@/types'
 import { AnnualLossBox } from './AnnualLossBox'
 import { ShareButton } from './ShareButton'
@@ -71,6 +71,9 @@ export function ResultPanel({ recommendations, amount, category }: ResultPanelPr
               >
                 <div className="w-28 shrink-0 truncate text-right text-muted-foreground leading-tight">
                   {rec.cardName}
+                  {rec.subcategory && rec.subcategory !== 'GENERAL' && SUBCATEGORY_LABELS[rec.subcategory] && (
+                    <span className="block text-[10px] text-muted-foreground/60">[{SUBCATEGORY_LABELS[rec.subcategory]}優惠]</span>
+                  )}
                 </div>
                 <div className="flex-1 bg-muted rounded-full h-5 overflow-hidden">
                   <div
