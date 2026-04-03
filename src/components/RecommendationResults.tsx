@@ -139,7 +139,7 @@ function ScenarioSummary({ result }: { result: RecommendationResponse }) {
       <p className="mt-2 text-xs text-muted-foreground leading-relaxed">
         {isGeneralScene
           ? '目前結果只比較這個母類別下的通用優惠，未納入特定子類別場景。'
-          : '目前結果只比較這個子類別場景，會納入相同子類別與通用優惠，不會混入其他場景。'}
+          : '目前結果只比較這個子類別場景，只有明確命中這個子類別的優惠會進入比較。'}
       </p>
     </div>
   )
@@ -156,6 +156,9 @@ function StatPill({ label, value }: { label: string; value: number }) {
 
 function TopPickCard({ rec }: { rec: CardRecommendation }) {
   const [expanded, setExpanded] = useState(false)
+  const subcategoryLabel = rec.subcategory && rec.subcategory !== 'GENERAL'
+    ? SUBCATEGORY_LABELS[rec.subcategory] ?? rec.subcategory
+    : null
 
   return (
     <Card className="relative overflow-hidden border-primary/30 shadow-md">
@@ -173,6 +176,11 @@ function TopPickCard({ rec }: { rec: CardRecommendation }) {
               </p>
               <p className="font-semibold text-sm leading-tight truncate">{rec.cardName}</p>
               <p className="text-xs text-muted-foreground">{rec.bankName}</p>
+              {subcategoryLabel && (
+                <Badge variant="outline" className="mt-1 rounded-full text-[10px]">
+                  {subcategoryLabel} 場景
+                </Badge>
+              )}
             </div>
           </div>
           <CashbackDisplay rec={rec} size="lg" />
@@ -191,6 +199,9 @@ function TopPickCard({ rec }: { rec: CardRecommendation }) {
 
 function RunnerUpCard({ rec, rank }: { rec: CardRecommendation; rank: number }) {
   const [expanded, setExpanded] = useState(false)
+  const subcategoryLabel = rec.subcategory && rec.subcategory !== 'GENERAL'
+    ? SUBCATEGORY_LABELS[rec.subcategory] ?? rec.subcategory
+    : null
 
   return (
     <Card className="overflow-hidden">
@@ -210,6 +221,11 @@ function RunnerUpCard({ rec, rank }: { rec: CardRecommendation; rank: number }) 
             <div className="min-w-0">
               <p className="text-sm font-medium leading-tight truncate">{rec.cardName}</p>
               <p className="text-xs text-muted-foreground">{rec.bankName}</p>
+              {subcategoryLabel && (
+                <Badge variant="outline" className="mt-1 rounded-full text-[10px]">
+                  {subcategoryLabel} 場景
+                </Badge>
+              )}
             </div>
           </div>
           <CashbackDisplay rec={rec} size="sm" />

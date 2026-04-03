@@ -59,7 +59,7 @@ export function CalcPage() {
       },
     )
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [cards, category])
+  }, [cards, category, subcategory])
 
   const amountNum = parseInt(amount, 10)
   const amountError =
