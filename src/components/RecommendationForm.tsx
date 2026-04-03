@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { SubcategoryGrid } from '@/pages/calc/SubcategoryGrid'
 import { Loader2, Search, X, AlertCircle, RotateCcw } from 'lucide-react'
 import {
   CATEGORIES,
@@ -25,6 +26,7 @@ export function RecommendationForm({ onResult, prefillCard }: Props) {
   const [amount, setAmount] = useState('')
   const [amountTouched, setAmountTouched] = useState(false)
   const [category, setCategory] = useState<Category | ''>('')
+  const [subcategory, setSubcategory] = useState<string | null>(null)
   const [channel, setChannel] = useState<Channel | ''>('')
   const [selectedCard, setSelectedCard] = useState<string | undefined>(prefillCard)
 
@@ -43,6 +45,7 @@ export function RecommendationForm({ onResult, prefillCard }: Props) {
       {
         amount: amountNum,
         category: category as Category,
+        subcategory: subcategory ?? undefined,
         ...(channel && { scenario: { channel: channel as Channel } }),
         ...(selectedCard && { cardCodes: [selectedCard] }),
         comparison: {
@@ -126,7 +129,13 @@ export function RecommendationForm({ onResult, prefillCard }: Props) {
               消費類別
               <span className="text-destructive ml-0.5" aria-hidden>*</span>
             </Label>
-            <Select value={category} onValueChange={(v: string) => setCategory(v as Category)}>
+            <Select
+              value={category}
+              onValueChange={(v: string) => {
+                setCategory(v as Category)
+                setSubcategory(null)
+              }}
+            >
               <SelectTrigger>
                 <SelectValue placeholder="選擇消費類別" />
               </SelectTrigger>
@@ -139,6 +148,14 @@ export function RecommendationForm({ onResult, prefillCard }: Props) {
               </SelectContent>
             </Select>
           </div>
+
+          {category && (
+            <SubcategoryGrid
+              category={category}
+              value={subcategory}
+              onChange={setSubcategory}
+            />
+          )}
 
           {/* Channel */}
           <div className="space-y-2">

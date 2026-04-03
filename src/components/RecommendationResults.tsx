@@ -1,22 +1,23 @@
-import { useState } from 'react'
-import { Card, CardContent } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Separator } from '@/components/ui/separator'
+﻿import { useState } from 'react'
 import {
+  ArrowLeftRight,
+  Check,
   ChevronDown,
   ChevronUp,
-  Trophy,
-  Medal,
   ExternalLink,
-  Sparkles,
   Info,
-  Check,
+  Medal,
   Minus,
+  Sparkles,
   TrendingUp,
-  ArrowLeftRight,
+  Trophy,
 } from 'lucide-react'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
+import { Separator } from '@/components/ui/separator'
 import { cn } from '@/lib/utils'
+import { CATEGORY_LABELS, SUBCATEGORY_LABELS } from '@/types'
 import type { BreakEvenAnalysis, CardRecommendation, RecommendationResponse } from '@/types'
 
 interface Props {
@@ -31,11 +32,8 @@ export function RecommendationResults({ result }: Props) {
           <Sparkles className="h-6 w-6 opacity-50" />
         </div>
         <div className="text-center">
-          <p className="text-sm font-medium">尚未查詢</p>
-          <p className="text-xs mt-0.5">
-            <span className="hidden lg:inline">填寫左側表單後，推薦結果將顯示在此</span>
-            <span className="lg:hidden">填寫上方表單後，推薦結果將顯示在此</span>
-          </p>
+          <p className="text-sm font-medium">等待推薦結果</p>
+          <p className="text-xs mt-0.5">輸入消費情境後，這裡會顯示最佳卡片與比較範圍。</p>
         </div>
       </div>
     )
@@ -49,7 +47,7 @@ export function RecommendationResults({ result }: Props) {
         <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted">
           <Info className="h-6 w-6 opacity-50" />
         </div>
-        <p className="text-sm">沒有找到符合條件的推薦</p>
+        <p className="text-sm">找不到符合這個情境的推薦結果</p>
       </div>
     )
   }
@@ -58,21 +56,20 @@ export function RecommendationResults({ result }: Props) {
 
   return (
     <div key={result.requestId} className="space-y-3">
-      {/* Summary stats bar */}
+      <ScenarioSummary result={result} />
+
       <div className="animate-fade-slide-up flex flex-wrap items-center gap-x-1 gap-y-1">
         <StatPill label="評估優惠" value={comparison.evaluatedPromotionCount} />
         <span className="text-border">·</span>
-        <StatPill label="符合" value={comparison.eligiblePromotionCount} />
+        <StatPill label="符合條件" value={comparison.eligiblePromotionCount} />
         <span className="text-border">·</span>
-        <StatPill label="排名卡片" value={comparison.rankedCardCount} />
+        <StatPill label="進榜卡片" value={comparison.rankedCardCount} />
       </div>
 
-      {/* Top pick */}
       <div className="animate-fade-slide-up" style={{ animationDelay: '80ms' }}>
         <TopPickCard rec={topRec} />
       </div>
 
-      {/* Runner-ups */}
       {recommendations.length > 1 && (
         <div className="space-y-2">
           <p className="text-xs font-semibold text-muted-foreground uppercase tracking-widest pt-1 px-0.5">
@@ -90,7 +87,6 @@ export function RecommendationResults({ result }: Props) {
         </div>
       )}
 
-      {/* Break-even analysis */}
       {comparison.breakEvenEvaluated && comparison.breakEvenAnalyses.length > 0 && (
         <div className="animate-fade-slide-up space-y-2" style={{ animationDelay: '320ms' }}>
           <p className="text-xs font-semibold text-muted-foreground uppercase tracking-widest px-0.5">
@@ -118,6 +114,37 @@ export function RecommendationResults({ result }: Props) {
   )
 }
 
+function ScenarioSummary({ result }: { result: RecommendationResponse }) {
+  const category = result.scenario.category
+  const subcategory = result.scenario.subcategory
+  const categoryLabel = category ? CATEGORY_LABELS[category] ?? category : null
+  const subcategoryLabel = subcategory ? SUBCATEGORY_LABELS[subcategory] ?? subcategory : null
+  const isGeneralScene = !subcategory || subcategory === 'GENERAL'
+
+  return (
+    <div className="animate-fade-slide-up rounded-lg border border-primary/20 bg-primary/5 px-4 py-3">
+      <div className="flex flex-wrap items-center gap-2">
+        <Badge variant="secondary" className="rounded-full">
+          {isGeneralScene ? '一般場景比較' : '指定場景比較'}
+        </Badge>
+        {categoryLabel && (
+          <span className="text-sm font-medium text-foreground">{categoryLabel}</span>
+        )}
+        {subcategoryLabel && (
+          <Badge variant="outline" className="rounded-full">
+            {subcategoryLabel}
+          </Badge>
+        )}
+      </div>
+      <p className="mt-2 text-xs text-muted-foreground leading-relaxed">
+        {isGeneralScene
+          ? '目前結果只比較這個母類別下的通用優惠，未納入特定子類別場景。'
+          : '目前結果只比較這個子類別場景，會納入相同子類別與通用優惠，不會混入其他場景。'}
+      </p>
+    </div>
+  )
+}
+
 function StatPill({ label, value }: { label: string; value: number }) {
   return (
     <span className="text-xs text-muted-foreground">
@@ -127,17 +154,14 @@ function StatPill({ label, value }: { label: string; value: number }) {
   )
 }
 
-/** Hero card for the #1 recommendation */
 function TopPickCard({ rec }: { rec: CardRecommendation }) {
   const [expanded, setExpanded] = useState(false)
 
   return (
     <Card className="relative overflow-hidden border-primary/30 shadow-md">
-      {/* Accent stripe */}
       <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary rounded-l-xl" />
 
       <CardContent className="pt-5 pl-6 space-y-4">
-        {/* Header */}
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-center gap-3 min-w-0">
             <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-sm">
@@ -154,24 +178,17 @@ function TopPickCard({ rec }: { rec: CardRecommendation }) {
           <CashbackDisplay rec={rec} size="lg" />
         </div>
 
-        {/* Reason */}
         <p className="text-sm text-muted-foreground leading-relaxed">{rec.reason}</p>
 
-        {/* Conditions */}
         <ConditionBadges rec={rec} />
         <PlanSwitchBadge rec={rec} />
-
-        {/* Promotion breakdown */}
         <PromotionBreakdown rec={rec} expanded={expanded} onToggle={() => setExpanded(!expanded)} />
-
-        {/* Apply link */}
         <ApplyLink url={rec.applyUrl} />
       </CardContent>
     </Card>
   )
 }
 
-/** Compact card for #2+ recommendations */
 function RunnerUpCard({ rec, rank }: { rec: CardRecommendation; rank: number }) {
   const [expanded, setExpanded] = useState(false)
 
@@ -180,12 +197,14 @@ function RunnerUpCard({ rec, rank }: { rec: CardRecommendation; rank: number }) 
       <CardContent className="pt-4 space-y-3">
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-center gap-3 min-w-0">
-            <div className={cn(
-              'flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-sm font-semibold',
-              rank === 2
-                ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
-                : 'bg-muted text-muted-foreground',
-            )}>
+            <div
+              className={cn(
+                'flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-sm font-semibold',
+                rank === 2
+                  ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
+                  : 'bg-muted text-muted-foreground',
+              )}
+            >
               {rank === 2 ? <Medal className="h-4 w-4" /> : rank}
             </div>
             <div className="min-w-0">
@@ -206,24 +225,27 @@ function RunnerUpCard({ rec, rank }: { rec: CardRecommendation; rank: number }) 
   )
 }
 
-/** Cashback amount — reward green, tabular nums */
 function CashbackDisplay({ rec, size }: { rec: CardRecommendation; size: 'lg' | 'sm' }) {
   const isLg = size === 'lg'
 
   return (
     <div className="text-right shrink-0">
-      <div className={cn(
-        'tabular-nums font-bold text-reward',
-        isLg ? 'text-2xl' : 'text-lg',
-      )}>
+      <div
+        className={cn(
+          'tabular-nums font-bold text-reward',
+          isLg ? 'text-2xl' : 'text-lg',
+        )}
+      >
         <span className="text-[0.6em] font-semibold mr-0.5 opacity-80">NT$</span>
         {rec.estimatedReturn.toLocaleString()}
       </div>
       {rec.cashbackType === 'PERCENT' && (
-        <p className={cn(
-          'text-muted-foreground tabular-nums',
-          isLg ? 'text-xs' : 'text-[10px]',
-        )}>
+        <p
+          className={cn(
+            'text-muted-foreground tabular-nums',
+            isLg ? 'text-xs' : 'text-[10px]',
+          )}
+        >
           <TrendingUp className="inline h-3 w-3 mr-0.5 text-reward/70" />
           {rec.cashbackValue}% 回饋
         </p>
@@ -232,7 +254,6 @@ function CashbackDisplay({ rec, size }: { rec: CardRecommendation; size: 'lg' | 
   )
 }
 
-/** Condition tags + validity badge */
 function ConditionBadges({ rec }: { rec: CardRecommendation }) {
   if (rec.conditions.length === 0 && !rec.validUntil) return null
 
@@ -252,7 +273,6 @@ function ConditionBadges({ rec }: { rec: CardRecommendation }) {
   )
 }
 
-/** Plan switching prompt */
 function PlanSwitchBadge({ rec }: { rec: CardRecommendation }) {
   if (!rec.activePlan) return null
 
@@ -261,7 +281,7 @@ function PlanSwitchBadge({ rec }: { rec: CardRecommendation }) {
       <Info className="h-4 w-4 mt-0.5 shrink-0 text-primary" />
       <div className="text-xs space-y-0.5">
         <p className="font-medium text-foreground">
-          需切換至「{rec.activePlan.planName}」方案
+          建議切換到「{rec.activePlan.planName}」方案
         </p>
         <p className="text-muted-foreground">
           {rec.activePlan.switchFrequency}
@@ -276,7 +296,6 @@ function PlanSwitchBadge({ rec }: { rec: CardRecommendation }) {
   )
 }
 
-/** Expandable promotion breakdown */
 function PromotionBreakdown({
   rec,
   expanded,
@@ -300,12 +319,12 @@ function PromotionBreakdown({
         {expanded ? (
           <>
             <ChevronUp className="h-3.5 w-3.5 mr-1.5" />
-            收起優惠明細
+            收合優惠明細
           </>
         ) : (
           <>
             <ChevronDown className="h-3.5 w-3.5 mr-1.5" />
-            查看 {rec.promotionBreakdown.length} 個優惠明細
+            查看 {rec.promotionBreakdown.length} 筆優惠明細
           </>
         )}
       </Button>
@@ -332,7 +351,12 @@ function PromotionBreakdown({
                   <span className="font-medium truncate">{promo.title ?? promo.promotionId}</span>
                 </div>
                 <div className="shrink-0 text-right">
-                  <span className={cn('font-semibold tabular-nums', promo.contributesToCardTotal ? 'text-reward' : 'text-muted-foreground')}>
+                  <span
+                    className={cn(
+                      'font-semibold tabular-nums',
+                      promo.contributesToCardTotal ? 'text-reward' : 'text-muted-foreground',
+                    )}
+                  >
                     NT$ {promo.cappedReturn.toLocaleString()}
                   </span>
                   {promo.cashbackType === 'PERCENT' && (
@@ -358,12 +382,10 @@ function PromotionBreakdown({
   )
 }
 
-/** Break-even analysis card */
 function BreakEvenCard({ analysis }: { analysis: BreakEvenAnalysis }) {
   return (
     <Card className="overflow-hidden">
       <CardContent className="pt-4 space-y-3">
-        {/* Header */}
         <div className="flex items-center gap-2">
           <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-muted">
             <ArrowLeftRight className="h-3.5 w-3.5 text-muted-foreground" />
@@ -383,10 +405,9 @@ function BreakEvenCard({ analysis }: { analysis: BreakEvenAnalysis }) {
           )}
         </div>
 
-        {/* Cap amounts */}
         {analysis.variableRewardCapAmount != null && (
           <div className="flex justify-between text-xs text-muted-foreground">
-            <span>回饋上限消費金額</span>
+            <span>變動回饋封頂消費</span>
             <span className="tabular-nums font-medium text-foreground">
               NT$ {analysis.variableRewardCapAmount.toLocaleString()}
             </span>
@@ -399,7 +420,7 @@ function BreakEvenCard({ analysis }: { analysis: BreakEvenAnalysis }) {
               <div className="flex-1 rounded-md bg-muted/50 px-2.5 py-2">
                 <p className="text-muted-foreground truncate">{analysis.leftCardCode}</p>
                 <p className="font-medium tabular-nums mt-0.5">
-                  最低 NT$ {analysis.leftMinAmount.toLocaleString()}
+                  最低門檻 NT$ {analysis.leftMinAmount.toLocaleString()}
                 </p>
               </div>
             )}
@@ -407,21 +428,19 @@ function BreakEvenCard({ analysis }: { analysis: BreakEvenAnalysis }) {
               <div className="flex-1 rounded-md bg-muted/50 px-2.5 py-2">
                 <p className="text-muted-foreground truncate">{analysis.rightCardCode}</p>
                 <p className="font-medium tabular-nums mt-0.5">
-                  最低 NT$ {analysis.rightMinAmount.toLocaleString()}
+                  最低門檻 NT$ {analysis.rightMinAmount.toLocaleString()}
                 </p>
               </div>
             )}
           </div>
         )}
 
-        {/* Summary */}
         <p className="text-xs text-muted-foreground leading-relaxed">{analysis.summary}</p>
       </CardContent>
     </Card>
   )
 }
 
-/** Apply link */
 function ApplyLink({ url }: { url: string | null }) {
   if (!url) return null
 
@@ -432,7 +451,7 @@ function ApplyLink({ url }: { url: string | null }) {
       rel="noopener noreferrer"
       className="inline-flex items-center gap-1 text-xs text-primary hover:text-primary/80 font-medium hover:underline underline-offset-2 transition-colors"
     >
-      前往申辦
+      前往辦卡
       <ExternalLink className="h-3 w-3" />
     </a>
   )

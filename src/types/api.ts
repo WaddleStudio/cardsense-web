@@ -159,6 +159,7 @@ export interface CardPromotion {
   promoVersionId: string
   title: string | null
   category: string
+  subcategory?: string
   channel: string | null
   cashbackType: CashbackType
   cashbackValue: number

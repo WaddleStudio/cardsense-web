@@ -1,19 +1,35 @@
-import { useMemo } from 'react'
-import { useParams, useNavigate, Link } from 'react-router-dom'
-import { useCard, useCardPromotions, useCardPlans } from '@/api'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+﻿import { useMemo } from 'react'
+import { Link, useNavigate, useParams } from 'react-router-dom'
+import {
+  AlertCircle,
+  AlertTriangle,
+  ArrowLeft,
+  Clock,
+  CreditCard,
+  ExternalLink,
+  RefreshCw,
+  RotateCcw,
+  Search,
+} from 'lucide-react'
+import { useCard, useCardPlans, useCardPromotions } from '@/api'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
-import { CreditCard, ArrowLeft, ExternalLink, Search, AlertCircle, RotateCcw, AlertTriangle, RefreshCw, Clock } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { CATEGORY_LABELS } from '@/types'
+import { CATEGORY_LABELS, SUBCATEGORY_LABELS } from '@/types'
 import type { BenefitPlan, CardPromotion, Category } from '@/types'
 
 const SCOPE_LABELS: Record<string, string> = {
   RECOMMENDABLE: '可推薦',
-  CATALOG_ONLY: '僅目錄',
-  FUTURE_SCOPE: '未來擴充',
+  CATALOG_ONLY: '僅目錄展示',
+  FUTURE_SCOPE: '未來納入',
+}
+
+const SWITCH_FREQ_LABELS: Record<string, string> = {
+  DAILY: '每日可切換',
+  MONTHLY: '每月可切換',
+  UNLIMITED: '不限次數',
 }
 
 export function CardDetailPage() {
@@ -25,12 +41,22 @@ export function CardDetailPage() {
 
   const groupedPromotions = useMemo(() => {
     if (!promotions) return {}
+
     const groups: Record<string, CardPromotion[]> = {}
-    for (const p of promotions) {
-      const cat = p.category || 'OTHER'
-      if (!groups[cat]) groups[cat] = []
-      groups[cat].push(p)
+    for (const promotion of promotions) {
+      const category = promotion.category || 'OTHER'
+      if (!groups[category]) groups[category] = []
+      groups[category].push(promotion)
     }
+
+    for (const category of Object.keys(groups)) {
+      groups[category].sort((a, b) => {
+        const aKey = a.subcategory && a.subcategory !== 'GENERAL' ? a.subcategory : 'ZZZ'
+        const bKey = b.subcategory && b.subcategory !== 'GENERAL' ? b.subcategory : 'ZZZ'
+        return aKey.localeCompare(bKey)
+      })
+    }
+
     return groups
   }, [promotions])
 
@@ -66,8 +92,8 @@ export function CardDetailPage() {
         <div className="flex items-start gap-3 rounded-xl border border-destructive/30 bg-destructive/10 p-4">
           <AlertCircle className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
           <div className="flex-1">
-            <p className="text-sm font-medium text-destructive">無法載入卡片資料</p>
-            <p className="text-xs text-destructive/80 mt-0.5">請確認 API 是否運行中</p>
+            <p className="text-sm font-medium text-destructive">卡片資料載入失敗</p>
+            <p className="text-xs text-destructive/80 mt-0.5">請稍後重試，或檢查 API 是否正常。</p>
           </div>
           <Button
             variant="outline"
@@ -91,7 +117,7 @@ export function CardDetailPage() {
           <div className="flex h-14 w-14 items-center justify-center rounded-full bg-muted">
             <CreditCard className="h-7 w-7 opacity-40" />
           </div>
-          <p className="text-sm">找不到此卡片</p>
+          <p className="text-sm">找不到這張卡片</p>
         </div>
       </div>
     )
@@ -120,30 +146,30 @@ export function CardDetailPage() {
               variant={isActive ? 'default' : 'secondary'}
               className="shrink-0 rounded-full"
             >
-              {isActive ? '發行中' : '已停發'}
+              {isActive ? '有效卡' : '已停發'}
             </Badge>
           </div>
         </CardHeader>
 
         <CardContent className="space-y-5">
-          {/* Annual fee */}
           <div className="flex justify-between items-center text-sm py-1">
             <span className="text-muted-foreground">年費</span>
-            <span className={cn(
-              'font-semibold tabular-nums text-base',
-              isFree ? 'text-reward' : 'text-foreground',
-            )}>
+            <span
+              className={cn(
+                'font-semibold tabular-nums text-base',
+                isFree ? 'text-reward' : 'text-foreground',
+              )}
+            >
               {card.annualFee != null
                 ? isFree
                   ? '免年費'
                   : `NT$ ${card.annualFee.toLocaleString()}`
-                : '—'}
+                : '--'}
             </span>
           </div>
 
           <Separator />
 
-          {/* Scopes */}
           <div>
             <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2.5">
               推薦範圍
@@ -157,7 +183,6 @@ export function CardDetailPage() {
             </div>
           </div>
 
-          {/* Benefit Plans */}
           {plans && plans.length > 0 && (
             <>
               <Separator />
@@ -176,13 +201,12 @@ export function CardDetailPage() {
 
           <Separator />
 
-          {/* Actions */}
           <div className="flex flex-col sm:flex-row gap-3">
             {card.applyUrl && (
               <Button asChild variant="outline" className="cursor-pointer">
                 <a href={card.applyUrl} target="_blank" rel="noopener noreferrer">
                   <ExternalLink className="h-4 w-4 mr-1.5" />
-                  前往申辦
+                  前往辦卡
                 </a>
               </Button>
             )}
@@ -191,29 +215,28 @@ export function CardDetailPage() {
               onClick={() => navigate('/', { state: { prefillCard: card.cardCode } })}
             >
               <Search className="h-4 w-4 mr-1.5" />
-              用這張卡查推薦
+              用這張卡做推薦
             </Button>
           </div>
         </CardContent>
       </Card>
 
-      {/* Promotions */}
       {promotions && promotions.length > 0 && (
         <Card className="shadow-sm">
           <CardHeader>
             <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
-              優惠資訊
+              優惠明細
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
-            {Object.entries(groupedPromotions).map(([cat, promos]) => (
-              <div key={cat}>
+            {Object.entries(groupedPromotions).map(([category, items]) => (
+              <div key={category}>
                 <p className="text-sm font-semibold mb-3">
-                  {CATEGORY_LABELS[cat as Category] ?? cat}
+                  {CATEGORY_LABELS[category as Category] ?? category}
                 </p>
                 <div className="space-y-3">
-                  {promos.map((p) => (
-                    <PromotionItem key={p.promoVersionId} promotion={p} />
+                  {items.map((promotion) => (
+                    <PromotionItem key={promotion.promoVersionId} promotion={promotion} />
                   ))}
                 </div>
               </div>
@@ -232,40 +255,44 @@ function PromotionItem({ promotion }: { promotion: CardPromotion }) {
     : promotion.cashbackType === 'POINTS'
       ? `${promotion.cashbackValue} 點`
       : `${promotion.cashbackValue}%`
-
+  const subcategoryLabel = promotion.subcategory && promotion.subcategory !== 'GENERAL'
+    ? SUBCATEGORY_LABELS[promotion.subcategory]
+    : null
   const modeHint = promotion.conditions?.find(
-    (c) => c.type === 'TEXT' && c.value?.includes('切換'),
+    (condition) => condition.type === 'TEXT' && condition.value?.includes('方案'),
   )
 
   return (
     <div className="rounded-lg border p-3 space-y-2 text-sm">
       <div className="flex items-start justify-between gap-2">
-        <p className="font-medium leading-tight">{promotion.title ?? cashbackDisplay}</p>
-        <span className={cn(
-          'shrink-0 font-semibold tabular-nums',
-          'text-reward',
-        )}>
+        <div className="min-w-0 space-y-1">
+          <p className="font-medium leading-tight">{promotion.title ?? cashbackDisplay}</p>
+          {subcategoryLabel && (
+            <Badge variant="secondary" className="w-fit text-[10px] rounded-full">
+              {subcategoryLabel}
+            </Badge>
+          )}
+        </div>
+        <span className="shrink-0 font-semibold tabular-nums text-reward">
           {cashbackDisplay}
         </span>
       </div>
 
-      {/* Validity */}
       {(promotion.validFrom || promotion.validUntil) && (
         <p className="text-xs text-muted-foreground">
-          {promotion.validFrom ?? '—'} ~ {promotion.validUntil ?? '—'}
+          {promotion.validFrom ?? '--'} ~ {promotion.validUntil ?? '--'}
         </p>
       )}
 
-      {/* Conditions */}
       <div className="flex flex-wrap gap-1.5">
         {promotion.minAmount != null && promotion.minAmount > 0 && (
           <Badge variant="outline" className="text-xs rounded-full">
-            最低消費 {promotion.minAmount} 元
+            最低消費 NT$ {promotion.minAmount}
           </Badge>
         )}
         {promotion.maxCashback != null && (
           <Badge variant="outline" className="text-xs rounded-full">
-            封頂 {promotion.maxCashback} 元
+            回饋上限 {promotion.maxCashback}
           </Badge>
         )}
         {promotion.requiresRegistration && (
@@ -278,28 +305,21 @@ function PromotionItem({ promotion }: { promotion: CardPromotion }) {
             {promotion.frequencyLimit}
           </Badge>
         )}
-        {promotion.conditions?.filter((c) => c.type !== 'TEXT').map((c, i) => (
-          <Badge key={i} variant="outline" className="text-xs rounded-full">
-            {c.label || `${c.type}: ${c.value}`}
+        {promotion.conditions?.filter((condition) => condition.type !== 'TEXT').map((condition, index) => (
+          <Badge key={index} variant="outline" className="text-xs rounded-full">
+            {condition.label || `${condition.type}: ${condition.value}`}
           </Badge>
         ))}
       </div>
 
-      {/* Mutually exclusive warning */}
       {isMutuallyExclusive && (
         <div className="flex items-center gap-1.5 text-xs text-amber-600 dark:text-amber-400">
           <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
-          <span>{modeHint?.label || modeHint?.value || '需切換權益模式'}</span>
+          <span>{modeHint?.label || modeHint?.value || '此優惠與其他方案互斥'}</span>
         </div>
       )}
     </div>
   )
-}
-
-const SWITCH_FREQ_LABELS: Record<string, string> = {
-  DAILY: '每日可切換',
-  MONTHLY: '每月可切換',
-  UNLIMITED: '不限切換',
 }
 
 function isTimeLimitedPlan(plan: BenefitPlan): boolean {
@@ -320,19 +340,24 @@ function PlanItem({ plan }: { plan: BenefitPlan }) {
   const timeLimited = isTimeLimitedPlan(plan)
 
   return (
-    <div className={cn(
-      'rounded-lg border p-3 space-y-1.5 text-sm',
-      expired && 'opacity-50',
-    )}>
+    <div
+      className={cn(
+        'rounded-lg border p-3 space-y-1.5 text-sm',
+        expired && 'opacity-50',
+      )}
+    >
       <div className="flex items-start justify-between gap-2">
         <div className="flex items-center gap-1.5">
           <p className="font-medium leading-tight">{plan.planName}</p>
           {expired && (
-            <Badge variant="secondary" className="text-[10px] rounded-full px-1.5 py-0">已到期</Badge>
+            <Badge variant="secondary" className="text-[10px] rounded-full px-1.5 py-0">
+              已過期
+            </Badge>
           )}
           {!expired && timeLimited && (
             <Badge className="text-[10px] rounded-full px-1.5 py-0 bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 border-0">
-              <Clock className="h-2.5 w-2.5 mr-0.5" />限時
+              <Clock className="h-2.5 w-2.5 mr-0.5" />
+              即將到期
             </Badge>
           )}
         </div>
@@ -346,13 +371,16 @@ function PlanItem({ plan }: { plan: BenefitPlan }) {
       )}
       <div className="flex flex-wrap gap-1.5">
         {plan.requiresSubscription && plan.subscriptionCost && (
-          <Badge variant="outline" className="text-xs rounded-full text-amber-600 dark:text-amber-400 border-amber-300 dark:border-amber-700">
+          <Badge
+            variant="outline"
+            className="text-xs rounded-full text-amber-600 dark:text-amber-400 border-amber-300 dark:border-amber-700"
+          >
             訂閱費 {plan.subscriptionCost}
           </Badge>
         )}
         {plan.switchMaxPerMonth != null && (
           <Badge variant="outline" className="text-xs rounded-full">
-            每月上限 {plan.switchMaxPerMonth} 次
+            每月最多切換 {plan.switchMaxPerMonth} 次
           </Badge>
         )}
         {plan.validFrom && plan.validUntil && (
@@ -372,7 +400,7 @@ function BackLink() {
       className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
     >
       <ArrowLeft className="h-4 w-4" />
-      返回卡片目錄
+      返回卡片列表
     </Link>
   )
 }
