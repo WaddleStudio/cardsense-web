@@ -163,7 +163,8 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .animate-fade-slide-up {
+  .animate-fade-slide-up,
+  .animate-pulse {
     animation: none;
   }
 }

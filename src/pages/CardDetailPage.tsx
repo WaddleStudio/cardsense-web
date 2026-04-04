@@ -212,7 +212,7 @@ export function CardDetailPage() {
             )}
             <Button
               className="cursor-pointer"
-              onClick={() => navigate('/', { state: { prefillCard: card.cardCode } })}
+              onClick={() => navigate('/recommend', { state: { prefillCard: card.cardCode } })}
             >
               <Search className="h-4 w-4 mr-1.5" />
               用這張卡做推薦

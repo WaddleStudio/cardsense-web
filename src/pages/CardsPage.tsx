@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Separator } from '@/components/ui/separator'
-import { CreditCard, Search, X, ExternalLink, AlertCircle, RotateCcw } from 'lucide-react'
+import { CreditCard, Search, X, ExternalLink, AlertCircle, RotateCcw, SlidersHorizontal } from 'lucide-react'
 import { useDebouncedValue } from '@/hooks/use-debounce'
 import { cn } from '@/lib/utils'
 import {
@@ -38,6 +38,7 @@ export function CardsPage() {
   const [benefitPlanFilter, setBenefitPlanFilter] = useState(false)
   const [search, setSearch] = useState('')
   const [sort, setSort] = useState<SortKey>('name')
+  const [filtersExpanded, setFiltersExpanded] = useState(false)
   const { data: banks } = useBanks()
   const { data: cards, isLoading, error, refetch } = useCards()
 
@@ -100,6 +101,8 @@ export function CardsPage() {
     }
     return counts
   }, [cards])
+
+  const activeAdvancedFilterCount = [eligibilityFilter, categoryFilter, feeRangeFilter, scopeFilter, benefitPlanFilter].filter(Boolean).length
 
   return (
     <div className="space-y-6">
@@ -181,6 +184,28 @@ export function CardsPage() {
           ))}
         </div>
 
+        {/* Advanced filters toggle */}
+        <button
+          type="button"
+          aria-expanded={filtersExpanded}
+          onClick={() => setFiltersExpanded(!filtersExpanded)}
+          className={cn(
+            'flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors cursor-pointer',
+            filtersExpanded || activeAdvancedFilterCount > 0
+              ? 'border-primary/40 text-primary bg-primary/5'
+              : 'border-border text-muted-foreground hover:border-primary/40 hover:text-foreground',
+          )}
+        >
+          <SlidersHorizontal className="h-3.5 w-3.5" />
+          進階篩選
+          {activeAdvancedFilterCount > 0 && (
+            <span className="flex h-4 w-4 items-center justify-center rounded-full bg-primary text-primary-foreground text-[10px]">
+              {activeAdvancedFilterCount}
+            </span>
+          )}
+        </button>
+
+        {filtersExpanded && <>
         {/* Eligibility type filter */}
         <div className="space-y-1.5">
           <p className="text-xs font-medium text-muted-foreground">資格類型</p>
@@ -326,6 +351,7 @@ export function CardsPage() {
             ))}
           </div>
         </div>
+        </>}
       </div>
 
       <Separator />

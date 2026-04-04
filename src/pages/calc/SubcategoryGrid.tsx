@@ -20,7 +20,7 @@ export function SubcategoryGrid({ category, value, onChange }: SubcategoryGridPr
           type="button"
           onClick={() => onChange(null)}
           className={cn(
-            'shrink-0 rounded-full border px-3 py-1 text-xs font-medium transition-colors cursor-pointer',
+            'shrink-0 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors cursor-pointer min-h-[36px]',
             value === null
               ? 'border-primary bg-primary text-primary-foreground'
               : 'border-border bg-background hover:border-primary/50 hover:bg-accent',
@@ -34,7 +34,7 @@ export function SubcategoryGrid({ category, value, onChange }: SubcategoryGridPr
             type="button"
             onClick={() => onChange(sub.value)}
             className={cn(
-              'shrink-0 rounded-full border px-3 py-1 text-xs font-medium transition-colors cursor-pointer',
+              'shrink-0 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors cursor-pointer min-h-[36px]',
               value === sub.value
                 ? 'border-primary bg-primary text-primary-foreground'
                 : 'border-border bg-background hover:border-primary/50 hover:bg-accent',

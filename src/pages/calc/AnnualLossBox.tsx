@@ -57,7 +57,7 @@ export function AnnualLossBox({ annualLoss, monthlyDiff }: AnnualLossBoxProps) {
 
         {/* Main amount */}
         <p
-          className="text-4xl font-mono font-bold text-right tabular-nums leading-none"
+          className="text-3xl sm:text-4xl font-mono font-bold text-right tabular-nums leading-none"
           style={{
             color: '#4ade80',
             textShadow: '0 0 12px #4ade8099, 0 0 28px #4ade8033',

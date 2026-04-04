@@ -61,7 +61,7 @@ export function CardSelector({ selected, onChange, error, isUpdating }: CardSele
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="搜尋卡名或銀行..."
-          className="pl-8 text-sm h-8"
+          className="pl-8 text-sm h-9"
         />
       </div>
 
@@ -78,7 +78,7 @@ export function CardSelector({ selected, onChange, error, isUpdating }: CardSele
               <div className="px-3 py-1 text-xs font-semibold text-muted-foreground bg-muted/50 sticky top-0">
                 {bank}
               </div>
-              <div className="grid grid-cols-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2">
                 {bankCards.map((card) => (
                   <label
                     key={card.cardCode}

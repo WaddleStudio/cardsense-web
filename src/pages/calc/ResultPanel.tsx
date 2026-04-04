@@ -69,7 +69,7 @@ export function ResultPanel({ recommendations, amount, category }: ResultPanelPr
                 className="flex items-center gap-2 text-xs"
                 style={{ animationDelay: `${i * 80}ms` }}
               >
-                <div className="w-28 shrink-0 truncate text-right text-muted-foreground leading-tight">
+                <div className="w-20 sm:w-28 shrink-0 truncate text-right text-muted-foreground leading-tight">
                   {rec.cardName}
                   {rec.subcategory && rec.subcategory !== 'GENERAL' && SUBCATEGORY_LABELS[rec.subcategory] && (
                     <span className="block text-[10px] text-muted-foreground/60">[{SUBCATEGORY_LABELS[rec.subcategory]}優惠]</span>
@@ -86,7 +86,7 @@ export function ResultPanel({ recommendations, amount, category }: ResultPanelPr
                 </div>
                 <div
                   className={cn(
-                    'w-16 shrink-0 tabular-nums font-medium text-right',
+                    'w-14 sm:w-16 shrink-0 tabular-nums font-medium text-right',
                     isFirst && 'text-reward',
                     isLast && 'text-destructive',
                   )}

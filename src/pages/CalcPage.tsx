@@ -109,7 +109,7 @@ export function CalcPage() {
 
       <div className="grid gap-6 lg:grid-cols-[380px_1fr]">
         {/* Left column: input form */}
-        <div className="rounded-xl border bg-card p-5 space-y-5 shadow-sm h-fit">
+        <div className="rounded-xl border bg-card p-5 space-y-5 shadow-sm h-fit min-w-0">
           <AmountInput
             value={amount}
             onChange={(v) => {
@@ -133,7 +133,7 @@ export function CalcPage() {
             isUpdating={isAutoSelecting}
           />
 
-          <Button className="w-full gap-2" onClick={handleSubmit} disabled={isPending || isAutoSelecting}>
+          <Button className="w-full gap-2 min-h-[44px]" onClick={handleSubmit} disabled={isPending || isAutoSelecting}>
             <Calculator className="h-4 w-4" />
             {isPending ? '計算中...' : '算出我的損失'}
           </Button>

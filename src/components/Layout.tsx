@@ -44,6 +44,7 @@ export function Layout() {
                   <Link
                     key={to}
                     to={to}
+                    aria-label={label}
                     className={cn(
                       'flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors',
                       isActive
@@ -52,7 +53,7 @@ export function Layout() {
                     )}
                   >
                     <Icon className="h-3.5 w-3.5 shrink-0" />
-                    <span>{label}</span>
+                    <span className="hidden sm:inline">{label}</span>
                   </Link>
                 )
               })}

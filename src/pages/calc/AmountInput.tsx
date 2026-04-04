@@ -97,7 +97,7 @@ function CalcButton({ children, onClick, variant = 'default' }: CalcButtonProps)
       type="button"
       onClick={onClick}
       className={cn(
-        'h-11 w-full rounded-lg text-sm font-semibold font-mono select-none',
+        'h-11 w-full rounded-lg text-sm font-semibold font-mono select-none touch-manipulation',
         'border shadow-[0_2px_0_rgba(0,0,0,0.4)] active:shadow-none active:translate-y-px',
         'transition-all duration-75 cursor-pointer',
         variant === 'default' &&
