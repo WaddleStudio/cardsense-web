@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Separator } from '@/components/ui/separator'
+import { FilterChip } from '@/components/ui/filter-chip'
 import { CreditCard, Search, X, ExternalLink, AlertCircle, RotateCcw, SlidersHorizontal } from 'lucide-react'
 import { useDebouncedValue } from '@/hooks/use-debounce'
 import { cn } from '@/lib/utils'
@@ -156,31 +157,19 @@ export function CardsPage() {
           role="group"
           aria-label="依銀行篩選"
         >
-          <button
-            className={cn(
-              'min-h-[44px] shrink-0 rounded-full border px-3 text-xs font-medium focus-visible:outline-2 focus-visible:outline-primary transition-colors cursor-pointer',
-              bankFilter === ''
-                ? 'bg-primary text-primary-foreground border-primary'
-                : 'border-border text-muted-foreground hover:border-primary/40 hover:text-foreground',
-            )}
-            onClick={() => setBankFilter('')}
-          >
+          <FilterChip size="lg" active={bankFilter === ''} onClick={() => setBankFilter('')}>
             全部{cards ? ` (${cards.length})` : ''}
-          </button>
+          </FilterChip>
           {banks?.map((b) => (
-            <button
+            <FilterChip
               key={b.code}
-              className={cn(
-                'min-h-[44px] shrink-0 rounded-full border px-3 text-xs font-medium focus-visible:outline-2 focus-visible:outline-primary transition-colors cursor-pointer',
-                bankFilter === b.code
-                  ? 'bg-primary text-primary-foreground border-primary'
-                  : 'border-border text-muted-foreground hover:border-primary/40 hover:text-foreground',
-              )}
+              size="lg"
+              active={bankFilter === b.code}
               onClick={() => setBankFilter(bankFilter === b.code ? '' : b.code)}
             >
               {b.nameZh}
               {bankCounts[b.code] ? ` (${bankCounts[b.code]})` : ''}
-            </button>
+            </FilterChip>
           ))}
         </div>
 
@@ -210,30 +199,17 @@ export function CardsPage() {
         <div className="space-y-1.5">
           <p className="text-xs font-medium text-muted-foreground">資格類型</p>
           <div className="flex gap-2 flex-wrap" role="group" aria-label="依資格類型篩選">
-            <button
-              className={cn(
-                'min-h-[36px] shrink-0 rounded-full border px-3 text-xs font-medium focus-visible:outline-2 focus-visible:outline-primary transition-colors cursor-pointer',
-                eligibilityFilter === ''
-                  ? 'bg-primary text-primary-foreground border-primary'
-                  : 'border-border text-muted-foreground hover:border-primary/40 hover:text-foreground',
-              )}
-              onClick={() => setEligibilityFilter('')}
-            >
+            <FilterChip active={eligibilityFilter === ''} onClick={() => setEligibilityFilter('')}>
               全部
-            </button>
+            </FilterChip>
             {ELIGIBILITY_TYPES.map((t) => (
-              <button
+              <FilterChip
                 key={t}
-                className={cn(
-                  'min-h-[36px] shrink-0 rounded-full border px-3 text-xs font-medium focus-visible:outline-2 focus-visible:outline-primary transition-colors cursor-pointer',
-                  eligibilityFilter === t
-                    ? 'bg-primary text-primary-foreground border-primary'
-                    : 'border-border text-muted-foreground hover:border-primary/40 hover:text-foreground',
-                )}
+                active={eligibilityFilter === t}
                 onClick={() => setEligibilityFilter(eligibilityFilter === t ? '' : t)}
               >
                 {ELIGIBILITY_TYPE_LABELS[t]}
-              </button>
+              </FilterChip>
             ))}
           </div>
         </div>
@@ -242,30 +218,17 @@ export function CardsPage() {
         <div className="space-y-1.5">
           <p className="text-xs font-medium text-muted-foreground">優惠類別</p>
           <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide sm:flex-wrap sm:overflow-x-visible sm:pb-0" role="group" aria-label="依優惠類別篩選">
-            <button
-              className={cn(
-                'min-h-[36px] shrink-0 rounded-full border px-3 text-xs font-medium focus-visible:outline-2 focus-visible:outline-primary transition-colors cursor-pointer',
-                categoryFilter === ''
-                  ? 'bg-primary text-primary-foreground border-primary'
-                  : 'border-border text-muted-foreground hover:border-primary/40 hover:text-foreground',
-              )}
-              onClick={() => setCategoryFilter('')}
-            >
+            <FilterChip active={categoryFilter === ''} onClick={() => setCategoryFilter('')}>
               全部
-            </button>
+            </FilterChip>
             {CATEGORIES.map((c) => (
-              <button
+              <FilterChip
                 key={c}
-                className={cn(
-                  'min-h-[36px] shrink-0 rounded-full border px-3 text-xs font-medium focus-visible:outline-2 focus-visible:outline-primary transition-colors cursor-pointer',
-                  categoryFilter === c
-                    ? 'bg-primary text-primary-foreground border-primary'
-                    : 'border-border text-muted-foreground hover:border-primary/40 hover:text-foreground',
-                )}
+                active={categoryFilter === c}
                 onClick={() => setCategoryFilter(categoryFilter === c ? '' : c)}
               >
                 {CATEGORY_LABELS[c]}
-              </button>
+              </FilterChip>
             ))}
           </div>
         </div>
@@ -274,30 +237,17 @@ export function CardsPage() {
         <div className="space-y-1.5">
           <p className="text-xs font-medium text-muted-foreground">年費區間</p>
           <div className="flex gap-2 flex-wrap" role="group" aria-label="依年費區間篩選">
-            <button
-              className={cn(
-                'min-h-[36px] shrink-0 rounded-full border px-3 text-xs font-medium focus-visible:outline-2 focus-visible:outline-primary transition-colors cursor-pointer',
-                feeRangeFilter === ''
-                  ? 'bg-primary text-primary-foreground border-primary'
-                  : 'border-border text-muted-foreground hover:border-primary/40 hover:text-foreground',
-              )}
-              onClick={() => setFeeRangeFilter('')}
-            >
+            <FilterChip active={feeRangeFilter === ''} onClick={() => setFeeRangeFilter('')}>
               全部
-            </button>
+            </FilterChip>
             {ANNUAL_FEE_RANGES.map((r) => (
-              <button
+              <FilterChip
                 key={r}
-                className={cn(
-                  'min-h-[36px] shrink-0 rounded-full border px-3 text-xs font-medium focus-visible:outline-2 focus-visible:outline-primary transition-colors cursor-pointer',
-                  feeRangeFilter === r
-                    ? 'bg-primary text-primary-foreground border-primary'
-                    : 'border-border text-muted-foreground hover:border-primary/40 hover:text-foreground',
-                )}
+                active={feeRangeFilter === r}
                 onClick={() => setFeeRangeFilter(feeRangeFilter === r ? '' : r)}
               >
                 {ANNUAL_FEE_RANGE_LABELS[r]}
-              </button>
+              </FilterChip>
             ))}
           </div>
         </div>
@@ -306,17 +256,9 @@ export function CardsPage() {
         <div className="space-y-1.5">
           <p className="text-xs font-medium text-muted-foreground">卡片特性</p>
           <div className="flex gap-2 flex-wrap" role="group" aria-label="依卡片特性篩選">
-            <button
-              className={cn(
-                'min-h-[36px] shrink-0 rounded-full border px-3 text-xs font-medium focus-visible:outline-2 focus-visible:outline-primary transition-colors cursor-pointer',
-                benefitPlanFilter
-                  ? 'bg-primary text-primary-foreground border-primary'
-                  : 'border-border text-muted-foreground hover:border-primary/40 hover:text-foreground',
-              )}
-              onClick={() => setBenefitPlanFilter(!benefitPlanFilter)}
-            >
+            <FilterChip active={benefitPlanFilter} onClick={() => setBenefitPlanFilter(!benefitPlanFilter)}>
               可切換權益方案
-            </button>
+            </FilterChip>
           </div>
         </div>
 
@@ -324,30 +266,17 @@ export function CardsPage() {
         <div className="space-y-1.5">
           <p className="text-xs font-medium text-muted-foreground">推薦範圍</p>
           <div className="flex gap-2 flex-wrap" role="group" aria-label="依推薦範圍篩選">
-            <button
-              className={cn(
-                'min-h-[36px] shrink-0 rounded-full border px-3 text-xs font-medium focus-visible:outline-2 focus-visible:outline-primary transition-colors cursor-pointer',
-                scopeFilter === ''
-                  ? 'bg-primary text-primary-foreground border-primary'
-                  : 'border-border text-muted-foreground hover:border-primary/40 hover:text-foreground',
-              )}
-              onClick={() => setScopeFilter('')}
-            >
+            <FilterChip active={scopeFilter === ''} onClick={() => setScopeFilter('')}>
               全部
-            </button>
+            </FilterChip>
             {RECOMMENDATION_SCOPES.filter((s) => s !== 'FUTURE_SCOPE').map((s) => (
-              <button
+              <FilterChip
                 key={s}
-                className={cn(
-                  'min-h-[36px] shrink-0 rounded-full border px-3 text-xs font-medium focus-visible:outline-2 focus-visible:outline-primary transition-colors cursor-pointer',
-                  scopeFilter === s
-                    ? 'bg-primary text-primary-foreground border-primary'
-                    : 'border-border text-muted-foreground hover:border-primary/40 hover:text-foreground',
-                )}
+                active={scopeFilter === s}
                 onClick={() => setScopeFilter(scopeFilter === s ? '' : s)}
               >
                 {SCOPE_LABELS[s] ?? s}
-              </button>
+              </FilterChip>
             ))}
           </div>
         </div>

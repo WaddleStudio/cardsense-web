@@ -115,7 +115,7 @@ export function RecommendationForm({ onResult, prefillCard }: Props) {
                   key={v}
                   type="button"
                   onClick={() => { setAmount(String(v)); setAmountTouched(false) }}
-                  className="min-h-[36px] rounded-lg border border-border bg-background px-3 text-xs font-medium text-muted-foreground hover:border-primary/50 hover:text-primary hover:bg-primary/5 focus-visible:outline-2 focus-visible:outline-primary transition-colors cursor-pointer"
+                  className="min-h-touch-sm rounded-lg border border-border bg-background px-3 text-xs font-medium text-muted-foreground hover:border-primary/50 hover:text-primary hover:bg-primary/5 focus-visible:outline-2 focus-visible:outline-primary transition-colors cursor-pointer"
                 >
                   {v.toLocaleString()}
                 </button>
@@ -198,7 +198,7 @@ export function RecommendationForm({ onResult, prefillCard }: Props) {
 
           <Button
             type="submit"
-            className="w-full min-h-[44px] font-medium cursor-pointer"
+            className="w-full min-h-touch font-medium cursor-pointer"
             disabled={!canSubmit}
           >
             {mutation.isPending ? (

@@ -133,7 +133,7 @@ export function CalcPage() {
             isUpdating={isAutoSelecting}
           />
 
-          <Button className="w-full gap-2 min-h-[44px]" onClick={handleSubmit} disabled={isPending || isAutoSelecting}>
+          <Button className="w-full gap-2 min-h-touch" onClick={handleSubmit} disabled={isPending || isAutoSelecting}>
             <Calculator className="h-4 w-4" />
             {isPending ? '計算中...' : '算出我的損失'}
           </Button>

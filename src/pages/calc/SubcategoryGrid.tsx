@@ -1,4 +1,4 @@
-import { cn } from '@/lib/utils'
+import { FilterChip } from '@/components/ui/filter-chip'
 import { SUBCATEGORIES } from '@/types'
 import type { Category } from '@/types'
 
@@ -16,32 +16,17 @@ export function SubcategoryGrid({ category, value, onChange }: SubcategoryGridPr
     <div className="space-y-2">
       <label className="text-sm font-medium">消費場景（可不選）</label>
       <div className="flex gap-1.5 overflow-x-auto pb-1">
-        <button
-          type="button"
-          onClick={() => onChange(null)}
-          className={cn(
-            'shrink-0 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors cursor-pointer min-h-[36px]',
-            value === null
-              ? 'border-primary bg-primary text-primary-foreground'
-              : 'border-border bg-background hover:border-primary/50 hover:bg-accent',
-          )}
-        >
+        <FilterChip active={value === null} onClick={() => onChange(null)}>
           全部
-        </button>
+        </FilterChip>
         {subcategories.map((sub) => (
-          <button
+          <FilterChip
             key={sub.value}
-            type="button"
+            active={value === sub.value}
             onClick={() => onChange(sub.value)}
-            className={cn(
-              'shrink-0 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors cursor-pointer min-h-[36px]',
-              value === sub.value
-                ? 'border-primary bg-primary text-primary-foreground'
-                : 'border-border bg-background hover:border-primary/50 hover:bg-accent',
-            )}
           >
             {sub.label}
-          </button>
+          </FilterChip>
         ))}
       </div>
     </div>
