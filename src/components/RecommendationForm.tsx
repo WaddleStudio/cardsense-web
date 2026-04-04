@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react'
 import { useRecommendation } from '@/api'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { FilterChip } from '@/components/ui/filter-chip'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
@@ -12,6 +13,8 @@ import {
   CATEGORY_LABELS,
   CHANNELS,
   CHANNEL_LABELS,
+  CUBE_BENEFIT_TIERS,
+  MERCHANT_SUGGESTIONS,
 } from '@/types'
 import type { RecommendationResponse, Category, Channel } from '@/types'
 
@@ -28,9 +31,16 @@ export function RecommendationForm({ onResult, prefillCard }: Props) {
   const [category, setCategory] = useState<Category | ''>('')
   const [subcategory, setSubcategory] = useState<string | null>(null)
   const [channel, setChannel] = useState<Channel | ''>('')
+  const [merchantName, setMerchantName] = useState('')
+  const [cubeTier, setCubeTier] = useState<string>('LEVEL_1')
   const [selectedCard, setSelectedCard] = useState<string | undefined>(prefillCard)
 
   const mutation = useRecommendation()
+  const merchantSuggestions = [
+    ...(category ? (MERCHANT_SUGGESTIONS[category] ?? []) : []),
+    ...(category && subcategory ? (MERCHANT_SUGGESTIONS[`${category}:${subcategory}`] ?? []) : []),
+  ].filter((item, index, array) => array.findIndex((candidate) => candidate.value === item.value) === index)
+  const showCubeTier = !selectedCard || selectedCard === 'CATHAY_CUBE'
 
   const amountNum = Number(amount)
   const amountError = amountTouched && amount !== '' && (isNaN(amountNum) || amountNum <= 0)
@@ -46,7 +56,13 @@ export function RecommendationForm({ onResult, prefillCard }: Props) {
         amount: amountNum,
         category: category as Category,
         subcategory: subcategory ?? undefined,
-        ...(channel && { scenario: { channel: channel as Channel } }),
+        ...((channel || merchantName.trim()) && {
+          scenario: {
+            ...(channel && { channel: channel as Channel }),
+            ...(merchantName.trim() && { merchantName: merchantName.trim().toUpperCase() }),
+          },
+        }),
+        ...(showCubeTier && { benefitPlanTiers: { CATHAY_CUBE: cubeTier } }),
         ...(selectedCard && { cardCodes: [selectedCard] }),
         comparison: {
           includePromotionBreakdown: true,
@@ -119,8 +135,38 @@ export function RecommendationForm({ onResult, prefillCard }: Props) {
                 >
                   {v.toLocaleString()}
                 </button>
-              ))}
+              ))} 
             </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="merchantName">
+              指定商家 / 通路
+              <span className="text-muted-foreground ml-1 font-normal">(選填，但很有用)</span>
+            </Label>
+            <Input
+              id="merchantName"
+              type="text"
+              placeholder="例如 ChatGPT、全聯、華航、Uber Eats"
+              value={merchantName}
+              onChange={(e) => setMerchantName(e.target.value)}
+            />
+            {merchantSuggestions.length > 0 && (
+              <div className="space-y-1.5">
+                <p className="text-xs text-muted-foreground">常見商家</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {merchantSuggestions.map((merchant) => (
+                    <FilterChip
+                      key={merchant.value}
+                      active={merchantName.trim().toUpperCase() === merchant.value}
+                      onClick={() => setMerchantName(merchant.value)}
+                    >
+                      {merchant.label}
+                    </FilterChip>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Category */}
@@ -148,6 +194,31 @@ export function RecommendationForm({ onResult, prefillCard }: Props) {
               </SelectContent>
             </Select>
           </div>
+
+          {showCubeTier && (
+            <div className="space-y-2 rounded-lg border border-primary/20 bg-primary/5 px-3 py-3">
+              <div className="space-y-1">
+                <Label className="text-sm font-medium">國泰 CUBE 等級</Label>
+                <p className="text-xs text-muted-foreground">
+                  若這次比較會包含 CUBE，這個設定會直接影響 2% / 3% / 3.3% 的計算。
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {CUBE_BENEFIT_TIERS.map((tier) => (
+                  <FilterChip
+                    key={tier.value}
+                    active={cubeTier === tier.value}
+                    onClick={() => setCubeTier(tier.value)}
+                  >
+                    {tier.label}
+                  </FilterChip>
+                ))}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {CUBE_BENEFIT_TIERS.find((tier) => tier.value === cubeTier)?.description}
+              </p>
+            </div>
+          )}
 
           {category && (
             <SubcategoryGrid

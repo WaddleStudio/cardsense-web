@@ -60,6 +60,7 @@ export interface RecommendationRequest {
   amount?: number
   category?: Category
   subcategory?: string
+  benefitPlanTiers?: Record<string, string>
   cardCodes?: string[]
   registeredPromotionIds?: string[]
   benefitUsage?: BenefitUsage[]

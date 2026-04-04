@@ -117,8 +117,12 @@ export function RecommendationResults({ result }: Props) {
 function ScenarioSummary({ result }: { result: RecommendationResponse }) {
   const category = result.scenario.category
   const subcategory = result.scenario.subcategory
+  const merchantName = result.scenario.merchantName
   const categoryLabel = category ? CATEGORY_LABELS[category] ?? category : null
   const subcategoryLabel = subcategory ? SUBCATEGORY_LABELS[subcategory] ?? subcategory : null
+  const assumedCubeTier = result.recommendations
+    .flatMap((rec) => rec.conditions)
+    .find((condition) => condition.type === 'ASSUMED_BENEFIT_TIER')?.value
   const isGeneralScene = !subcategory || subcategory === 'GENERAL'
 
   return (
@@ -135,12 +139,27 @@ function ScenarioSummary({ result }: { result: RecommendationResponse }) {
             {subcategoryLabel}
           </Badge>
         )}
+        {merchantName && (
+          <Badge variant="outline" className="rounded-full">
+            商家：{merchantName}
+          </Badge>
+        )}
+        {assumedCubeTier && (
+          <Badge variant="outline" className="rounded-full">
+            CUBE：{assumedCubeTier}
+          </Badge>
+        )}
       </div>
       <p className="mt-2 text-xs text-muted-foreground leading-relaxed">
         {isGeneralScene
           ? '目前結果只比較這個母類別下的通用優惠，未納入特定子類別場景。'
           : '目前結果只比較這個子類別場景，只有明確命中這個子類別的優惠會進入比較。'}
       </p>
+      {merchantName && (
+        <p className="mt-2 text-xs text-muted-foreground leading-relaxed">
+          已套用指定商家條件，所以像 ChatGPT、全聯、華航這類通路型優惠會更容易被精準命中。
+        </p>
+      )}
     </div>
   )
 }
@@ -273,9 +292,12 @@ function CashbackDisplay({ rec, size }: { rec: CardRecommendation; size: 'lg' | 
 function ConditionBadges({ rec }: { rec: CardRecommendation }) {
   if (rec.conditions.length === 0 && !rec.validUntil) return null
 
+  const visibleConditions = rec.conditions.filter((condition) => condition.type !== 'TEXT')
+  const fallbackConditions = visibleConditions.length > 0 ? visibleConditions : rec.conditions
+
   return (
     <div className="flex flex-wrap gap-1.5">
-      {rec.conditions.map((c, i) => (
+      {fallbackConditions.map((c, i) => (
         <Badge key={i} variant="outline" className="text-xs rounded-full">
           {c.label}
         </Badge>
