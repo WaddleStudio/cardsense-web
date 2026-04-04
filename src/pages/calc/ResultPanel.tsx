@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+﻿import { useMemo } from 'react'
 import { cn } from '@/lib/utils'
 import { CATEGORY_LABELS, SUBCATEGORY_LABELS } from '@/types'
 import type { CardRecommendation, Category } from '@/types'
@@ -29,26 +29,36 @@ function processResult(recommendations: CardRecommendation[]): CalcResult | null
   return { ranked, best, worst, singleDiff, annualLoss: singleDiff * 12 }
 }
 
+function buildCardLabel(rec: CardRecommendation) {
+  const bank = rec.bankName?.trim() || 'Unknown Bank'
+  const card = rec.cardName?.trim() || 'Unknown Card'
+  return `${bank} ${card}`
+}
+
+function truncateCardLabel(label: string, maxLength = 18) {
+  return label.length > maxLength ? `${label.slice(0, maxLength - 1)}…` : label
+}
+
 export function ResultPanel({ recommendations, amount, category }: ResultPanelProps) {
   const result = useMemo(() => processResult(recommendations), [recommendations])
 
   if (!result) return null
 
   const maxReturn = result.ranked[0].estimatedReturn
+  const bestLabel = buildCardLabel(result.best)
+  const worstLabel = buildCardLabel(result.worst)
   const hasAnomalousRate = result.ranked.some(
     (rec) => amount > 0 && rec.estimatedReturn / amount > 0.2,
   )
 
   return (
     <div className="space-y-4 animate-fade-slide-up">
-      {/* Anomaly warning */}
       {hasAnomalousRate && (
         <div className="rounded-xl border border-amber-400/60 bg-amber-50 dark:bg-amber-950/30 p-3 text-xs text-amber-800 dark:text-amber-300 leading-relaxed">
-          <span className="font-semibold">注意：</span>部分卡片的預估回饋率超過 20%，可能受限時活動、固定回饋或資料偏差影響，建議以銀行官網公告為準。
+          <span className="font-semibold">注意：</span>部分卡片的回饋比例超過 20%，可能包含限時活動或資料異常，建議再到卡片詳情確認條件。
         </div>
       )}
 
-      {/* Bar chart */}
       <div className="rounded-xl border bg-card p-4 shadow-sm">
         <h3 className="text-sm font-semibold mb-3">回饋排名</h3>
         <div className="space-y-2">
@@ -57,6 +67,8 @@ export function ResultPanel({ recommendations, amount, category }: ResultPanelPr
             const isLast = i === result.ranked.length - 1
             const isAnomalous = amount > 0 && rec.estimatedReturn / amount > 0.2
             const pct = maxReturn > 0 ? Math.max(4, (rec.estimatedReturn / maxReturn) * 100) : 4
+            const fullLabel = buildCardLabel(rec)
+            const shortLabel = truncateCardLabel(fullLabel)
             const barColor = isFirst
               ? 'bg-reward'
               : isLast
@@ -69,8 +81,11 @@ export function ResultPanel({ recommendations, amount, category }: ResultPanelPr
                 className="flex items-center gap-2 text-xs"
                 style={{ animationDelay: `${i * 80}ms` }}
               >
-                <div className="w-20 sm:w-28 shrink-0 truncate text-right text-muted-foreground leading-tight">
-                  {rec.cardName}
+                <div
+                  className="w-24 sm:w-36 shrink-0 text-right text-muted-foreground leading-tight"
+                  title={fullLabel}
+                >
+                  <span className="block truncate font-medium text-foreground">{shortLabel}</span>
                   {rec.subcategory && rec.subcategory !== 'GENERAL' && SUBCATEGORY_LABELS[rec.subcategory] && (
                     <span className="block text-[10px] text-muted-foreground/60">[{SUBCATEGORY_LABELS[rec.subcategory]}優惠]</span>
                   )}
@@ -93,7 +108,7 @@ export function ResultPanel({ recommendations, amount, category }: ResultPanelPr
                 >
                   NT${rec.estimatedReturn.toLocaleString()}
                   {isAnomalous && (
-                    <span className="ml-0.5 text-amber-500" title="回饋率超過 20%">⚠</span>
+                    <span className="ml-0.5 text-amber-500" title="回饋比例超過 20%">!</span>
                   )}
                 </div>
               </div>
@@ -102,25 +117,24 @@ export function ResultPanel({ recommendations, amount, category }: ResultPanelPr
         </div>
       </div>
 
-      {/* Best vs Worst comparison */}
       <div className="rounded-xl border bg-card p-4 shadow-sm">
         <div className="flex items-start justify-between gap-4">
           <div className="flex-1">
             <p className="text-xs text-muted-foreground mb-0.5">最佳</p>
-            <p className="font-semibold text-sm leading-snug">{result.best.cardName}</p>
+            <p className="font-semibold text-sm leading-snug" title={bestLabel}>{bestLabel}</p>
             <p className="text-reward font-bold tabular-nums mt-0.5">
               +NT${result.best.estimatedReturn.toLocaleString()}
             </p>
           </div>
           <div className="text-center px-2">
-            <p className="text-xs text-muted-foreground mb-0.5">差額</p>
+            <p className="text-xs text-muted-foreground mb-0.5">差距</p>
             <p className="text-destructive font-bold text-xl tabular-nums">
               NT${result.singleDiff.toLocaleString()}
             </p>
           </div>
           <div className="flex-1 text-right">
             <p className="text-xs text-muted-foreground mb-0.5">最差</p>
-            <p className="font-semibold text-sm leading-snug">{result.worst.cardName}</p>
+            <p className="font-semibold text-sm leading-snug" title={worstLabel}>{worstLabel}</p>
             <p className="text-muted-foreground tabular-nums mt-0.5">
               +NT${result.worst.estimatedReturn.toLocaleString()}
             </p>
@@ -128,38 +142,32 @@ export function ResultPanel({ recommendations, amount, category }: ResultPanelPr
         </div>
 
         <p className="mt-3 text-xs text-muted-foreground leading-relaxed border-t pt-3">
-          假設每月在「{CATEGORY_LABELS[category]}」消費 NT${amount.toLocaleString()}，
-          用{' '}
-          <span className="font-medium text-foreground">{result.worst.cardName}</span>
-          {' '}代替{' '}
-          <span className="font-medium text-foreground">{result.best.cardName}</span>，
-          一年少拿 NT$
+          以 {CATEGORY_LABELS[category]} 類別、單筆消費 NT${amount.toLocaleString()} 估算，
+          <span className="font-medium text-foreground">{worstLabel}</span>
+          {' '}與{' '}
+          <span className="font-medium text-foreground">{bestLabel}</span>
+          之間一年可能相差 NT$
           <span className="font-medium text-destructive tabular-nums">
             {result.annualLoss.toLocaleString()}
-          </span>{' '}
-          回饋。
+          </span>
+          的回饋。
         </p>
       </div>
 
-      {/* Annual loss counter */}
       <AnnualLossBox annualLoss={result.annualLoss} monthlyDiff={result.singleDiff} />
 
-      {/* Disclaimer */}
       <p className="text-xs text-muted-foreground leading-relaxed px-1">
-        本計算機提供信用卡回饋估算，僅供參考。年度損失基於假設每月消費金額相同的簡化模型，
-        實際回饋依各銀行公告為準。CardSense 不構成金融建議，請以銀行官網資訊為最終依據。
+        本結果依目前卡片優惠資料估算，實際回饋仍會受到登錄、名額、通路限制與活動期間影響。建議在申辦或切換主力卡前，再確認官方條件。
       </p>
 
-      {/* Share */}
       <ShareButton
         annualLoss={result.annualLoss}
-        bestCardName={result.best.cardName}
-        worstCardName={result.worst.cardName}
+        bestCardName={bestLabel}
+        worstCardName={worstLabel}
         category={CATEGORY_LABELS[category]}
         amount={amount}
       />
 
-      {/* CTA */}
       <CtaStrip amount={amount} category={category} />
     </div>
   )
