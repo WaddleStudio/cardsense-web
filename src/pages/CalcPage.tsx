@@ -34,10 +34,14 @@ export function CalcPage() {
   const { mutate: getRecommendation, data: result, isPending } = useRecommendation()
   // Secondary mutation: category-change-triggered, only used to update selectedCards
   const { mutate: autoSelectCards, isPending: isAutoSelecting } = useRecommendation()
-  const merchantSuggestions = [
-    ...(category ? (MERCHANT_SUGGESTIONS[category] ?? []) : []),
-    ...(category && subcategory ? (MERCHANT_SUGGESTIONS[`${category}:${subcategory}`] ?? []) : []),
-  ].filter((item, index, array) => array.findIndex((candidate) => candidate.value === item.value) === index)
+  const sceneSpecificMerchantSuggestions =
+    category && subcategory ? (MERCHANT_SUGGESTIONS[`${category}:${subcategory}`] ?? []) : []
+  const merchantSuggestions =
+    sceneSpecificMerchantSuggestions.length > 0
+      ? sceneSpecificMerchantSuggestions
+      : category
+        ? (MERCHANT_SUGGESTIONS[category] ?? [])
+        : []
   const hasMerchantScopedScene = Boolean(
     category && subcategory && MERCHANT_SUGGESTIONS[`${category}:${subcategory}`]?.length,
   )
