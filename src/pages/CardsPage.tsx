@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Separator } from '@/components/ui/separator'
 import { FilterChip } from '@/components/ui/filter-chip'
-import { CreditCard, Search, X, ExternalLink, AlertCircle, RotateCcw, SlidersHorizontal } from 'lucide-react'
+import { CreditCard, Search, X, AlertCircle, RotateCcw, SlidersHorizontal, RefreshCw } from 'lucide-react'
 import { useDebouncedValue } from '@/hooks/use-debounce'
 import { cn } from '@/lib/utils'
 import {
@@ -20,13 +20,29 @@ import {
   ANNUAL_FEE_RANGE_LABELS,
   RECOMMENDATION_SCOPES,
 } from '@/types'
-import type { CardSummary, Category, EligibilityType, AnnualFeeRange, RecommendationScope } from '@/types'
+import type { CardSummary, BankCode, Category, EligibilityType, AnnualFeeRange, RecommendationScope } from '@/types'
 
 const SCOPE_LABELS: Record<string, string> = {
   RECOMMENDABLE: '可推薦',
   CATALOG_ONLY: '僅目錄',
   FUTURE_SCOPE: '未來擴充',
 }
+
+/** Bank accent colors — using oklch hues that work in both light/dark modes */
+const BANK_COLORS: Record<BankCode, { bg: string; text: string }> = {
+  CATHAY: { bg: 'bg-emerald-100 dark:bg-emerald-900/40', text: 'text-emerald-700 dark:text-emerald-400' },
+  ESUN:   { bg: 'bg-blue-100 dark:bg-blue-900/40', text: 'text-blue-700 dark:text-blue-400' },
+  TAISHIN: { bg: 'bg-rose-100 dark:bg-rose-900/40', text: 'text-rose-700 dark:text-rose-400' },
+  CTBC:   { bg: 'bg-sky-100 dark:bg-sky-900/40', text: 'text-sky-700 dark:text-sky-400' },
+  FUBON:  { bg: 'bg-indigo-100 dark:bg-indigo-900/40', text: 'text-indigo-700 dark:text-indigo-400' },
+  MEGA:   { bg: 'bg-amber-100 dark:bg-amber-900/40', text: 'text-amber-700 dark:text-amber-400' },
+  FIRST:  { bg: 'bg-orange-100 dark:bg-orange-900/40', text: 'text-orange-700 dark:text-orange-400' },
+  SINOPAC: { bg: 'bg-violet-100 dark:bg-violet-900/40', text: 'text-violet-700 dark:text-violet-400' },
+  TPBANK: { bg: 'bg-teal-100 dark:bg-teal-900/40', text: 'text-teal-700 dark:text-teal-400' },
+  UBOT:   { bg: 'bg-cyan-100 dark:bg-cyan-900/40', text: 'text-cyan-700 dark:text-cyan-400' },
+}
+
+const DEFAULT_BANK_COLOR = { bg: 'bg-primary/10', text: 'text-primary' }
 
 type SortKey = 'name' | 'annualFee' | 'bank'
 
@@ -44,6 +60,8 @@ export function CardsPage() {
   const { data: cards, isLoading, error, refetch } = useCards()
 
   const debouncedSearch = useDebouncedValue(search, 300)
+
+  const hasAnyFilter = Boolean(bankFilter || debouncedSearch.trim() || eligibilityFilter || categoryFilter || feeRangeFilter || scopeFilter || benefitPlanFilter)
 
   const filteredCards = useMemo(() => {
     if (!cards) return []
@@ -105,6 +123,16 @@ export function CardsPage() {
 
   const activeAdvancedFilterCount = [eligibilityFilter, categoryFilter, feeRangeFilter, scopeFilter, benefitPlanFilter].filter(Boolean).length
 
+  function clearAllFilters() {
+    setBankFilter('')
+    setEligibilityFilter('')
+    setCategoryFilter('')
+    setFeeRangeFilter('')
+    setScopeFilter('')
+    setBenefitPlanFilter(false)
+    setSearch('')
+  }
+
   return (
     <div className="space-y-6">
       <div>
@@ -153,7 +181,7 @@ export function CardsPage() {
 
         {/* Bank filter chips */}
         <div
-          className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide sm:flex-wrap sm:overflow-x-visible sm:pb-0"
+          className="flex flex-wrap gap-2"
           role="group"
           aria-label="依銀行篩選"
         >
@@ -217,7 +245,7 @@ export function CardsPage() {
         {/* Category filter */}
         <div className="space-y-1.5">
           <p className="text-xs font-medium text-muted-foreground">優惠類別</p>
-          <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide sm:flex-wrap sm:overflow-x-visible sm:pb-0" role="group" aria-label="依優惠類別篩選">
+          <div className="flex gap-2 flex-wrap" role="group" aria-label="依優惠類別篩選">
             <FilterChip active={categoryFilter === ''} onClick={() => setCategoryFilter('')}>
               全部
             </FilterChip>
@@ -292,23 +320,21 @@ export function CardsPage() {
             <div key={i} className="rounded-xl border bg-card p-5 space-y-3 animate-pulse">
               <div className="flex items-start justify-between gap-2">
                 <div className="flex items-center gap-2">
-                  <div className="h-4 w-4 rounded bg-muted" />
+                  <div className="h-7 w-7 rounded-lg bg-muted" />
                   <div className="h-4 w-28 rounded bg-muted" />
                 </div>
                 <div className="h-5 w-12 rounded-full bg-muted" />
               </div>
               <div className="space-y-2 pt-1">
-                <div className="flex justify-between">
-                  <div className="h-3.5 w-8 rounded bg-muted" />
-                  <div className="h-3.5 w-20 rounded bg-muted" />
-                </div>
+                <div className="h-3.5 w-36 rounded bg-muted" />
                 <div className="flex justify-between">
                   <div className="h-3.5 w-8 rounded bg-muted" />
                   <div className="h-3.5 w-14 rounded bg-muted" />
                 </div>
               </div>
               <div className="flex gap-1.5 pt-1">
-                <div className="h-5 w-12 rounded-full bg-muted" />
+                <div className="h-5 w-10 rounded-full bg-muted" />
+                <div className="h-5 w-10 rounded-full bg-muted" />
               </div>
             </div>
           ))}
@@ -342,11 +368,17 @@ export function CardsPage() {
             <CreditCard className="h-6 w-6 opacity-50" />
           </div>
           <p className="text-sm">沒有找到符合條件的卡片</p>
+          {hasAnyFilter && (
+            <Button variant="outline" size="sm" className="cursor-pointer" onClick={clearAllFilters}>
+              <X className="h-3.5 w-3.5 mr-1.5" />
+              清除所有篩選
+            </Button>
+          )}
         </div>
       )}
 
       {/* Results count */}
-      {!isLoading && filteredCards.length > 0 && (bankFilter || debouncedSearch || eligibilityFilter || categoryFilter || feeRangeFilter || scopeFilter || benefitPlanFilter) && (
+      {!isLoading && filteredCards.length > 0 && hasAnyFilter && (
         <p className="text-xs text-muted-foreground tabular-nums">
           顯示 {filteredCards.length} 張卡片
         </p>
@@ -367,6 +399,11 @@ export function CardsPage() {
 function CardItem({ card }: { card: CardSummary }) {
   const isActive = card.cardStatus === 'ACTIVE'
   const isFree = card.annualFee === 0
+  const bankColor = BANK_COLORS[card.bankCode] ?? DEFAULT_BANK_COLOR
+  const categoryCount = card.availableCategories?.length ?? 0
+  const categoryLabels = (card.availableCategories ?? [])
+    .slice(0, 3)
+    .map((c) => CATEGORY_LABELS[c as Category] ?? c)
 
   return (
     <Link to={`/cards/${card.cardCode}`} className="block group">
@@ -374,8 +411,13 @@ function CardItem({ card }: { card: CardSummary }) {
         <CardHeader className="pb-3">
           <div className="flex items-start justify-between gap-2">
             <div className="flex items-center gap-2 min-w-0">
-              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-                <CreditCard className="h-3.5 w-3.5" />
+              <div className={cn(
+                'flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-xs font-bold transition-colors',
+                bankColor.bg,
+                bankColor.text,
+                'group-hover:bg-primary group-hover:text-primary-foreground',
+              )}>
+                {card.bankName.charAt(0)}
               </div>
               <CardTitle className="text-sm font-medium leading-tight truncate">
                 {card.cardName}
@@ -389,11 +431,15 @@ function CardItem({ card }: { card: CardSummary }) {
             </Badge>
           </div>
         </CardHeader>
-        <CardContent className="text-sm space-y-2 flex-1">
-          <div className="flex justify-between text-muted-foreground">
-            <span>銀行</span>
-            <span className="text-foreground font-medium">{card.bankName}</span>
-          </div>
+        <CardContent className="text-sm space-y-2.5 flex-1">
+          {/* Category highlights */}
+          {categoryCount > 0 && (
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              {categoryLabels.join('、')}
+              {categoryCount > 3 && ` 等 ${categoryCount} 個類別`}
+            </p>
+          )}
+
           <div className="flex justify-between text-muted-foreground">
             <span>年費</span>
             <span className={cn(
@@ -407,22 +453,21 @@ function CardItem({ card }: { card: CardSummary }) {
                 : '—'}
             </span>
           </div>
-          <div className="flex flex-wrap gap-1 pt-1">
-            {card.recommendationScopes.map((scope) => (
-              <Badge key={scope} variant="outline" className="text-xs rounded-full">
-                {SCOPE_LABELS[scope] ?? scope}
+
+          <div className="flex flex-wrap gap-1 pt-0.5">
+            {card.hasBenefitPlans && (
+              <Badge variant="outline" className="text-xs rounded-full gap-0.5">
+                <RefreshCw className="h-2.5 w-2.5" />
+                可切換方案
               </Badge>
-            ))}
+            )}
+            {card.recommendationScopes.includes('RECOMMENDABLE') && (
+              <Badge variant="outline" className="text-xs rounded-full text-reward border-reward/30">
+                可推薦
+              </Badge>
+            )}
           </div>
         </CardContent>
-        {card.applyUrl && (
-          <div className="px-6 pb-4">
-            <span className="inline-flex items-center gap-1 text-xs text-primary font-medium">
-              前往申辦
-              <ExternalLink className="h-3 w-3" />
-            </span>
-          </div>
-        )}
       </Card>
     </Link>
   )
