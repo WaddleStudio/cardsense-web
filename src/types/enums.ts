@@ -74,8 +74,7 @@ export const SUBCATEGORY_LABELS: Record<string, string> = Object.fromEntries(
   Object.values(SUBCATEGORIES).flatMap((subs) => subs?.map((s) => [s.value, s.label]) ?? []),
 )
 
-export const PAYMENT_METHODS = [
-  { value: 'MOBILE_PAY', label: '行動支付' },
+const PAYMENT_METHOD_OPTIONS = [
   { value: 'LINE_PAY', label: 'LINE Pay' },
   { value: 'APPLE_PAY', label: 'Apple Pay' },
   { value: 'GOOGLE_PAY', label: 'Google Pay' },
@@ -83,18 +82,21 @@ export const PAYMENT_METHODS = [
   { value: 'JKOPAY', label: '街口支付' },
   { value: 'ESUN_WALLET', label: '玉山 Wallet' },
   { value: '全支付', label: '全支付' },
-  { value: '街口支付', label: '街口支付' },
   { value: '悠遊付', label: '悠遊付' },
   { value: '全盈_PAY', label: '全盈+PAY' },
   { value: 'IPASS_MONEY', label: 'iPASS MONEY' },
   { value: 'ICASH_PAY', label: 'icash Pay' },
   { value: 'TWQR', label: 'TWQR' },
 ] as const
-export type PaymentMethod = (typeof PAYMENT_METHODS)[number]['value']
 
-export const PAYMENT_METHOD_LABELS: Record<string, string> = Object.fromEntries(
-  PAYMENT_METHODS.map((method) => [method.value, method.label]),
-)
+export const PAYMENT_METHODS = PAYMENT_METHOD_OPTIONS
+export type PaymentMethod = typeof PAYMENT_METHOD_OPTIONS[number]['value'] | 'MOBILE_PAY'
+
+export const PAYMENT_METHOD_LABELS: Record<string, string> = {
+  MOBILE_PAY: '行動支付',
+  ...Object.fromEntries(PAYMENT_METHOD_OPTIONS.map((method) => [method.value, method.label])),
+  街口支付: '街口支付',
+}
 
 export const MERCHANT_SUGGESTIONS: Record<string, { value: string; label: string }[]> = {
   ONLINE: [
