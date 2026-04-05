@@ -109,6 +109,7 @@ export function Layout() {
       <footer className="border-t py-5 text-center text-xs text-muted-foreground">
         <p>CardSense — 情境式信用卡回饋推薦平台</p>
         <p className="mt-0.5 opacity-60">資料僅供參考，實際回饋依各銀行規定為準</p>
+        <p className="mt-2 opacity-50">Made by WaddleStudio</p>
       </footer>
     </div>
   )
