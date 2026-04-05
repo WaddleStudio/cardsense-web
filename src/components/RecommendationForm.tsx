@@ -218,7 +218,7 @@ export function RecommendationForm({ onResult, prefillCard }: Props) {
           <div className="space-y-2">
             <Label htmlFor="merchantName">
               指定商家 / 通路
-              <span className="ml-1 font-normal text-muted-foreground">(可不填，想精準比特定通路時再填)</span>
+              <span className="ml-1 font-normal text-muted-foreground">(可不填；像 Agoda、ChatGPT、全聯這類指定通路再填即可)</span>
             </Label>
             <Input
               id="merchantName"
@@ -229,7 +229,7 @@ export function RecommendationForm({ onResult, prefillCard }: Props) {
             />
             {hasSceneSpecificMerchantSuggestions && !merchantName.trim() && (
               <p className="text-xs text-amber-700">
-                {subcategoryLabel ? `這個${subcategoryLabel}場景` : '這個消費場景'}有商家限定優惠，補上商家後命中會更準。
+                {subcategoryLabel ? `這個${subcategoryLabel}場景` : '這個消費場景'}常有指定商家優惠，補上通路後命中會更準。
               </p>
             )}
             {merchantSuggestions.length > 0 && (

@@ -44,6 +44,7 @@ export const SUBCATEGORIES: Partial<Record<Category, { value: string; label: str
     { value: 'ECOMMERCE', label: '電商平台' },
     { value: 'SUBSCRIPTION', label: '訂閱服務' },
     { value: 'AI_TOOL', label: 'AI 工具' },
+    { value: 'TRAVEL_PLATFORM', label: '旅遊平台' },
     { value: 'INTERNATIONAL_ECOMMERCE', label: '跨境電商' },
   ],
   TRANSPORT: [
@@ -56,7 +57,6 @@ export const SUBCATEGORIES: Partial<Record<Category, { value: string; label: str
   ],
   OVERSEAS: [
     { value: 'OVERSEAS_IN_STORE', label: '海外實體' },
-    { value: 'TRAVEL_PLATFORM', label: '旅遊平台' },
   ],
   OTHER: [
     { value: 'EV_CHARGING', label: '充電' },
@@ -113,6 +113,16 @@ export const MERCHANT_SUGGESTIONS: Record<string, { value: string; label: string
     { value: 'COUPANG', label: 'Coupang' },
     { value: 'TAOBAO', label: '淘寶' },
     { value: 'TMALL', label: '天貓' },
+  ],
+  'ONLINE:TRAVEL_PLATFORM': [
+    { value: 'AGODA', label: 'Agoda' },
+    { value: 'BOOKING', label: 'Booking.com' },
+    { value: 'TRIP_COM', label: 'Trip.com' },
+    { value: 'KLOOK', label: 'Klook' },
+    { value: 'KKDAY', label: 'KKday' },
+    { value: 'HOTELS_COM', label: 'Hotels.com' },
+    { value: 'ASIAYO', label: 'AsiaYo' },
+    { value: 'AIRSIM', label: 'AIRSIM' },
   ],
   'ENTERTAINMENT:STREAMING': [
     { value: 'NETFLIX', label: 'Netflix' },

@@ -188,7 +188,7 @@ export function CalcPage() {
           <div className="space-y-2">
             <label htmlFor="calc-merchant-name" className="text-sm font-medium">
               指定商家 / 通路
-              <span className="ml-1 font-normal text-muted-foreground">(可不填)</span>
+              <span className="ml-1 font-normal text-muted-foreground">(可不填；比 Agoda、Trip.com、全聯這類通路時再補)</span>
             </label>
             <Input
               id="calc-merchant-name"
@@ -199,7 +199,7 @@ export function CalcPage() {
             />
             {hasMerchantScopedScene && !merchantName.trim() && subcategory && (
               <p className="text-xs text-amber-700 leading-relaxed">
-                {SUBCATEGORY_LABELS[subcategory] ?? subcategory} 場景常有商家限定優惠，補上商家後比較結果會更準。
+                {SUBCATEGORY_LABELS[subcategory] ?? subcategory} 場景常有指定商家優惠，補上通路後比較結果會更準。
               </p>
             )}
             {merchantSuggestions.length > 0 && (

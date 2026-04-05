@@ -57,7 +57,7 @@ export function RecommendationResults({ result }: Props) {
           <p className="text-sm">找不到符合這個情境的推薦結果</p>
           {hasMerchantScopedScene && !merchantName && (
             <p className="text-xs">
-              這個場景可能還需要指定商家，像 AI 工具通常要再填 `CHATGPT` 或 `CLAUDE` 才會命中通路優惠。
+              這個場景可能還需要指定商家，像 AI 工具可填 `CHATGPT`、旅遊平台可填 `AGODA` 或 `TRIP_COM`，才比較容易命中指定通路優惠。
             </p>
           )}
         </div>
@@ -173,11 +173,11 @@ function ScenarioSummary({ result }: { result: RecommendationResponse }) {
       <p className="mt-2 text-xs text-muted-foreground leading-relaxed">
         {isGeneralScene
           ? '目前結果只比較這個母類別下的通用優惠，未納入特定子類別場景。'
-          : '目前結果會一起比較這個子類別場景與 GENERAL 通用優惠，其他不相關場景不會納入。'}
+          : '目前結果只會讓命中這個指定場景的卡片進榜；同卡若有可疊加的一般回饋，仍會一併計入。'}
       </p>
       {merchantName && (
         <p className="mt-2 text-xs text-muted-foreground leading-relaxed">
-          已套用指定商家條件，所以像 ChatGPT、全聯、華航這類通路型優惠會更容易被精準命中。
+          已套用指定商家條件，所以像 ChatGPT、Agoda、全聯、華航這類指定通路優惠會更容易被精準命中。
         </p>
       )}
       {paymentMethodLabel && (
