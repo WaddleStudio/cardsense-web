@@ -39,6 +39,8 @@ export const SUBCATEGORIES: Partial<Record<Category, { value: string; label: str
     { value: 'WAREHOUSE', label: '量販' },
     { value: 'ELECTRONICS', label: '3C 家電' },
     { value: 'DRUGSTORE', label: '藥妝' },
+    { value: 'SPORTING_GOODS', label: '運動用品' },
+    { value: 'APPAREL', label: '服飾' },
   ],
   ONLINE: [
     { value: 'ECOMMERCE', label: '電商平台' },
@@ -49,6 +51,8 @@ export const SUBCATEGORIES: Partial<Record<Category, { value: string; label: str
   ],
   TRANSPORT: [
     { value: 'RIDESHARE', label: '叫車 / 共享' },
+    { value: 'PUBLIC_TRANSIT', label: '大眾運輸' },
+    { value: 'GAS_STATION', label: '加油' },
     { value: 'AIRLINE', label: '航空' },
   ],
   GROCERY: [
@@ -62,6 +66,7 @@ export const SUBCATEGORIES: Partial<Record<Category, { value: string; label: str
     { value: 'EV_CHARGING', label: '充電' },
     { value: 'PARKING', label: '停車' },
     { value: 'HOME_LIVING', label: '居家生活' },
+    { value: 'CHARITY_DONATION', label: '公益 / 捐款' },
   ],
 }
 
@@ -138,10 +143,28 @@ export const MERCHANT_SUGGESTIONS: Record<string, { value: string; label: string
     { value: 'COSMED', label: '康是美' },
     { value: 'WATSONS', label: '屈臣氏' },
   ],
+  'SHOPPING:SPORTING_GOODS': [
+    { value: 'DECATHLON', label: '迪卡儂' },
+  ],
+  'SHOPPING:APPAREL': [
+    { value: 'UNIQLO', label: 'UNIQLO' },
+    { value: 'NET', label: 'NET' },
+  ],
   'TRANSPORT:RIDESHARE': [
     { value: 'UBER', label: 'Uber' },
     { value: 'GRAB', label: 'Grab' },
     { value: 'YOXI', label: 'yoxi' },
+  ],
+  'TRANSPORT:PUBLIC_TRANSIT': [
+    { value: 'TRA', label: '台鐵' },
+    { value: 'THSR', label: '高鐵' },
+  ],
+  'TRANSPORT:GAS_STATION': [
+    { value: 'CPC', label: '台灣中油' },
+    { value: 'NATIONWIDE_GAS', label: '全國加油' },
+    { value: 'FORMOSA_PETROCHEMICAL', label: '台塑石油' },
+    { value: 'TAIA', label: '台亞' },
+    { value: 'FORMOZA', label: '福懋' },
   ],
   'TRANSPORT:AIRLINE': [
     { value: 'CHINA_AIRLINES', label: '中華航空' },
@@ -158,6 +181,10 @@ export const MERCHANT_SUGGESTIONS: Record<string, { value: string; label: string
     { value: 'U_POWER', label: 'U-POWER' },
     { value: 'EVOASIS', label: 'EVOASIS' },
     { value: 'ICHARGING', label: 'iCharging' },
+  ],
+  'OTHER:CHARITY_DONATION': [
+    { value: 'ESUN_WALLET_DONATION_SINGLE', label: '玉山 Wallet 單筆捐款' },
+    { value: 'ESUN_WALLET_DONATION_RECURRING', label: '玉山 Wallet 定期定額' },
   ],
 }
 
