@@ -40,6 +40,7 @@ export function RecommendationForm({ onResult, prefillCard }: Props) {
     ...(category ? (MERCHANT_SUGGESTIONS[category] ?? []) : []),
     ...(category && subcategory ? (MERCHANT_SUGGESTIONS[`${category}:${subcategory}`] ?? []) : []),
   ].filter((item, index, array) => array.findIndex((candidate) => candidate.value === item.value) === index)
+  const hasSceneSpecificMerchantSuggestions = Boolean(category && subcategory && merchantSuggestions.length > 0)
   const showCubeTier = !selectedCard || selectedCard === 'CATHAY_CUBE'
 
   const amountNum = Number(amount)
@@ -151,6 +152,11 @@ export function RecommendationForm({ onResult, prefillCard }: Props) {
               value={merchantName}
               onChange={(e) => setMerchantName(e.target.value)}
             />
+            {hasSceneSpecificMerchantSuggestions && !merchantName.trim() && (
+              <p className="text-xs text-amber-700">
+                這個消費場景有商家限定優惠，還要再指定商家才會比到像 ChatGPT、Claude 這類加碼。
+              </p>
+            )}
             {merchantSuggestions.length > 0 && (
               <div className="space-y-1.5">
                 <p className="text-xs text-muted-foreground">常見商家</p>

@@ -1,7 +1,10 @@
 import { useState, useEffect, useRef } from 'react'
 import { Calculator } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { FilterChip } from '@/components/ui/filter-chip'
+import { Input } from '@/components/ui/input'
 import { useCards, useRecommendation } from '@/api'
+import { MERCHANT_SUGGESTIONS, SUBCATEGORY_LABELS } from '@/types'
 import type { Category } from '@/types'
 import { AmountInput } from './calc/AmountInput'
 import { CategoryGrid } from './calc/CategoryGrid'
@@ -20,6 +23,7 @@ export function CalcPage() {
   const [amountTouched, setAmountTouched] = useState(false)
   const [category, setCategory] = useState<Category>(DEFAULT_CATEGORY)
   const [subcategory, setSubcategory] = useState<string | null>(null)
+  const [merchantName, setMerchantName] = useState('')
   const [selectedCards, setSelectedCards] = useState<string[]>([])
   const [cardSelectorError, setCardSelectorError] = useState<string | undefined>()
   const resultRef = useRef<HTMLDivElement>(null)
@@ -30,6 +34,13 @@ export function CalcPage() {
   const { mutate: getRecommendation, data: result, isPending } = useRecommendation()
   // Secondary mutation: category-change-triggered, only used to update selectedCards
   const { mutate: autoSelectCards, isPending: isAutoSelecting } = useRecommendation()
+  const merchantSuggestions = [
+    ...(category ? (MERCHANT_SUGGESTIONS[category] ?? []) : []),
+    ...(category && subcategory ? (MERCHANT_SUGGESTIONS[`${category}:${subcategory}`] ?? []) : []),
+  ].filter((item, index, array) => array.findIndex((candidate) => candidate.value === item.value) === index)
+  const hasMerchantScopedScene = Boolean(
+    category && subcategory && MERCHANT_SUGGESTIONS[`${category}:${subcategory}`]?.length,
+  )
 
   // When cards load or category changes: auto-select popular cards via API ranking
   useEffect(() => {
@@ -41,6 +52,11 @@ export function CalcPage() {
         amount: AUTO_SELECT_AMOUNT,
         category,
         subcategory: subcategory ?? undefined,
+        ...((merchantName.trim()) && {
+          scenario: {
+            merchantName: merchantName.trim().toUpperCase(),
+          },
+        }),
         cardCodes: cards.map((c) => c.cardCode),
         comparison: {
           includePromotionBreakdown: false,
@@ -59,7 +75,7 @@ export function CalcPage() {
       },
     )
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [cards, category, subcategory])
+  }, [cards, category, subcategory, merchantName])
 
   const amountNum = parseInt(amount, 10)
   const amountError =
@@ -81,6 +97,11 @@ export function CalcPage() {
         amount: amountNum,
         category,
         subcategory: subcategory ?? undefined,
+        ...((merchantName.trim()) && {
+          scenario: {
+            merchantName: merchantName.trim().toUpperCase(),
+          },
+        }),
         cardCodes: selectedCards,
         comparison: {
           includePromotionBreakdown: false,
@@ -119,9 +140,51 @@ export function CalcPage() {
             error={amountError}
           />
 
-          <CategoryGrid value={category} onChange={(c) => { setCategory(c); setSubcategory(null) }} />
+          <CategoryGrid value={category} onChange={(c) => {
+            setCategory(c)
+            setSubcategory(null)
+            setMerchantName('')
+          }} />
 
-          <SubcategoryGrid category={category} value={subcategory} onChange={setSubcategory} />
+          <SubcategoryGrid category={category} value={subcategory} onChange={(value) => {
+            setSubcategory(value)
+            setMerchantName('')
+          }} />
+
+          <div className="space-y-2">
+            <label htmlFor="calc-merchant-name" className="text-sm font-medium">
+              指定商家 / 通路
+              <span className="ml-1 font-normal text-muted-foreground">(可不填)</span>
+            </label>
+            <Input
+              id="calc-merchant-name"
+              type="text"
+              placeholder="例如 ChatGPT、Claude、Uber Eats"
+              value={merchantName}
+              onChange={(e) => setMerchantName(e.target.value)}
+            />
+            {hasMerchantScopedScene && !merchantName.trim() && subcategory && (
+              <p className="text-xs text-amber-700 leading-relaxed">
+                {SUBCATEGORY_LABELS[subcategory] ?? subcategory} 場景常有商家限定優惠，補上商家後比較結果會更準。
+              </p>
+            )}
+            {merchantSuggestions.length > 0 && (
+              <div className="space-y-1.5">
+                <p className="text-xs text-muted-foreground">常見商家</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {merchantSuggestions.map((merchant) => (
+                    <FilterChip
+                      key={merchant.value}
+                      active={merchantName.trim().toUpperCase() === merchant.value}
+                      onClick={() => setMerchantName(merchant.value)}
+                    >
+                      {merchant.label}
+                    </FilterChip>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
 
           <CardSelector
             selected={selectedCards}

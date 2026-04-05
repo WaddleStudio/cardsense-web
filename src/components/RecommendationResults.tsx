@@ -17,7 +17,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import { cn } from '@/lib/utils'
-import { CATEGORY_LABELS, SUBCATEGORY_LABELS } from '@/types'
+import { CATEGORY_LABELS, MERCHANT_SUGGESTIONS, SUBCATEGORY_LABELS } from '@/types'
 import type { BreakEvenAnalysis, CardRecommendation, RecommendationResponse } from '@/types'
 
 interface Props {
@@ -40,6 +40,12 @@ export function RecommendationResults({ result }: Props) {
   }
 
   const { recommendations, comparison, disclaimer } = result
+  const category = result.scenario.category
+  const subcategory = result.scenario.subcategory
+  const merchantName = result.scenario.merchantName
+  const hasMerchantScopedScene = Boolean(
+    category && subcategory && MERCHANT_SUGGESTIONS[`${category}:${subcategory}`]?.length,
+  )
 
   if (recommendations.length === 0) {
     return (
@@ -47,7 +53,14 @@ export function RecommendationResults({ result }: Props) {
         <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted">
           <Info className="h-6 w-6 opacity-50" />
         </div>
-        <p className="text-sm">找不到符合這個情境的推薦結果</p>
+        <div className="text-center space-y-1">
+          <p className="text-sm">找不到符合這個情境的推薦結果</p>
+          {hasMerchantScopedScene && !merchantName && (
+            <p className="text-xs">
+              這個場景可能還需要指定商家，像 AI 工具通常要再填 `CHATGPT` 或 `CLAUDE` 才會命中通路優惠。
+            </p>
+          )}
+        </div>
       </div>
     )
   }
@@ -153,7 +166,7 @@ function ScenarioSummary({ result }: { result: RecommendationResponse }) {
       <p className="mt-2 text-xs text-muted-foreground leading-relaxed">
         {isGeneralScene
           ? '目前結果只比較這個母類別下的通用優惠，未納入特定子類別場景。'
-          : '目前結果只比較這個子類別場景，只有明確命中這個子類別的優惠會進入比較。'}
+          : '目前結果會一起比較這個子類別場景與 GENERAL 通用優惠，其他不相關場景不會納入。'}
       </p>
       {merchantName && (
         <p className="mt-2 text-xs text-muted-foreground leading-relaxed">
