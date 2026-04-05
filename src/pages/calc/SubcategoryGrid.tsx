@@ -9,7 +9,7 @@ interface SubcategoryGridProps {
 }
 
 export function SubcategoryGrid({ category, value, onChange }: SubcategoryGridProps) {
-  const subcategories = SUBCATEGORIES[category]
+  const subcategories = SUBCATEGORIES[category]?.filter((sub) => sub.value !== 'MOBILE_PAY')
   if (!subcategories) return null
 
   return (

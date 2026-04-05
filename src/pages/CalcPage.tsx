@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button'
 import { FilterChip } from '@/components/ui/filter-chip'
 import { Input } from '@/components/ui/input'
 import { useCards, useRecommendation } from '@/api'
-import { MERCHANT_SUGGESTIONS, SUBCATEGORY_LABELS } from '@/types'
+import { MERCHANT_SUGGESTIONS, PAYMENT_METHODS, PAYMENT_METHOD_LABELS, SUBCATEGORY_LABELS } from '@/types'
 import type { Category } from '@/types'
 import { AmountInput } from './calc/AmountInput'
 import { CategoryGrid } from './calc/CategoryGrid'
@@ -24,6 +24,7 @@ export function CalcPage() {
   const [category, setCategory] = useState<Category>(DEFAULT_CATEGORY)
   const [subcategory, setSubcategory] = useState<string | null>(null)
   const [merchantName, setMerchantName] = useState('')
+  const [paymentMethod, setPaymentMethod] = useState<string | null>(null)
   const [selectedCards, setSelectedCards] = useState<string[]>([])
   const [cardSelectorError, setCardSelectorError] = useState<string | undefined>()
   const resultRef = useRef<HTMLDivElement>(null)
@@ -60,9 +61,10 @@ export function CalcPage() {
         amount: AUTO_SELECT_AMOUNT,
         category,
         subcategory: subcategory ?? undefined,
-        ...((merchantName.trim()) && {
+        ...((merchantName.trim() || paymentMethod) && {
           scenario: {
-            merchantName: merchantName.trim().toUpperCase(),
+            ...(merchantName.trim() && { merchantName: merchantName.trim().toUpperCase() }),
+            ...(paymentMethod && { paymentMethod }),
           },
         }),
         cardCodes: cards.map((c) => c.cardCode),
@@ -83,7 +85,7 @@ export function CalcPage() {
       },
     )
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [cards, category, subcategory, merchantName])
+  }, [cards, category, subcategory, merchantName, paymentMethod])
 
   const amountNum = parseInt(amount, 10)
   const amountError =
@@ -105,9 +107,10 @@ export function CalcPage() {
         amount: amountNum,
         category,
         subcategory: subcategory ?? undefined,
-        ...((merchantName.trim()) && {
+        ...((merchantName.trim() || paymentMethod) && {
           scenario: {
-            merchantName: merchantName.trim().toUpperCase(),
+            ...(merchantName.trim() && { merchantName: merchantName.trim().toUpperCase() }),
+            ...(paymentMethod && { paymentMethod }),
           },
         }),
         cardCodes: selectedCards,
@@ -158,6 +161,29 @@ export function CalcPage() {
             setSubcategory(value)
             setMerchantName('')
           }} />
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium">支付方式</label>
+            <div className="flex gap-1.5 overflow-x-auto pb-1">
+              <FilterChip active={paymentMethod === null} onClick={() => setPaymentMethod(null)}>
+                不限方式
+              </FilterChip>
+              {PAYMENT_METHODS.map((method) => (
+                <FilterChip
+                  key={method.value}
+                  active={paymentMethod === method.value}
+                  onClick={() => setPaymentMethod(method.value)}
+                >
+                  {method.label}
+                </FilterChip>
+              ))}
+            </div>
+            {paymentMethod && (
+              <p className="text-xs text-muted-foreground">
+                已套用支付方式：{PAYMENT_METHOD_LABELS[paymentMethod] ?? paymentMethod}
+              </p>
+            )}
+          </div>
 
           <div className="space-y-2">
             <label htmlFor="calc-merchant-name" className="text-sm font-medium">

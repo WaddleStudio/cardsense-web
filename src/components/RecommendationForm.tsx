@@ -15,6 +15,8 @@ import {
   CHANNEL_LABELS,
   CUBE_BENEFIT_TIERS,
   MERCHANT_SUGGESTIONS,
+  PAYMENT_METHODS,
+  PAYMENT_METHOD_LABELS,
   SUBCATEGORY_LABELS,
 } from '@/types'
 import type { RecommendationResponse, Category, Channel } from '@/types'
@@ -33,6 +35,7 @@ export function RecommendationForm({ onResult, prefillCard }: Props) {
   const [subcategory, setSubcategory] = useState<string | null>(null)
   const [channel, setChannel] = useState<Channel | ''>('')
   const [merchantName, setMerchantName] = useState('')
+  const [paymentMethod, setPaymentMethod] = useState<string | null>(null)
   const [cubeTier, setCubeTier] = useState<string>('LEVEL_1')
   const [selectedCard, setSelectedCard] = useState<string | undefined>(prefillCard)
 
@@ -67,10 +70,11 @@ export function RecommendationForm({ onResult, prefillCard }: Props) {
         amount: amountNum,
         category: category as Category,
         subcategory: subcategory ?? undefined,
-        ...((channel || merchantName.trim()) && {
+        ...((channel || merchantName.trim() || paymentMethod) && {
           scenario: {
             ...(channel && { channel: channel as Channel }),
             ...(merchantName.trim() && { merchantName: merchantName.trim().toUpperCase() }),
+            ...(paymentMethod && { paymentMethod }),
           },
         }),
         ...(showCubeTier && { benefitPlanTiers: { CATHAY_CUBE: cubeTier } }),
@@ -187,6 +191,29 @@ export function RecommendationForm({ onResult, prefillCard }: Props) {
               }}
             />
           )}
+
+          <div className="space-y-2">
+            <Label>支付方式</Label>
+            <div className="flex gap-1.5 overflow-x-auto pb-1">
+              <FilterChip active={paymentMethod === null} onClick={() => setPaymentMethod(null)}>
+                不限方式
+              </FilterChip>
+              {PAYMENT_METHODS.map((method) => (
+                <FilterChip
+                  key={method.value}
+                  active={paymentMethod === method.value}
+                  onClick={() => setPaymentMethod(method.value)}
+                >
+                  {method.label}
+                </FilterChip>
+              ))}
+            </div>
+            {paymentMethod && (
+              <p className="text-xs text-muted-foreground">
+                已套用支付方式：{PAYMENT_METHOD_LABELS[paymentMethod] ?? paymentMethod}
+              </p>
+            )}
+          </div>
 
           <div className="space-y-2">
             <Label htmlFor="merchantName">

@@ -17,7 +17,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import { cn } from '@/lib/utils'
-import { CATEGORY_LABELS, MERCHANT_SUGGESTIONS, SUBCATEGORY_LABELS } from '@/types'
+import { CATEGORY_LABELS, MERCHANT_SUGGESTIONS, PAYMENT_METHOD_LABELS, SUBCATEGORY_LABELS } from '@/types'
 import type { BreakEvenAnalysis, CardRecommendation, RecommendationResponse } from '@/types'
 
 interface Props {
@@ -131,8 +131,10 @@ function ScenarioSummary({ result }: { result: RecommendationResponse }) {
   const category = result.scenario.category
   const subcategory = result.scenario.subcategory
   const merchantName = result.scenario.merchantName
+  const paymentMethod = result.scenario.paymentMethod
   const categoryLabel = category ? CATEGORY_LABELS[category] ?? category : null
   const subcategoryLabel = subcategory ? SUBCATEGORY_LABELS[subcategory] ?? subcategory : null
+  const paymentMethodLabel = paymentMethod ? PAYMENT_METHOD_LABELS[paymentMethod] ?? paymentMethod : null
   const assumedCubeTier = result.recommendations
     .flatMap((rec) => rec.conditions)
     .find((condition) => condition.type === 'ASSUMED_BENEFIT_TIER')?.value
@@ -157,6 +159,11 @@ function ScenarioSummary({ result }: { result: RecommendationResponse }) {
             商家：{merchantName}
           </Badge>
         )}
+        {paymentMethodLabel && (
+          <Badge variant="outline" className="rounded-full">
+            支付：{paymentMethodLabel}
+          </Badge>
+        )}
         {assumedCubeTier && (
           <Badge variant="outline" className="rounded-full">
             CUBE：{assumedCubeTier}
@@ -171,6 +178,11 @@ function ScenarioSummary({ result }: { result: RecommendationResponse }) {
       {merchantName && (
         <p className="mt-2 text-xs text-muted-foreground leading-relaxed">
           已套用指定商家條件，所以像 ChatGPT、全聯、華航這類通路型優惠會更容易被精準命中。
+        </p>
+      )}
+      {paymentMethodLabel && (
+        <p className="mt-2 text-xs text-muted-foreground leading-relaxed">
+          已套用支付方式條件，所以像行動支付或指定支付平台的優惠會一起納入比對。
         </p>
       )}
     </div>
