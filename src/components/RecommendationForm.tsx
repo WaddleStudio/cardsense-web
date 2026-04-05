@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react'
-import { Loader2, Search, X, AlertCircle, RotateCcw } from 'lucide-react'
+import { AlertCircle, Loader2, RotateCcw, Search, X } from 'lucide-react'
 import { useRecommendation } from '@/api'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -13,13 +13,13 @@ import {
   CATEGORY_LABELS,
   CHANNELS,
   CHANNEL_LABELS,
-  CUBE_BENEFIT_TIERS,
   MERCHANT_SUGGESTIONS,
   PAYMENT_METHODS,
   PAYMENT_METHOD_LABELS,
   SUBCATEGORY_LABELS,
+  SWITCHING_CARD_STATE_CONFIG,
 } from '@/types'
-import type { RecommendationResponse, Category, Channel } from '@/types'
+import type { Category, Channel, RecommendationResponse } from '@/types'
 
 const QUICK_AMOUNTS = [500, 1000, 3000, 5000]
 
@@ -36,8 +36,9 @@ export function RecommendationForm({ onResult, prefillCard }: Props) {
   const [channel, setChannel] = useState<Channel | ''>('')
   const [merchantName, setMerchantName] = useState('')
   const [paymentMethod, setPaymentMethod] = useState<string | null>(null)
-  const [cubeTier, setCubeTier] = useState<string>('LEVEL_1')
   const [selectedCard, setSelectedCard] = useState<string | undefined>(prefillCard)
+  const [activePlansByCard, setActivePlansByCard] = useState<Record<string, string>>({})
+  const [planRuntimeByCard, setPlanRuntimeByCard] = useState<Record<string, Record<string, string>>>({})
 
   const mutation = useRecommendation()
   const sceneSpecificMerchantSuggestions =
@@ -54,11 +55,24 @@ export function RecommendationForm({ onResult, prefillCard }: Props) {
     merchantSuggestions.length > 0
       ? `例如 ${merchantSuggestions.slice(0, 3).map((merchant) => merchant.label).join('、')}`
       : '例如 ChatGPT、Claude、Uber Eats'
-  const showCubeTier = !selectedCard || selectedCard === 'CATHAY_CUBE'
 
+  const cubeTier = planRuntimeByCard.CATHAY_CUBE?.tier ?? 'LEVEL_1'
   const amountNum = Number(amount)
-  const amountError = amountTouched && amount !== '' && (isNaN(amountNum) || amountNum <= 0)
-  const canSubmit = amount && !amountError && category && !mutation.isPending
+  const amountError = amountTouched && amount !== '' && (Number.isNaN(amountNum) || amountNum <= 0)
+  const canSubmit = Boolean(amount && !amountError && category && !mutation.isPending)
+
+  function clearSwitchingCardState(cardCode: string) {
+    setActivePlansByCard((prev) => {
+      const next = { ...prev }
+      delete next[cardCode]
+      return next
+    })
+    setPlanRuntimeByCard((prev) => {
+      const next = { ...prev }
+      delete next[cardCode]
+      return next
+    })
+  }
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault()
@@ -77,7 +91,9 @@ export function RecommendationForm({ onResult, prefillCard }: Props) {
             ...(paymentMethod && { paymentMethod }),
           },
         }),
-        ...(showCubeTier && { benefitPlanTiers: { CATHAY_CUBE: cubeTier } }),
+        ...(Object.keys(activePlansByCard).length > 0 && { activePlansByCard }),
+        ...(Object.values(planRuntimeByCard).some((runtime) => Object.keys(runtime).length > 0) && { planRuntimeByCard }),
+        ...(cubeTier && { benefitPlanTiers: { CATHAY_CUBE: cubeTier } }),
         ...(selectedCard && { cardCodes: [selectedCard] }),
         comparison: {
           includePromotionBreakdown: true,
@@ -93,7 +109,7 @@ export function RecommendationForm({ onResult, prefillCard }: Props) {
     <Card className="shadow-sm">
       <CardHeader className="pb-4">
         <CardTitle className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-          消費情境
+          推薦條件
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -169,7 +185,7 @@ export function RecommendationForm({ onResult, prefillCard }: Props) {
               }}
             >
               <SelectTrigger>
-                <SelectValue placeholder="選擇消費類別" />
+                <SelectValue placeholder="請選擇消費類別" />
               </SelectTrigger>
               <SelectContent>
                 {CATEGORIES.map((c) => (
@@ -218,7 +234,7 @@ export function RecommendationForm({ onResult, prefillCard }: Props) {
           <div className="space-y-2">
             <Label htmlFor="merchantName">
               指定商家 / 通路
-              <span className="ml-1 font-normal text-muted-foreground">(可不填；像 Agoda、ChatGPT、全聯這類指定通路再填即可)</span>
+              <span className="ml-1 font-normal text-muted-foreground">(可不填，像 Agoda、ChatGPT、全聯這類指定通路再填即可)</span>
             </Label>
             <Input
               id="merchantName"
@@ -252,30 +268,122 @@ export function RecommendationForm({ onResult, prefillCard }: Props) {
             )}
           </div>
 
-          {showCubeTier && (
-            <div className="space-y-2 rounded-lg border border-primary/20 bg-primary/5 px-3 py-3">
-              <div className="space-y-1">
-                <Label className="text-sm font-medium">國泰 CUBE 等級</Label>
-                <p className="text-xs text-muted-foreground">
-                  依目前產品假設，CUBE 會按你選擇的等級估算 2% / 3% / 3.3% 回饋。
-                </p>
-              </div>
-              <div className="flex flex-wrap gap-1.5">
-                {CUBE_BENEFIT_TIERS.map((tier) => (
-                  <FilterChip
-                    key={tier.value}
-                    active={cubeTier === tier.value}
-                    onClick={() => setCubeTier(tier.value)}
-                  >
-                    {tier.label}
-                  </FilterChip>
-                ))}
-              </div>
-              <p className="text-xs text-muted-foreground">
-                {CUBE_BENEFIT_TIERS.find((tier) => tier.value === cubeTier)?.description}
+          <div className="space-y-3 rounded-lg border border-primary/20 bg-primary/5 px-3 py-3">
+            <div className="space-y-1">
+              <Label className="text-sm font-medium">切換卡片現況</Label>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                指定你目前在切換權益卡上的生效方案，推薦結果會優先依照這個現況計算；未指定時才使用保守預設或自動最佳化邏輯。
               </p>
             </div>
-          )}
+            <div className="space-y-3">
+              {SWITCHING_CARD_STATE_CONFIG
+                .filter((cardConfig) => !selectedCard || selectedCard === cardConfig.cardCode)
+                .map((cardConfig) => {
+                  const activePlan = activePlansByCard[cardConfig.cardCode] ?? null
+                  const runtimeState = planRuntimeByCard[cardConfig.cardCode] ?? {}
+
+                  return (
+                    <div key={cardConfig.cardCode} className="rounded-lg border border-border/70 bg-background px-3 py-3 space-y-2">
+                      <div className="space-y-0.5">
+                        <p className="text-sm font-medium">{cardConfig.bankLabel} {cardConfig.cardLabel}</p>
+                        <p className="text-xs text-muted-foreground">{cardConfig.description}</p>
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <p className="text-xs text-muted-foreground">目前方案</p>
+                        <div className="flex flex-wrap gap-1.5">
+                          <FilterChip active={activePlan === null} onClick={() => clearSwitchingCardState(cardConfig.cardCode)}>
+                            未指定
+                          </FilterChip>
+                          {cardConfig.plans.map((plan) => (
+                            <FilterChip
+                              key={plan.value}
+                              active={activePlan === plan.value}
+                              onClick={() => {
+                                setActivePlansByCard((prev) => ({ ...prev, [cardConfig.cardCode]: plan.value }))
+                                if (cardConfig.cardCode === 'CATHAY_CUBE') {
+                                  setPlanRuntimeByCard((prev) => ({
+                                    ...prev,
+                                    CATHAY_CUBE: {
+                                      ...prev.CATHAY_CUBE,
+                                      tier: prev.CATHAY_CUBE?.tier ?? 'LEVEL_1',
+                                    },
+                                  }))
+                                }
+                              }}
+                            >
+                              {plan.label}
+                            </FilterChip>
+                          ))}
+                        </div>
+                        {activePlan && (
+                          <p className="text-xs text-muted-foreground">
+                            {cardConfig.plans.find((plan) => plan.value === activePlan)?.description}
+                          </p>
+                        )}
+                      </div>
+
+                      {cardConfig.runtimeFields?.map((field) => {
+                        const currentValue = runtimeState[field.key] ?? (field.key === 'tier' ? 'LEVEL_1' : '')
+                        return (
+                          <div key={field.key} className="space-y-1.5">
+                            <p className="text-xs text-muted-foreground">{field.label}</p>
+                            <div className="flex flex-wrap gap-1.5">
+                              {field.options.map((option) => (
+                                <FilterChip
+                                  key={option.value}
+                                  active={currentValue === option.value}
+                                  onClick={() =>
+                                    setPlanRuntimeByCard((prev) => ({
+                                      ...prev,
+                                      [cardConfig.cardCode]: {
+                                        ...prev[cardConfig.cardCode],
+                                        [field.key]: option.value,
+                                      },
+                                    }))
+                                  }
+                                >
+                                  {option.label}
+                                </FilterChip>
+                              ))}
+                            </div>
+                            <p className="text-xs text-muted-foreground">
+                              {field.options.find((option) => option.value === currentValue)?.description}
+                            </p>
+                          </div>
+                        )
+                      })}
+
+                      {cardConfig.cardCode === 'ESUN_UNICARD' && activePlan === 'ESUN_UNICARD_FLEXIBLE' && (
+                        <div className="space-y-1.5">
+                          <Label htmlFor="unicard-selected-merchants" className="text-xs text-muted-foreground">
+                            任意選已選商家
+                          </Label>
+                          <Input
+                            id="unicard-selected-merchants"
+                            type="text"
+                            placeholder="例如 DECATHLON, UNIQLO, NET"
+                            value={runtimeState.selected_merchants ?? ''}
+                            onChange={(e) =>
+                              setPlanRuntimeByCard((prev) => ({
+                                ...prev,
+                                ESUN_UNICARD: {
+                                  ...prev.ESUN_UNICARD,
+                                  selected_merchants: e.target.value,
+                                },
+                              }))
+                            }
+                          />
+                          <p className="text-xs text-muted-foreground">
+                            用逗號分隔已自選商家；若本次指定商家也在這裡，百大指定消費才會納入任意選計算。
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  )
+                })}
+            </div>
+          </div>
 
           <div className="space-y-2">
             <Label>消費通路</Label>
@@ -301,7 +409,7 @@ export function RecommendationForm({ onResult, prefillCard }: Props) {
             <div className="flex items-start gap-2 rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2.5 text-sm text-destructive">
               <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
               <div className="flex-1">
-                <p>推薦查詢失敗，請稍後再試，或確認 API 是否可用。</p>
+                <p>推薦請求失敗，請稍後再試，或檢查 API 是否已更新。</p>
               </div>
               <button
                 type="submit"
@@ -320,7 +428,7 @@ export function RecommendationForm({ onResult, prefillCard }: Props) {
             ) : (
               <>
                 <Search className="mr-1.5 h-4 w-4" />
-                開始推薦
+                取得推薦
               </>
             )}
           </Button>

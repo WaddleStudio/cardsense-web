@@ -194,6 +194,78 @@ export const CUBE_BENEFIT_TIERS = [
   { value: 'LEVEL_3', label: 'Level 3', description: '高回饋假設為 3.3%' },
 ] as const
 
+export interface SwitchingCardPlanOption {
+  value: string
+  label: string
+  description?: string
+}
+
+export interface SwitchingCardRuntimeField {
+  key: string
+  label: string
+  options: { value: string; label: string; description?: string }[]
+}
+
+export interface SwitchingCardStateConfig {
+  cardCode: string
+  cardLabel: string
+  bankLabel: string
+  description: string
+  plans: SwitchingCardPlanOption[]
+  runtimeFields?: SwitchingCardRuntimeField[]
+}
+
+export const SWITCHING_CARD_STATE_CONFIG: SwitchingCardStateConfig[] = [
+  {
+    cardCode: 'CATHAY_CUBE',
+    cardLabel: 'CUBE 信用卡',
+    bankLabel: '國泰世華',
+    description: '指定目前生效方案，並補充目前等級假設。',
+    plans: [
+      { value: 'CATHAY_CUBE_DIGITAL', label: '數位', description: '線上、影音、數位服務' },
+      { value: 'CATHAY_CUBE_SHOPPING', label: '樂饗購', description: '購物、餐飲、百貨' },
+      { value: 'CATHAY_CUBE_TRAVEL', label: '趣旅行', description: '交通、海外、旅遊' },
+      { value: 'CATHAY_CUBE_ESSENTIALS', label: '集精選', description: '超市、生活、精選通路' },
+      { value: 'CATHAY_CUBE_BIRTHDAY', label: '慶生月', description: '生日檔期限定方案' },
+      { value: 'CATHAY_CUBE_KIDS', label: '童趣', description: '親子與兒童場景' },
+      { value: 'CATHAY_CUBE_JAPAN', label: '日本賞', description: '日本限定檔期方案' },
+    ],
+    runtimeFields: [
+      {
+        key: 'tier',
+        label: '目前等級',
+        options: [...CUBE_BENEFIT_TIERS],
+      },
+    ],
+  },
+  {
+    cardCode: 'ESUN_UNICARD',
+    cardLabel: 'Unicard',
+    bankLabel: '玉山銀行',
+    description: '指定目前採用的回饋方案，之後可再擴充任意選商家。',
+    plans: [
+      { value: 'ESUN_UNICARD_SIMPLE', label: '簡單選', description: '固定通路池' },
+      { value: 'ESUN_UNICARD_FLEXIBLE', label: '任意選', description: '自選指定通路' },
+      { value: 'ESUN_UNICARD_UP', label: 'UP 選', description: '高回饋訂閱方案' },
+    ],
+  },
+  {
+    cardCode: 'TAISHIN_RICHART',
+    cardLabel: '玫瑰卡 / @GoGo / Richart',
+    bankLabel: '台新銀行',
+    description: '指定目前切換中的主方案。',
+    plans: [
+      { value: 'TAISHIN_RICHART_PAY', label: 'Pay 好繳', description: '支付與繳費場景' },
+      { value: 'TAISHIN_RICHART_DAILY', label: '天天刷', description: '日常生活' },
+      { value: 'TAISHIN_RICHART_BIG', label: '大筆刷', description: '百貨與大額消費' },
+      { value: 'TAISHIN_RICHART_DINING', label: '好饗刷', description: '餐飲場景' },
+      { value: 'TAISHIN_RICHART_DIGITAL', label: '數位通', description: '線上與數位' },
+      { value: 'TAISHIN_RICHART_TRAVEL', label: '旅行趣', description: '旅遊與海外' },
+      { value: 'TAISHIN_RICHART_WEEKEND', label: '假日刷', description: '週末檔期場景' },
+    ],
+  },
+] as const
+
 export const CHANNELS = ['ONLINE', 'OFFLINE', 'ALL'] as const
 export type Channel = (typeof CHANNELS)[number]
 

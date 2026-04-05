@@ -61,6 +61,8 @@ export interface RecommendationRequest {
   category?: Category
   subcategory?: string
   benefitPlanTiers?: Record<string, string>
+  activePlansByCard?: Record<string, string>
+  planRuntimeByCard?: Record<string, Record<string, string>>
   cardCodes?: string[]
   registeredPromotionIds?: string[]
   benefitUsage?: BenefitUsage[]
