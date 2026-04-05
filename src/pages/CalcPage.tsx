@@ -45,6 +45,10 @@ export function CalcPage() {
   const hasMerchantScopedScene = Boolean(
     category && subcategory && MERCHANT_SUGGESTIONS[`${category}:${subcategory}`]?.length,
   )
+  const merchantPlaceholder =
+    merchantSuggestions.length > 0
+      ? `例如 ${merchantSuggestions.slice(0, 3).map((merchant) => merchant.label).join('、')}`
+      : '例如 ChatGPT、Claude、Uber Eats'
 
   // When cards load or category changes: auto-select popular cards via API ranking
   useEffect(() => {
@@ -163,7 +167,7 @@ export function CalcPage() {
             <Input
               id="calc-merchant-name"
               type="text"
-              placeholder="例如 ChatGPT、Claude、Uber Eats"
+              placeholder={merchantPlaceholder}
               value={merchantName}
               onChange={(e) => setMerchantName(e.target.value)}
             />

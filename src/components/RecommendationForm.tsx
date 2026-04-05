@@ -15,6 +15,7 @@ import {
   CHANNEL_LABELS,
   CUBE_BENEFIT_TIERS,
   MERCHANT_SUGGESTIONS,
+  SUBCATEGORY_LABELS,
 } from '@/types'
 import type { RecommendationResponse, Category, Channel } from '@/types'
 
@@ -45,6 +46,11 @@ export function RecommendationForm({ onResult, prefillCard }: Props) {
         ? (MERCHANT_SUGGESTIONS[category] ?? [])
         : []
   const hasSceneSpecificMerchantSuggestions = Boolean(category && subcategory && merchantSuggestions.length > 0)
+  const subcategoryLabel = subcategory ? (SUBCATEGORY_LABELS[subcategory] ?? subcategory) : null
+  const merchantPlaceholder =
+    merchantSuggestions.length > 0
+      ? `例如 ${merchantSuggestions.slice(0, 3).map((merchant) => merchant.label).join('、')}`
+      : '例如 ChatGPT、Claude、Uber Eats'
   const showCubeTier = !selectedCard || selectedCard === 'CATHAY_CUBE'
 
   const amountNum = Number(amount)
@@ -215,18 +221,20 @@ export function RecommendationForm({ onResult, prefillCard }: Props) {
             <Input
               id="merchantName"
               type="text"
-              placeholder="例如 ChatGPT、Claude、Uber Eats"
+              placeholder={merchantPlaceholder}
               value={merchantName}
               onChange={(e) => setMerchantName(e.target.value)}
             />
             {hasSceneSpecificMerchantSuggestions && !merchantName.trim() && (
               <p className="text-xs text-amber-700">
-                這個消費場景有商家限定優惠，補上商家後，像 ChatGPT、Claude 這類加碼才會正確命中。
+                {subcategoryLabel ? `這個${subcategoryLabel}場景` : '這個消費場景'}有商家限定優惠，補上商家後命中會更準。
               </p>
             )}
             {merchantSuggestions.length > 0 && (
               <div className="space-y-1.5">
-                <p className="text-xs text-muted-foreground">常見商家</p>
+                <p className="text-xs text-muted-foreground">
+                  {subcategoryLabel ? `${subcategoryLabel}常見商家` : '常見商家'}
+                </p>
                 <div className="flex flex-wrap gap-1.5">
                   {merchantSuggestions.map((merchant) => (
                     <FilterChip
