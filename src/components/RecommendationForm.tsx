@@ -177,31 +177,6 @@ export function RecommendationForm({ onResult, prefillCard }: Props) {
             </Select>
           </div>
 
-          {showCubeTier && (
-            <div className="space-y-2 rounded-lg border border-primary/20 bg-primary/5 px-3 py-3">
-              <div className="space-y-1">
-                <Label className="text-sm font-medium">國泰 CUBE 等級</Label>
-                <p className="text-xs text-muted-foreground">
-                  依目前產品假設，CUBE 會按你選擇的等級估算 2% / 3% / 3.3% 回饋。
-                </p>
-              </div>
-              <div className="flex flex-wrap gap-1.5">
-                {CUBE_BENEFIT_TIERS.map((tier) => (
-                  <FilterChip
-                    key={tier.value}
-                    active={cubeTier === tier.value}
-                    onClick={() => setCubeTier(tier.value)}
-                  >
-                    {tier.label}
-                  </FilterChip>
-                ))}
-              </div>
-              <p className="text-xs text-muted-foreground">
-                {CUBE_BENEFIT_TIERS.find((tier) => tier.value === cubeTier)?.description}
-              </p>
-            </div>
-          )}
-
           {category && (
             <SubcategoryGrid
               category={category}
@@ -249,6 +224,31 @@ export function RecommendationForm({ onResult, prefillCard }: Props) {
               </div>
             )}
           </div>
+
+          {showCubeTier && (
+            <div className="space-y-2 rounded-lg border border-primary/20 bg-primary/5 px-3 py-3">
+              <div className="space-y-1">
+                <Label className="text-sm font-medium">國泰 CUBE 等級</Label>
+                <p className="text-xs text-muted-foreground">
+                  依目前產品假設，CUBE 會按你選擇的等級估算 2% / 3% / 3.3% 回饋。
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {CUBE_BENEFIT_TIERS.map((tier) => (
+                  <FilterChip
+                    key={tier.value}
+                    active={cubeTier === tier.value}
+                    onClick={() => setCubeTier(tier.value)}
+                  >
+                    {tier.label}
+                  </FilterChip>
+                ))}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {CUBE_BENEFIT_TIERS.find((tier) => tier.value === cubeTier)?.description}
+              </p>
+            </div>
+          )}
 
           <div className="space-y-2">
             <Label>消費通路</Label>
