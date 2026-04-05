@@ -133,6 +133,8 @@
   --radius-xl: calc(var(--radius) + 4px);
   --animate-accordion-down: accordion-down 0.2s ease-out;
   --animate-accordion-up: accordion-up 0.2s ease-out;
+  --animate-collapse-down: collapse-down 0.2s ease-out;
+  --animate-collapse-up: collapse-up 0.2s ease-out;
   /* Touch target sizing tokens */
   --spacing-touch: 44px;
   --spacing-touch-sm: 36px;
@@ -146,6 +148,16 @@
 
 @keyframes accordion-up {
   from { height: var(--radix-accordion-content-height); }
+  to { height: 0; }
+}
+
+@keyframes collapse-down {
+  from { height: 0; }
+  to { height: var(--radix-collapsible-content-height); }
+}
+
+@keyframes collapse-up {
+  from { height: var(--radix-collapsible-content-height); }
   to { height: 0; }
 }
 

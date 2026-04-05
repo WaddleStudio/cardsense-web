@@ -194,6 +194,11 @@ export const CUBE_BENEFIT_TIERS = [
   { value: 'LEVEL_3', label: 'Level 3', description: '高回饋假設為 3.3%' },
 ] as const
 
+export const RICHART_BENEFIT_TIERS = [
+  { value: 'LEVEL_1', label: 'Level 1', description: '未升級身分，切換方案最高 1.3%' },
+  { value: 'LEVEL_2', label: 'Level 2', description: '升級身分後，切換方案最高 3.8% / 3.3% / 2%' },
+] as const
+
 export interface SwitchingCardPlanOption {
   value: string
   label: string
@@ -253,7 +258,7 @@ export const SWITCHING_CARD_STATE_CONFIG: SwitchingCardStateConfig[] = [
     cardCode: 'TAISHIN_RICHART',
     cardLabel: '玫瑰卡 / @GoGo / Richart',
     bankLabel: '台新銀行',
-    description: '指定目前切換中的主方案。',
+    description: '指定目前切換中的主方案，並補充目前卡友身分等級。',
     plans: [
       { value: 'TAISHIN_RICHART_PAY', label: 'Pay著刷', description: '支付與繳費場景' },
       { value: 'TAISHIN_RICHART_DAILY', label: '天天刷', description: '日常生活' },
@@ -263,8 +268,118 @@ export const SWITCHING_CARD_STATE_CONFIG: SwitchingCardStateConfig[] = [
       { value: 'TAISHIN_RICHART_TRAVEL', label: '玩旅刷', description: '旅遊與海外' },
       { value: 'TAISHIN_RICHART_WEEKEND', label: '假日刷', description: '週末檔期場景' },
     ],
+    runtimeFields: [
+      {
+        key: 'tier',
+        label: '卡友身分',
+        options: [...RICHART_BENEFIT_TIERS],
+      },
+    ],
   },
 ] as const
+
+/** UniCard 任意選：百大指定消費商家清單（按類別分組，最多可選 8 家） */
+export const UNICARD_FLEXIBLE_MAX_SELECTIONS = 8
+
+export interface UnicardMerchantGroup {
+  groupLabel: string
+  merchants: { value: string; label: string }[]
+}
+
+export const UNICARD_FLEXIBLE_MERCHANT_OPTIONS: UnicardMerchantGroup[] = [
+  {
+    groupLabel: '行動支付',
+    merchants: [
+      { value: 'ESUN_WALLET', label: '玉山 Wallet' },
+      { value: 'LINE_PAY', label: 'LINE Pay' },
+      { value: '全支付', label: '全支付' },
+      { value: '街口支付', label: '街口支付' },
+    ],
+  },
+  {
+    groupLabel: '電商平台',
+    merchants: [
+      { value: 'MOMO', label: 'momo' },
+      { value: 'SHOPEE', label: '蝦皮' },
+      { value: 'PCHOME_24H', label: 'PChome 24h' },
+      { value: 'COUPANG', label: 'Coupang' },
+    ],
+  },
+  {
+    groupLabel: '餐飲美食',
+    merchants: [
+      { value: 'UBER_EATS', label: 'Uber Eats' },
+      { value: 'FOODPANDA', label: 'foodpanda' },
+      { value: 'STARBUCKS', label: '星巴克' },
+      { value: 'MCDONALD', label: '麥當勞' },
+    ],
+  },
+  {
+    groupLabel: '加油交通',
+    merchants: [
+      { value: 'CPC', label: '台灣中油' },
+      { value: 'NATIONWIDE_GAS', label: '全國加油' },
+      { value: 'FORMOSA_PETROCHEMICAL', label: '台塑石油' },
+      { value: 'GOSHARE', label: 'GoShare' },
+      { value: 'WEMO', label: 'WeMo' },
+    ],
+  },
+  {
+    groupLabel: '國內百貨',
+    merchants: [
+      { value: 'SHIN_KONG_MITSUKOSHI', label: '新光三越' },
+      { value: 'SOGO', label: '遠東 SOGO' },
+      { value: 'FAR_EAST_DEPARTMENT_STORE', label: '遠東百貨' },
+      { value: 'GLOBAL_MALL', label: '環球購物中心' },
+    ],
+  },
+  {
+    groupLabel: '生活採買',
+    merchants: [
+      { value: 'PXMART', label: '全聯' },
+      { value: 'CARREFOUR', label: '家樂福' },
+      { value: 'LOPIA', label: 'LOPIA' },
+      { value: 'COSMED', label: '康是美' },
+      { value: 'WATSONS', label: '屈臣氏' },
+    ],
+  },
+  {
+    groupLabel: '精選商家',
+    merchants: [
+      { value: 'UNIQLO', label: 'UNIQLO' },
+      { value: 'NET', label: 'NET' },
+      { value: 'DECATHLON', label: '迪卡儂' },
+      { value: 'IKEA', label: 'IKEA' },
+      { value: 'MUJI', label: 'MUJI' },
+    ],
+  },
+  {
+    groupLabel: '航空旅遊',
+    merchants: [
+      { value: 'CHINA_AIRLINES', label: '中華航空' },
+      { value: 'EVA_AIR', label: '長榮航空' },
+      { value: 'STARLUX', label: '星宇航空' },
+      { value: 'AGODA', label: 'Agoda' },
+      { value: 'KLOOK', label: 'Klook' },
+    ],
+  },
+  {
+    groupLabel: '國外實體',
+    merchants: [
+      { value: 'JAPAN', label: '日本' },
+      { value: 'KOREA', label: '韓國' },
+      { value: 'USA', label: '美國' },
+    ],
+  },
+  {
+    groupLabel: 'ESG 消費',
+    merchants: [
+      { value: 'U_POWER', label: 'U-POWER' },
+      { value: 'EVOASIS', label: 'EVOASIS' },
+      { value: 'ICHARGING', label: 'iCharging' },
+    ],
+  },
+]
 
 export const CHANNELS = ['ONLINE', 'OFFLINE', 'ALL'] as const
 export type Channel = (typeof CHANNELS)[number]

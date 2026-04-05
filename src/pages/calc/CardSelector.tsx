@@ -83,7 +83,7 @@ export function CardSelector({ selected, onChange, error, isUpdating }: CardSele
                   <label
                     key={card.cardCode}
                     className={cn(
-                      'flex items-start gap-2 px-3 py-2 cursor-pointer hover:bg-accent transition-colors',
+                      'flex items-start gap-2 px-3 py-2.5 min-h-touch-sm cursor-pointer hover:bg-accent transition-colors',
                       selected.includes(card.cardCode) && 'bg-primary/5',
                     )}
                   >

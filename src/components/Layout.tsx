@@ -53,7 +53,7 @@ export function Layout() {
                     )}
                   >
                     <Icon className="h-3.5 w-3.5 shrink-0" />
-                    <span className="hidden sm:inline">{label}</span>
+                    <span>{label}</span>
                   </Link>
                 )
               })}

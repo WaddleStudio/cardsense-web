@@ -18,6 +18,7 @@ export function FilterChip({
   return (
     <button
       type="button"
+      aria-pressed={active}
       onClick={onClick}
       className={cn(
         'shrink-0 rounded-full border px-3 text-xs font-medium transition-colors cursor-pointer',

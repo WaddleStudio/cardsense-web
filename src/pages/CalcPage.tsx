@@ -3,13 +3,14 @@ import { Calculator } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { FilterChip } from '@/components/ui/filter-chip'
 import { Input } from '@/components/ui/input'
+import { MerchantPicker } from '@/components/MerchantPicker'
+import { SwitchingCardPanel } from '@/components/SwitchingCardPanel'
 import { useCards, useRecommendation } from '@/api'
 import {
   MERCHANT_SUGGESTIONS,
   PAYMENT_METHODS,
   PAYMENT_METHOD_LABELS,
   SUBCATEGORY_LABELS,
-  SWITCHING_CARD_STATE_CONFIG,
 } from '@/types'
 import type { Category } from '@/types'
 import { AmountInput } from './calc/AmountInput'
@@ -55,7 +56,11 @@ export function CalcPage() {
     merchantSuggestions.length > 0
       ? `例如 ${merchantSuggestions.slice(0, 3).map((merchant) => merchant.label).join('、')}`
       : '例如 ChatGPT、Claude、Uber Eats'
-  const cubeTier = planRuntimeByCard.CATHAY_CUBE?.tier ?? 'LEVEL_1'
+  const benefitPlanTiers = Object.fromEntries(
+    Object.entries(planRuntimeByCard)
+      .map(([cardCode, runtime]) => [cardCode, runtime?.tier])
+      .filter((entry): entry is [string, string] => Boolean(entry[1])),
+  )
 
   useEffect(() => {
     if (!cards || cards.length === 0) return
@@ -73,7 +78,7 @@ export function CalcPage() {
         }),
         ...(Object.keys(activePlansByCard).length > 0 && { activePlansByCard }),
         ...(Object.values(planRuntimeByCard).some((runtime) => Object.keys(runtime).length > 0) && { planRuntimeByCard }),
-        ...(cubeTier && { benefitPlanTiers: { CATHAY_CUBE: cubeTier } }),
+        ...(Object.keys(benefitPlanTiers).length > 0 && { benefitPlanTiers }),
         cardCodes: cards.map((c) => c.cardCode),
         comparison: {
           includePromotionBreakdown: false,
@@ -93,7 +98,7 @@ export function CalcPage() {
       },
     )
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [cards, category, subcategory, merchantName, paymentMethod, activePlansByCard, planRuntimeByCard, cubeTier])
+  }, [cards, category, subcategory, merchantName, paymentMethod, activePlansByCard, planRuntimeByCard])
 
   const amountNum = parseInt(amount, 10)
   const amountError =
@@ -101,17 +106,37 @@ export function CalcPage() {
       ? '金額需介於 100 到 100,000 之間'
       : undefined
 
-  function clearSwitchingCardState(cardCode: string) {
-    setActivePlansByCard((prev) => {
-      const next = { ...prev }
-      delete next[cardCode]
-      return next
-    })
-    setPlanRuntimeByCard((prev) => {
-      const next = { ...prev }
-      delete next[cardCode]
-      return next
-    })
+  function handleActivePlanChange(cardCode: string, planValue: string | null) {
+    if (planValue === null) {
+      setActivePlansByCard((prev) => {
+        const next = { ...prev }
+        delete next[cardCode]
+        return next
+      })
+      setPlanRuntimeByCard((prev) => {
+        const next = { ...prev }
+        delete next[cardCode]
+        return next
+      })
+    } else {
+      setActivePlansByCard((prev) => ({ ...prev, [cardCode]: planValue }))
+      if (cardCode === 'CATHAY_CUBE' || cardCode === 'TAISHIN_RICHART') {
+        setPlanRuntimeByCard((prev) => ({
+          ...prev,
+          [cardCode]: {
+            ...prev[cardCode],
+            tier: prev[cardCode]?.tier ?? 'LEVEL_1',
+          },
+        }))
+      }
+    }
+  }
+
+  function handleRuntimeChange(cardCode: string, key: string, value: string) {
+    setPlanRuntimeByCard((prev) => ({
+      ...prev,
+      [cardCode]: { ...prev[cardCode], [key]: value },
+    }))
   }
 
   const handleSubmit = () => {
@@ -136,7 +161,7 @@ export function CalcPage() {
         }),
         ...(Object.keys(activePlansByCard).length > 0 && { activePlansByCard }),
         ...(Object.values(planRuntimeByCard).some((runtime) => Object.keys(runtime).length > 0) && { planRuntimeByCard }),
-        ...(cubeTier && { benefitPlanTiers: { CATHAY_CUBE: cubeTier } }),
+        ...(Object.keys(benefitPlanTiers).length > 0 && { benefitPlanTiers }),
         cardCodes: selectedCards,
         comparison: {
           includePromotionBreakdown: false,
@@ -193,7 +218,7 @@ export function CalcPage() {
 
           <div className="space-y-2">
             <label className="text-sm font-medium">支付方式</label>
-            <div className="flex gap-1.5 overflow-x-auto pb-1">
+            <div className="flex flex-wrap gap-1.5">
               <FilterChip active={paymentMethod === null} onClick={() => setPaymentMethod(null)}>
                 不限方式
               </FilterChip>
@@ -227,7 +252,7 @@ export function CalcPage() {
               onChange={(e) => setMerchantName(e.target.value)}
             />
             {hasMerchantScopedScene && !merchantName.trim() && subcategory && (
-              <p className="text-xs leading-relaxed text-amber-700">
+              <p className="text-xs leading-relaxed text-amber-700 dark:text-amber-400">
                 {SUBCATEGORY_LABELS[subcategory] ?? subcategory} 場景常有指定商家優惠，補上通路後比較會更準。
               </p>
             )}
@@ -249,121 +274,20 @@ export function CalcPage() {
             )}
           </div>
 
-          <div className="space-y-3 rounded-lg border border-primary/20 bg-primary/5 px-3 py-3">
-            <div className="space-y-1">
-              <p className="text-sm font-medium">切換卡片現況</p>
-              <p className="text-xs leading-relaxed text-muted-foreground">
-                若你要比較 CUBE、Unicard、Richart 這類切換權益卡，先指定目前生效方案，結果才會貼近你手上的真實現況。
-              </p>
-            </div>
-
-            <div className="space-y-3">
-              {SWITCHING_CARD_STATE_CONFIG.map((cardConfig) => {
-                const activePlan = activePlansByCard[cardConfig.cardCode] ?? null
-                const runtimeState = planRuntimeByCard[cardConfig.cardCode] ?? {}
-
-                return (
-                  <div key={cardConfig.cardCode} className="space-y-2 rounded-lg border border-border/70 bg-background px-3 py-3">
-                    <div className="space-y-0.5">
-                      <p className="text-sm font-medium">{cardConfig.bankLabel} {cardConfig.cardLabel}</p>
-                      <p className="text-xs text-muted-foreground">{cardConfig.description}</p>
-                    </div>
-
-                    <div className="space-y-1.5">
-                      <p className="text-xs text-muted-foreground">目前方案</p>
-                      <div className="flex flex-wrap gap-1.5">
-                        <FilterChip active={activePlan === null} onClick={() => clearSwitchingCardState(cardConfig.cardCode)}>
-                          未指定
-                        </FilterChip>
-                        {cardConfig.plans.map((plan) => (
-                          <FilterChip
-                            key={plan.value}
-                            active={activePlan === plan.value}
-                            onClick={() => {
-                              setActivePlansByCard((prev) => ({ ...prev, [cardConfig.cardCode]: plan.value }))
-                              if (cardConfig.cardCode === 'CATHAY_CUBE') {
-                                setPlanRuntimeByCard((prev) => ({
-                                  ...prev,
-                                  CATHAY_CUBE: {
-                                    ...prev.CATHAY_CUBE,
-                                    tier: prev.CATHAY_CUBE?.tier ?? 'LEVEL_1',
-                                  },
-                                }))
-                              }
-                            }}
-                          >
-                            {plan.label}
-                          </FilterChip>
-                        ))}
-                      </div>
-                      {activePlan && (
-                        <p className="text-xs text-muted-foreground">
-                          {cardConfig.plans.find((plan) => plan.value === activePlan)?.description}
-                        </p>
-                      )}
-                    </div>
-
-                    {cardConfig.runtimeFields?.map((field) => {
-                      const currentValue = runtimeState[field.key] ?? (field.key === 'tier' ? 'LEVEL_1' : '')
-                      return (
-                        <div key={field.key} className="space-y-1.5">
-                          <p className="text-xs text-muted-foreground">{field.label}</p>
-                          <div className="flex flex-wrap gap-1.5">
-                            {field.options.map((option) => (
-                              <FilterChip
-                                key={option.value}
-                                active={currentValue === option.value}
-                                onClick={() =>
-                                  setPlanRuntimeByCard((prev) => ({
-                                    ...prev,
-                                    [cardConfig.cardCode]: {
-                                      ...prev[cardConfig.cardCode],
-                                      [field.key]: option.value,
-                                    },
-                                  }))
-                                }
-                              >
-                                {option.label}
-                              </FilterChip>
-                            ))}
-                          </div>
-                          <p className="text-xs text-muted-foreground">
-                            {field.options.find((option) => option.value === currentValue)?.description}
-                          </p>
-                        </div>
-                      )
-                    })}
-
-                    {cardConfig.cardCode === 'ESUN_UNICARD' && activePlan === 'ESUN_UNICARD_FLEXIBLE' && (
-                      <div className="space-y-1.5">
-                        <label htmlFor="calc-unicard-selected-merchants" className="text-xs text-muted-foreground">
-                          任意選已選商家
-                        </label>
-                        <Input
-                          id="calc-unicard-selected-merchants"
-                          type="text"
-                          placeholder="例如 DECATHLON, UNIQLO, NET"
-                          value={runtimeState.selected_merchants ?? ''}
-                          onChange={(e) =>
-                            setPlanRuntimeByCard((prev) => ({
-                              ...prev,
-                              ESUN_UNICARD: {
-                                ...prev.ESUN_UNICARD,
-                                selected_merchants: e.target.value,
-                              },
-                            }))
-                          }
-                        />
-                        <p className="text-xs text-muted-foreground">
-                          用逗號分隔已自選商家；比較任意選場景時，只有出現在這裡的商家才會納入。
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                )
-              })}
-            </div>
-          </div>
+          <SwitchingCardPanel
+            activePlansByCard={activePlansByCard}
+            planRuntimeByCard={planRuntimeByCard}
+            onActivePlanChange={handleActivePlanChange}
+            onRuntimeChange={handleRuntimeChange}
+            renderCardExtra={(cardCode, activePlan) =>
+              cardCode === 'ESUN_UNICARD' && activePlan === 'ESUN_UNICARD_FLEXIBLE' ? (
+                <MerchantPicker
+                  value={planRuntimeByCard.ESUN_UNICARD?.selected_merchants ?? ''}
+                  onChange={(v) => handleRuntimeChange('ESUN_UNICARD', 'selected_merchants', v)}
+                />
+              ) : null
+            }
+          />
 
           <CardSelector
             selected={selectedCards}
@@ -375,10 +299,12 @@ export function CalcPage() {
             isUpdating={isAutoSelecting}
           />
 
-          <Button className="min-h-touch w-full gap-2" onClick={handleSubmit} disabled={isPending || isAutoSelecting}>
-            <Calculator className="h-4 w-4" />
-            {isPending ? '計算中…' : '開始比較回饋'}
-          </Button>
+          <div className="sticky bottom-0 -mx-5 -mb-5 rounded-b-xl border-t bg-card/95 px-5 py-3 backdrop-blur-sm">
+            <Button className="min-h-touch w-full gap-2" onClick={handleSubmit} disabled={isPending || isAutoSelecting}>
+              <Calculator className="h-4 w-4" />
+              {isPending ? '計算中…' : '開始比較回饋'}
+            </Button>
+          </div>
         </div>
 
         <div ref={resultRef}>
@@ -393,8 +319,20 @@ export function CalcPage() {
           )}
 
           {isPending && (
-            <div className="flex min-h-56 items-center justify-center rounded-xl border bg-muted/20">
-              <p className="animate-pulse text-sm text-muted-foreground">正在計算中…</p>
+            <div className="space-y-3 rounded-xl border bg-muted/20 p-5">
+              <div className="h-5 w-40 animate-pulse rounded bg-muted" />
+              <div className="space-y-2">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="flex items-center gap-3 rounded-lg border bg-card p-4">
+                    <div className="h-10 w-10 shrink-0 animate-pulse rounded-lg bg-muted" />
+                    <div className="flex-1 space-y-2">
+                      <div className="h-4 w-32 animate-pulse rounded bg-muted" />
+                      <div className="h-3 w-48 animate-pulse rounded bg-muted" />
+                    </div>
+                    <div className="h-6 w-16 animate-pulse rounded bg-muted" />
+                  </div>
+                ))}
+              </div>
             </div>
           )}
 
