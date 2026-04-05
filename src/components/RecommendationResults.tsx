@@ -135,9 +135,22 @@ function ScenarioSummary({ result }: { result: RecommendationResponse }) {
   const categoryLabel = category ? CATEGORY_LABELS[category] ?? category : null
   const subcategoryLabel = subcategory ? SUBCATEGORY_LABELS[subcategory] ?? subcategory : null
   const paymentMethodLabel = paymentMethod ? PAYMENT_METHOD_LABELS[paymentMethod] ?? paymentMethod : null
-  const assumedCubeTier = result.recommendations
-    .flatMap((rec) => rec.conditions)
-    .find((condition) => condition.type === 'ASSUMED_BENEFIT_TIER')?.value
+  const assumedBenefitTiers = Array.from(
+    new Map(
+      result.recommendations
+        .map((rec) => {
+          const tier = rec.conditions.find((condition) => condition.type === 'ASSUMED_BENEFIT_TIER')?.value
+          if (!tier || !rec.cardCode) return null
+          const label = rec.cardCode === 'CATHAY_CUBE'
+            ? 'CUBE'
+            : rec.cardCode === 'TAISHIN_RICHART'
+              ? 'Richart'
+              : rec.cardName
+          return [rec.cardCode, { label, tier }] as const
+        })
+        .filter((entry): entry is readonly [string, { label: string; tier: string }] => entry !== null),
+    ).values(),
+  )
   const isGeneralScene = !subcategory || subcategory === 'GENERAL'
 
   return (
@@ -164,11 +177,11 @@ function ScenarioSummary({ result }: { result: RecommendationResponse }) {
             支付：{paymentMethodLabel}
           </Badge>
         )}
-        {assumedCubeTier && (
-          <Badge variant="outline" className="rounded-full">
-            CUBE：{assumedCubeTier}
+        {assumedBenefitTiers.map(({ label, tier }) => (
+          <Badge key={`${label}:${tier}`} variant="outline" className="rounded-full">
+            {label}：{tier}
           </Badge>
-        )}
+        ))}
       </div>
       <p className="mt-2 text-xs text-muted-foreground leading-relaxed">
         {isGeneralScene
