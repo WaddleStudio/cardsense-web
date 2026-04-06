@@ -244,6 +244,11 @@ function TopPickCard({ rec }: { rec: CardRecommendation }) {
         </div>
 
         <p className="text-sm text-muted-foreground leading-relaxed">{rec.reason}</p>
+        {rec.generalRewardOnly && (
+          <Badge variant="outline" className="w-fit rounded-full">
+            此卡僅有通用回饋
+          </Badge>
+        )}
 
         <ConditionBadges rec={rec} />
         <PlanSwitchBadge rec={rec} />
@@ -289,6 +294,11 @@ function RunnerUpCard({ rec, rank }: { rec: CardRecommendation; rank: number }) 
         </div>
 
         <p className="text-sm text-muted-foreground">{rec.reason}</p>
+        {rec.generalRewardOnly && (
+          <Badge variant="outline" className="w-fit rounded-full">
+            此卡僅有通用回饋
+          </Badge>
+        )}
         <ConditionBadges rec={rec} />
         <PlanSwitchBadge rec={rec} />
         <PromotionBreakdown rec={rec} expanded={expanded} onToggle={() => setExpanded(!expanded)} />

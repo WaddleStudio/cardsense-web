@@ -22,6 +22,14 @@ export interface CardSummary {
   eligibilityType: string
   availableCategories: string[]
   hasBenefitPlans: boolean
+  totalPromotionCount: number
+  recommendablePromotionCount: number
+  catalogOnlyPromotionCount: number
+  futureScopePromotionCount: number
+  generalRewardsOnly: boolean
+  sparsePromotionCard: boolean
+  coBrandCard: boolean
+  catalogReviewHint: string | null
 }
 
 // --- Recommendation Request ---
@@ -144,6 +152,7 @@ export interface CardRecommendation {
   promotionBreakdown: PromotionRewardBreakdown[]
   applyUrl: string | null
   activePlan: ActivePlan | null
+  generalRewardOnly: boolean
 }
 
 export interface RecommendationResponse {
@@ -172,6 +181,8 @@ export interface CardPromotion {
   validUntil: string | null
   frequencyLimit: string | null
   requiresRegistration: boolean
+  recommendationScope: string
+  planId?: string | null
   conditions: PromotionCondition[]
   stackability: {
     relationshipMode: string | null

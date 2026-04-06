@@ -125,6 +125,9 @@ export function CardDetailPage() {
 
   const isActive = card.cardStatus === 'ACTIVE'
   const isFree = card.annualFee === 0
+  const totalPromotionCount = card.totalPromotionCount ?? promotions?.length ?? 0
+  const recommendablePromotionCount = card.recommendablePromotionCount ?? 0
+  const catalogOnlyPromotionCount = card.catalogOnlyPromotionCount ?? 0
 
   return (
     <div className="space-y-6">
@@ -157,6 +160,25 @@ export function CardDetailPage() {
         </CardHeader>
 
         <CardContent className="space-y-5">
+          {(card.sparsePromotionCard || card.generalRewardsOnly || card.catalogReviewHint) && (
+            <div className="rounded-xl border border-amber-300/70 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+              <div className="flex items-start gap-2">
+                <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+                <div className="space-y-1">
+                  {card.sparsePromotionCard && (
+                    <p>此卡目前僅擷取到 {totalPromotionCount} 筆優惠。</p>
+                  )}
+                  {card.generalRewardsOnly && recommendablePromotionCount > 0 && (
+                    <p>目前可進榜的 {recommendablePromotionCount} 筆優惠以通用回饋為主。</p>
+                  )}
+                  {card.catalogReviewHint && (
+                    <p>{card.catalogReviewHint}</p>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
           <div className="flex justify-between items-center text-sm py-1">
             <span className="text-muted-foreground">年費</span>
             <span
@@ -171,6 +193,14 @@ export function CardDetailPage() {
                   : `NT$ ${card.annualFee.toLocaleString()}`
                 : '--'}
             </span>
+          </div>
+
+          <Separator />
+
+          <div className="grid gap-3 sm:grid-cols-3">
+            <StatBox label="總優惠" value={totalPromotionCount} />
+            <StatBox label="可推薦" value={recommendablePromotionCount} />
+            <StatBox label="僅目錄" value={catalogOnlyPromotionCount} />
           </div>
 
           <Separator />
@@ -272,11 +302,21 @@ function PromotionItem({ promotion }: { promotion: CardPromotion }) {
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0 space-y-1">
           <p className="font-medium leading-tight">{promotion.title ?? cashbackDisplay}</p>
-          {subcategoryLabel && (
-            <Badge variant="secondary" className="w-fit text-[10px] rounded-full">
-              {subcategoryLabel}
+          <div className="flex flex-wrap gap-1.5">
+            {subcategoryLabel && (
+              <Badge variant="secondary" className="w-fit text-[10px] rounded-full">
+                {subcategoryLabel}
+              </Badge>
+            )}
+            <Badge variant="outline" className="w-fit text-[10px] rounded-full">
+              {SCOPE_LABELS[promotion.recommendationScope] ?? promotion.recommendationScope}
             </Badge>
-          )}
+            {promotion.planId && (
+              <Badge variant="outline" className="w-fit text-[10px] rounded-full">
+                方案相關
+              </Badge>
+            )}
+          </div>
         </div>
         <span className="shrink-0 font-semibold tabular-nums text-reward">
           {cashbackDisplay}
@@ -331,6 +371,15 @@ function PromotionItem({ promotion }: { promotion: CardPromotion }) {
           <span>{modeHint?.label || modeHint?.value || '此優惠與其他方案互斥'}</span>
         </div>
       )}
+    </div>
+  )
+}
+
+function StatBox({ label, value }: { label: string; value: number }) {
+  return (
+    <div className="rounded-lg border bg-muted/30 px-3 py-2">
+      <p className="text-xs text-muted-foreground">{label}</p>
+      <p className="text-lg font-semibold tabular-nums">{value}</p>
     </div>
   )
 }
