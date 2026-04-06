@@ -20,6 +20,16 @@ export const BANK_COLORS: Record<BankCode, { bg: string; text: string }> = {
 
 export const DEFAULT_BANK_COLOR = { bg: 'bg-primary/10', text: 'text-primary' }
 
+/** Condition types that represent designated channels/merchants (shown in blue) */
+export const CHANNEL_CONDITION_TYPES = new Set([
+  'LOCATION_ONLY',
+  'LOCATION_EXCLUDE',
+  'ECOMMERCE_PLATFORM',
+  'RETAIL_CHAIN',
+  'PAYMENT_PLATFORM',
+  'MERCHANT',
+])
+
 export const CATEGORIES = [
   'DINING', 'TRANSPORT', 'ONLINE', 'OVERSEAS',
   'SHOPPING', 'GROCERY', 'ENTERTAINMENT', 'OTHER',

@@ -17,7 +17,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import { cn } from '@/lib/utils'
-import { CATEGORY_LABELS, MERCHANT_SUGGESTIONS, PAYMENT_METHOD_LABELS, SUBCATEGORY_LABELS } from '@/types'
+import { CATEGORY_LABELS, CHANNEL_CONDITION_TYPES, MERCHANT_SUGGESTIONS, PAYMENT_METHOD_LABELS, SUBCATEGORY_LABELS } from '@/types'
 import type { BreakEvenAnalysis, CardRecommendation, RecommendationResponse } from '@/types'
 
 interface Props {
@@ -443,11 +443,23 @@ function PromotionBreakdown({
               <p className="text-muted-foreground pl-[18px]">{promo.reason}</p>
               {promo.conditions.length > 0 && (
                 <div className="flex flex-wrap gap-1 pl-[18px]">
-                  {promo.conditions.map((c, i) => (
-                    <Badge key={i} variant="outline" className="text-xs rounded-full">
-                      {c.label}
-                    </Badge>
-                  ))}
+                  {promo.conditions.map((c, i) => {
+                    const isChannel = CHANNEL_CONDITION_TYPES.has(c.type)
+                    return (
+                      <Badge
+                        key={i}
+                        variant="outline"
+                        className={cn(
+                          'text-xs rounded-full',
+                          isChannel
+                            ? 'border-blue-300 text-blue-700 dark:border-blue-700 dark:text-blue-400'
+                            : 'border-amber-300 text-amber-700 dark:border-amber-700 dark:text-amber-400',
+                        )}
+                      >
+                        {c.label}
+                      </Badge>
+                    )
+                  })}
                 </div>
               )}
             </div>

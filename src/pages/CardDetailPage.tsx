@@ -17,7 +17,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import { cn } from '@/lib/utils'
-import { CATEGORY_LABELS, SUBCATEGORY_LABELS, BANK_COLORS, DEFAULT_BANK_COLOR } from '@/types'
+import { CATEGORY_LABELS, SUBCATEGORY_LABELS, BANK_COLORS, DEFAULT_BANK_COLOR, CHANNEL_CONDITION_TYPES } from '@/types'
 import type { BankCode, BenefitPlan, CardPromotion, Category } from '@/types'
 
 const SCOPE_LABELS: Record<string, string> = {
@@ -25,16 +25,6 @@ const SCOPE_LABELS: Record<string, string> = {
   CATALOG_ONLY: '僅目錄展示',
   FUTURE_SCOPE: '未來納入',
 }
-
-/** Condition types that represent designated channels/merchants (shown in blue) */
-const CHANNEL_CONDITION_TYPES = new Set([
-  'LOCATION_ONLY',
-  'LOCATION_EXCLUDE',
-  'ECOMMERCE_PLATFORM',
-  'RETAIL_CHAIN',
-  'PAYMENT_PLATFORM',
-  'MERCHANT',
-])
 
 const SWITCH_FREQ_LABELS: Record<string, string> = {
   DAILY: '每日可切換',
