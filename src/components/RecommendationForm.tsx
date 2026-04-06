@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { MerchantPicker } from '@/components/MerchantPicker'
+import { PaymentMethodPicker } from '@/components/PaymentMethodPicker'
 import { SwitchingCardPanel } from '@/components/SwitchingCardPanel'
 import { SubcategoryGrid } from '@/pages/calc/SubcategoryGrid'
 import {
@@ -16,8 +17,6 @@ import {
   CHANNELS,
   CHANNEL_LABELS,
   MERCHANT_SUGGESTIONS,
-  PAYMENT_METHODS,
-  PAYMENT_METHOD_LABELS,
   SUBCATEGORY_LABELS,
 } from '@/types'
 import type { Category, Channel, RecommendationResponse } from '@/types'
@@ -234,29 +233,6 @@ export function RecommendationForm({ onResult, prefillCard }: Props) {
           )}
 
           <div className="space-y-2">
-            <Label>支付方式</Label>
-            <div className="flex flex-wrap gap-1.5">
-              <FilterChip active={paymentMethod === null} onClick={() => setPaymentMethod(null)}>
-                不限方式
-              </FilterChip>
-              {PAYMENT_METHODS.map((method) => (
-                <FilterChip
-                  key={method.value}
-                  active={paymentMethod === method.value}
-                  onClick={() => setPaymentMethod(method.value)}
-                >
-                  {method.label}
-                </FilterChip>
-              ))}
-            </div>
-            {paymentMethod && (
-              <p className="text-xs text-muted-foreground">
-                已套用支付方式：{PAYMENT_METHOD_LABELS[paymentMethod] ?? paymentMethod}
-              </p>
-            )}
-          </div>
-
-          <div className="space-y-2">
             <Label htmlFor="merchantName">
               指定商家 / 通路
               <span className="ml-1 font-normal text-muted-foreground">(可不填，像 Agoda、ChatGPT、全聯這類指定通路再填即可)</span>
@@ -291,6 +267,11 @@ export function RecommendationForm({ onResult, prefillCard }: Props) {
                 </div>
               </div>
             )}
+          </div>
+
+          <div className="space-y-2">
+            <Label>支付方式</Label>
+            <PaymentMethodPicker value={paymentMethod} onChange={setPaymentMethod} />
           </div>
 
           <SwitchingCardPanel

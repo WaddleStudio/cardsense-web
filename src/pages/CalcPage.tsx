@@ -4,12 +4,11 @@ import { Button } from '@/components/ui/button'
 import { FilterChip } from '@/components/ui/filter-chip'
 import { Input } from '@/components/ui/input'
 import { MerchantPicker } from '@/components/MerchantPicker'
+import { PaymentMethodPicker } from '@/components/PaymentMethodPicker'
 import { SwitchingCardPanel } from '@/components/SwitchingCardPanel'
 import { useCards, useRecommendation } from '@/api'
 import {
   MERCHANT_SUGGESTIONS,
-  PAYMENT_METHODS,
-  PAYMENT_METHOD_LABELS,
   SUBCATEGORY_LABELS,
 } from '@/types'
 import type { Category } from '@/types'
@@ -217,29 +216,6 @@ export function CalcPage() {
           />
 
           <div className="space-y-2">
-            <label className="text-sm font-medium">支付方式</label>
-            <div className="flex flex-wrap gap-1.5">
-              <FilterChip active={paymentMethod === null} onClick={() => setPaymentMethod(null)}>
-                不限方式
-              </FilterChip>
-              {PAYMENT_METHODS.map((method) => (
-                <FilterChip
-                  key={method.value}
-                  active={paymentMethod === method.value}
-                  onClick={() => setPaymentMethod(method.value)}
-                >
-                  {method.label}
-                </FilterChip>
-              ))}
-            </div>
-            {paymentMethod && (
-              <p className="text-xs text-muted-foreground">
-                已套用支付方式：{PAYMENT_METHOD_LABELS[paymentMethod] ?? paymentMethod}
-              </p>
-            )}
-          </div>
-
-          <div className="space-y-2">
             <label htmlFor="calc-merchant-name" className="text-sm font-medium">
               指定商家 / 通路
               <span className="ml-1 font-normal text-muted-foreground">(像 Agoda、Trip.com、ChatGPT、全聯這類指定通路再填即可)</span>
@@ -272,6 +248,11 @@ export function CalcPage() {
                 </div>
               </div>
             )}
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium">支付方式</label>
+            <PaymentMethodPicker value={paymentMethod} onChange={setPaymentMethod} />
           </div>
 
           <SwitchingCardPanel

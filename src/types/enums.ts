@@ -118,6 +118,45 @@ const PAYMENT_METHOD_OPTIONS = [
 export const PAYMENT_METHODS = PAYMENT_METHOD_OPTIONS
 export type PaymentMethod = typeof PAYMENT_METHOD_OPTIONS[number]['value'] | 'MOBILE_PAY'
 
+export interface PaymentMethodGroup {
+  groupLabel: string
+  defaultExpanded: boolean
+  methods: { value: string; label: string }[]
+}
+
+export const PAYMENT_METHOD_GROUPS: PaymentMethodGroup[] = [
+  {
+    groupLabel: '常用行動支付',
+    defaultExpanded: true,
+    methods: [
+      { value: 'LINE_PAY', label: 'LINE Pay' },
+      { value: 'JKOPAY', label: '街口支付' },
+      { value: '全支付', label: '全支付' },
+      { value: 'IPASS_MONEY', label: 'iPASS MONEY' },
+    ],
+  },
+  {
+    groupLabel: '其他電子支付',
+    defaultExpanded: false,
+    methods: [
+      { value: '悠遊付', label: '悠遊付' },
+      { value: '全盈_PAY', label: '全盈+PAY' },
+      { value: 'ICASH_PAY', label: 'icash Pay' },
+      { value: 'TWQR', label: 'TWQR' },
+    ],
+  },
+  {
+    groupLabel: '手機錢包',
+    defaultExpanded: false,
+    methods: [
+      { value: 'APPLE_PAY', label: 'Apple Pay' },
+      { value: 'GOOGLE_PAY', label: 'Google Pay' },
+      { value: 'SAMSUNG_PAY', label: 'Samsung Pay' },
+      { value: 'ESUN_WALLET', label: '玉山 Wallet' },
+    ],
+  },
+]
+
 export const PAYMENT_METHOD_LABELS: Record<string, string> = {
   MOBILE_PAY: '行動支付',
   ...Object.fromEntries(PAYMENT_METHOD_OPTIONS.map((method) => [method.value, method.label])),
