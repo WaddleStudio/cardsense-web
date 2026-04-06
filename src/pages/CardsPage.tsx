@@ -22,7 +22,7 @@ import {
   BANK_COLORS,
   DEFAULT_BANK_COLOR,
 } from '@/types'
-import type { CardSummary, BankCode, Category, EligibilityType, AnnualFeeRange, RecommendationScope } from '@/types'
+import type { CardSummary, Category, EligibilityType, AnnualFeeRange, RecommendationScope } from '@/types'
 
 const SCOPE_LABELS: Record<string, string> = {
   RECOMMENDABLE: '可推薦',
