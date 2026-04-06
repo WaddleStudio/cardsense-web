@@ -386,6 +386,8 @@ function CardItem({ card }: { card: CardSummary }) {
   const isFree = card.annualFee === 0
   const bankColor = BANK_COLORS[card.bankCode] ?? DEFAULT_BANK_COLOR
   const categoryCount = card.availableCategories?.length ?? 0
+  const totalPromotionCount = card.totalPromotionCount ?? 0
+  const recommendablePromotionCount = card.recommendablePromotionCount ?? 0
   const categoryLabels = (card.availableCategories ?? [])
     .slice(0, 3)
     .map((c) => CATEGORY_LABELS[c as Category] ?? c)
@@ -453,8 +455,8 @@ function CardItem({ card }: { card: CardSummary }) {
             )}
           </div>
           <p className="text-xs text-muted-foreground">
-            已擷取 {card.totalPromotionCount} 筆優惠
-            {card.recommendablePromotionCount > 0 && `，可推薦 ${card.recommendablePromotionCount} 筆`}
+            已擷取 {totalPromotionCount} 筆優惠
+            {recommendablePromotionCount > 0 && `，可推薦 ${recommendablePromotionCount} 筆`}
           </p>
           {card.catalogReviewHint && (
             <p className="text-xs text-muted-foreground leading-relaxed">
@@ -468,6 +470,7 @@ function CardItem({ card }: { card: CardSummary }) {
 }
 
 function cardPriorityRank(card: CardSummary) {
+  const catalogOnlyPromotionCount = card.catalogOnlyPromotionCount ?? 0
   if (card.recommendationScopes.includes('RECOMMENDABLE') && !card.generalRewardsOnly && !card.sparsePromotionCard) {
     return 0
   }
@@ -477,7 +480,7 @@ function cardPriorityRank(card: CardSummary) {
   if (card.recommendationScopes.includes('RECOMMENDABLE')) {
     return 2
   }
-  if (card.catalogOnlyPromotionCount > 0) {
+  if (catalogOnlyPromotionCount > 0) {
     return 3
   }
   return 4
