@@ -9,11 +9,12 @@
 ## 功能
 
 - **年度損失計算機 `/calc`** — 社群傳播入口頁，計算器風格金額輸入、消費類別/場景選擇、持有卡片比較、回饋排名、年度損失動畫、分享圖片生成
-- **情境式推薦 `/recommend`** — 輸入消費金額、類別、通路，比較所有已收錄卡片的預估回饋
+- **情境式推薦 `/recommend`** — 輸入消費金額、類別、子類別場景、通路、支付方式、商家，比較所有已收錄卡片的預估回饋
 - **優惠明細展開** — 逐一列出每個優惠的回饋金額、條件與有效期
 - **損益平衡分析** — 疊加模式下自動計算兩張卡片的損益平衡消費點
-- **卡片目錄 `/cards`** — 多維篩選（銀行、資格類型、優惠類別、年費區間、推薦範圍），可收合進階篩選
-- **卡片詳情 `/cards/:cardCode`** — 優惠明細依類別分組、權益切換提醒、一鍵跳轉推薦
+- **卡片目錄 `/cards`** — 多維篩選（銀行、資格類型、優惠類別、年費區間、推薦範圍），可收合進階篩選、銀行品牌色、精選標記、空狀態優化
+- **卡片詳情 `/cards/:cardCode`** — 優惠明細依類別分組、權益切換提醒、benefit tier badges、一鍵跳轉推薦
+- **權益切換卡支援** — 可折疊切換卡狀態控制、merchant picker、CUBE tier selector、官方方案名稱對齊
 - **深色模式** — 跟隨系統偏好，可手動切換
 - **行動裝置最佳化** — 響應式 header、touch target 合規（44px/36px）、300ms tap delay 消除
 
@@ -73,8 +74,10 @@ src/
 ├── components/
 │   ├── ui/        # shadcn/ui 基礎元件（Button、FilterChip、Input 等）
 │   ├── Layout.tsx
+│   ├── MerchantPicker.tsx
 │   ├── RecommendationForm.tsx
-│   └── RecommendationResults.tsx
+│   ├── RecommendationResults.tsx
+│   └── SwitchingCardPanel.tsx
 ├── hooks/         # use-dark-mode、use-debounce
 ├── pages/
 │   ├── CalcPage.tsx          # /calc 年度損失社群入口頁
