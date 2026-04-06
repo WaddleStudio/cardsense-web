@@ -34,9 +34,9 @@ type SortKey = 'name' | 'annualFee' | 'bank'
 
 export function CardsPage() {
   const [bankFilter, setBankFilter] = useState<string>('')
-  const [eligibilityFilter, setEligibilityFilter] = useState<EligibilityType | ''>('')
+  const [eligibilityFilter, setEligibilityFilter] = useState<EligibilityType | ''>('GENERAL')
   const [categoryFilter, setCategoryFilter] = useState<Category | ''>('')
-  const [feeRangeFilter, setFeeRangeFilter] = useState<AnnualFeeRange | ''>('')
+  const [feeRangeFilter, setFeeRangeFilter] = useState<AnnualFeeRange | ''>('FREE')
   const [scopeFilter, setScopeFilter] = useState<RecommendationScope | ''>('')
   const [benefitPlanFilter, setBenefitPlanFilter] = useState(false)
   const [search, setSearch] = useState('')
@@ -47,7 +47,11 @@ export function CardsPage() {
 
   const debouncedSearch = useDebouncedValue(search, 300)
 
-  const hasAnyFilter = Boolean(bankFilter || debouncedSearch.trim() || eligibilityFilter || categoryFilter || feeRangeFilter || scopeFilter || benefitPlanFilter)
+  const hasNonDefaultFilter = Boolean(
+    bankFilter || debouncedSearch.trim() || categoryFilter || scopeFilter || benefitPlanFilter
+    || (eligibilityFilter && eligibilityFilter !== 'GENERAL')
+    || (feeRangeFilter && feeRangeFilter !== 'FREE'),
+  )
 
   const filteredCards = useMemo(() => {
     if (!cards) return []
@@ -86,6 +90,10 @@ export function CardsPage() {
       result = result.filter((c) => c.hasBenefitPlans)
     }
     result = [...result].sort((a, b) => {
+      const priorityDelta = cardPriorityRank(a) - cardPriorityRank(b)
+      if (priorityDelta !== 0) {
+        return priorityDelta
+      }
       switch (sort) {
         case 'name':
           return a.cardName.localeCompare(b.cardName, 'zh-Hant')
@@ -107,13 +115,16 @@ export function CardsPage() {
     return counts
   }, [cards])
 
-  const activeAdvancedFilterCount = [eligibilityFilter, categoryFilter, feeRangeFilter, scopeFilter, benefitPlanFilter].filter(Boolean).length
+  const activeAdvancedFilterCount = [
+    eligibilityFilter && eligibilityFilter !== 'GENERAL' ? eligibilityFilter : '',
+    feeRangeFilter && feeRangeFilter !== 'FREE' ? feeRangeFilter : '',
+  ].filter(Boolean).length
 
   function clearAllFilters() {
     setBankFilter('')
-    setEligibilityFilter('')
+    setEligibilityFilter('GENERAL')
     setCategoryFilter('')
-    setFeeRangeFilter('')
+    setFeeRangeFilter('FREE')
     setScopeFilter('')
     setBenefitPlanFilter(false)
     setSearch('')
@@ -187,6 +198,42 @@ export function CardsPage() {
           ))}
         </div>
 
+        {/* Category filter — promoted to top level */}
+        <div className="space-y-1.5">
+          <p className="text-xs font-medium text-muted-foreground">優惠類別</p>
+          <div className="flex gap-2 flex-wrap" role="group" aria-label="依優惠類別篩選">
+            <FilterChip active={categoryFilter === ''} onClick={() => setCategoryFilter('')}>
+              全部
+            </FilterChip>
+            {CATEGORIES.map((c) => (
+              <FilterChip
+                key={c}
+                active={categoryFilter === c}
+                onClick={() => setCategoryFilter(categoryFilter === c ? '' : c)}
+              >
+                {CATEGORY_LABELS[c]}
+              </FilterChip>
+            ))}
+          </div>
+        </div>
+
+        {/* Quick filters: benefit plan + recommendation scope */}
+        <div className="flex flex-wrap gap-2" role="group" aria-label="快速篩選">
+          <FilterChip active={benefitPlanFilter} onClick={() => setBenefitPlanFilter(!benefitPlanFilter)}>
+            <RefreshCw className="h-3 w-3 mr-1" />
+            可切換權益
+          </FilterChip>
+          {RECOMMENDATION_SCOPES.filter((s) => s !== 'FUTURE_SCOPE').map((s) => (
+            <FilterChip
+              key={s}
+              active={scopeFilter === s}
+              onClick={() => setScopeFilter(scopeFilter === s ? '' : s)}
+            >
+              {SCOPE_LABELS[s] ?? s}
+            </FilterChip>
+          ))}
+        </div>
+
         {/* Advanced filters toggle */}
         <button
           type="button"
@@ -228,25 +275,6 @@ export function CardsPage() {
           </div>
         </div>
 
-        {/* Category filter */}
-        <div className="space-y-1.5">
-          <p className="text-xs font-medium text-muted-foreground">優惠類別</p>
-          <div className="flex gap-2 flex-wrap" role="group" aria-label="依優惠類別篩選">
-            <FilterChip active={categoryFilter === ''} onClick={() => setCategoryFilter('')}>
-              全部
-            </FilterChip>
-            {CATEGORIES.map((c) => (
-              <FilterChip
-                key={c}
-                active={categoryFilter === c}
-                onClick={() => setCategoryFilter(categoryFilter === c ? '' : c)}
-              >
-                {CATEGORY_LABELS[c]}
-              </FilterChip>
-            ))}
-          </div>
-        </div>
-
         {/* Annual fee range filter */}
         <div className="space-y-1.5">
           <p className="text-xs font-medium text-muted-foreground">年費區間</p>
@@ -261,35 +289,6 @@ export function CardsPage() {
                 onClick={() => setFeeRangeFilter(feeRangeFilter === r ? '' : r)}
               >
                 {ANNUAL_FEE_RANGE_LABELS[r]}
-              </FilterChip>
-            ))}
-          </div>
-        </div>
-
-        {/* Benefit plan filter */}
-        <div className="space-y-1.5">
-          <p className="text-xs font-medium text-muted-foreground">卡片特性</p>
-          <div className="flex gap-2 flex-wrap" role="group" aria-label="依卡片特性篩選">
-            <FilterChip active={benefitPlanFilter} onClick={() => setBenefitPlanFilter(!benefitPlanFilter)}>
-              可切換權益方案
-            </FilterChip>
-          </div>
-        </div>
-
-        {/* Recommendation scope filter */}
-        <div className="space-y-1.5">
-          <p className="text-xs font-medium text-muted-foreground">推薦範圍</p>
-          <div className="flex gap-2 flex-wrap" role="group" aria-label="依推薦範圍篩選">
-            <FilterChip active={scopeFilter === ''} onClick={() => setScopeFilter('')}>
-              全部
-            </FilterChip>
-            {RECOMMENDATION_SCOPES.filter((s) => s !== 'FUTURE_SCOPE').map((s) => (
-              <FilterChip
-                key={s}
-                active={scopeFilter === s}
-                onClick={() => setScopeFilter(scopeFilter === s ? '' : s)}
-              >
-                {SCOPE_LABELS[s] ?? s}
               </FilterChip>
             ))}
           </div>
@@ -354,7 +353,7 @@ export function CardsPage() {
             <CreditCard className="h-6 w-6 opacity-50" />
           </div>
           <p className="text-sm">沒有找到符合條件的卡片</p>
-          {hasAnyFilter && (
+          {hasNonDefaultFilter && (
             <Button variant="outline" size="sm" className="cursor-pointer" onClick={clearAllFilters}>
               <X className="h-3.5 w-3.5 mr-1.5" />
               清除所有篩選
@@ -364,7 +363,7 @@ export function CardsPage() {
       )}
 
       {/* Results count */}
-      {!isLoading && filteredCards.length > 0 && hasAnyFilter && (
+      {!isLoading && filteredCards.length > 0 && hasNonDefaultFilter && (
         <p className="text-xs text-muted-foreground tabular-nums">
           顯示 {filteredCards.length} 張卡片
         </p>
@@ -453,8 +452,33 @@ function CardItem({ card }: { card: CardSummary }) {
               </Badge>
             )}
           </div>
+          <p className="text-xs text-muted-foreground">
+            已擷取 {card.totalPromotionCount} 筆優惠
+            {card.recommendablePromotionCount > 0 && `，可推薦 ${card.recommendablePromotionCount} 筆`}
+          </p>
+          {card.catalogReviewHint && (
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              {card.catalogReviewHint}
+            </p>
+          )}
         </CardContent>
       </Card>
     </Link>
   )
+}
+
+function cardPriorityRank(card: CardSummary) {
+  if (card.recommendationScopes.includes('RECOMMENDABLE') && !card.generalRewardsOnly && !card.sparsePromotionCard) {
+    return 0
+  }
+  if (card.recommendationScopes.includes('RECOMMENDABLE') && !card.sparsePromotionCard) {
+    return 1
+  }
+  if (card.recommendationScopes.includes('RECOMMENDABLE')) {
+    return 2
+  }
+  if (card.catalogOnlyPromotionCount > 0) {
+    return 3
+  }
+  return 4
 }
