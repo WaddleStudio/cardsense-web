@@ -17,14 +17,24 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import { cn } from '@/lib/utils'
-import { CATEGORY_LABELS, SUBCATEGORY_LABELS } from '@/types'
-import type { BenefitPlan, CardPromotion, Category } from '@/types'
+import { CATEGORY_LABELS, SUBCATEGORY_LABELS, BANK_COLORS, DEFAULT_BANK_COLOR } from '@/types'
+import type { BankCode, BenefitPlan, CardPromotion, Category } from '@/types'
 
 const SCOPE_LABELS: Record<string, string> = {
   RECOMMENDABLE: '可推薦',
   CATALOG_ONLY: '僅目錄展示',
   FUTURE_SCOPE: '未來納入',
 }
+
+/** Condition types that represent designated channels/merchants (shown in blue) */
+const CHANNEL_CONDITION_TYPES = new Set([
+  'LOCATION_ONLY',
+  'LOCATION_EXCLUDE',
+  'ECOMMERCE_PLATFORM',
+  'RETAIL_CHAIN',
+  'PAYMENT_PLATFORM',
+  'MERCHANT',
+])
 
 const SWITCH_FREQ_LABELS: Record<string, string> = {
   DAILY: '每日可切換',
@@ -134,9 +144,14 @@ export function CardDetailPage() {
         <CardHeader>
           <div className="flex items-start justify-between gap-4">
             <div className="flex items-center gap-3 min-w-0">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground">
-                <CreditCard className="h-5 w-5" />
-              </div>
+              {(() => {
+                const bankColor = BANK_COLORS[card.bankCode as BankCode] ?? DEFAULT_BANK_COLOR
+                return (
+                  <div className={cn('flex h-10 w-10 shrink-0 items-center justify-center rounded-xl', bankColor.bg, bankColor.text)}>
+                    <CreditCard className="h-5 w-5" />
+                  </div>
+                )
+              })()}
               <div className="min-w-0">
                 <CardTitle className="text-lg leading-tight">{card.cardName}</CardTitle>
                 <p className="text-sm text-muted-foreground mt-0.5">{card.bankName}</p>
@@ -285,28 +300,36 @@ function PromotionItem({ promotion }: { promotion: CardPromotion }) {
       )}
 
       <div className="flex flex-wrap gap-1.5">
+        {/* 指定通路 — 藍色系 */}
+        {promotion.conditions?.filter((c) => CHANNEL_CONDITION_TYPES.has(c.type)).map((condition, index) => (
+          <Badge key={`ch-${index}`} variant="outline" className="text-xs rounded-full border-blue-300 text-blue-700 dark:border-blue-700 dark:text-blue-400">
+            {condition.label || `${condition.type}: ${condition.value}`}
+          </Badge>
+        ))}
+
+        {/* 達成條件 — 琥珀色系 */}
         {promotion.minAmount != null && promotion.minAmount > 0 && (
-          <Badge variant="outline" className="text-xs rounded-full">
+          <Badge variant="outline" className="text-xs rounded-full border-amber-300 text-amber-700 dark:border-amber-700 dark:text-amber-400">
             最低消費 NT$ {promotion.minAmount}
           </Badge>
         )}
         {promotion.maxCashback != null && (
-          <Badge variant="outline" className="text-xs rounded-full">
+          <Badge variant="outline" className="text-xs rounded-full border-amber-300 text-amber-700 dark:border-amber-700 dark:text-amber-400">
             回饋上限 {promotion.maxCashback}
           </Badge>
         )}
         {promotion.requiresRegistration && (
-          <Badge variant="outline" className="text-xs rounded-full">
+          <Badge variant="outline" className="text-xs rounded-full border-amber-300 text-amber-700 dark:border-amber-700 dark:text-amber-400">
             需登錄
           </Badge>
         )}
         {promotion.frequencyLimit && promotion.frequencyLimit !== 'NONE' && (
-          <Badge variant="outline" className="text-xs rounded-full">
+          <Badge variant="outline" className="text-xs rounded-full border-amber-300 text-amber-700 dark:border-amber-700 dark:text-amber-400">
             {promotion.frequencyLimit}
           </Badge>
         )}
-        {promotion.conditions?.filter((condition) => condition.type !== 'TEXT').map((condition, index) => (
-          <Badge key={index} variant="outline" className="text-xs rounded-full">
+        {promotion.conditions?.filter((c) => !CHANNEL_CONDITION_TYPES.has(c.type) && c.type !== 'TEXT').map((condition, index) => (
+          <Badge key={`cond-${index}`} variant="outline" className="text-xs rounded-full border-amber-300 text-amber-700 dark:border-amber-700 dark:text-amber-400">
             {condition.label || `${condition.type}: ${condition.value}`}
           </Badge>
         ))}

@@ -4,6 +4,22 @@
 ] as const
 export type BankCode = (typeof BANK_CODES)[number]
 
+/** Bank accent colors — shared across CardsPage & CardDetailPage */
+export const BANK_COLORS: Record<BankCode, { bg: string; text: string }> = {
+  CATHAY:  { bg: 'bg-emerald-100 dark:bg-emerald-900/40', text: 'text-emerald-700 dark:text-emerald-400' },
+  ESUN:    { bg: 'bg-blue-100 dark:bg-blue-900/40', text: 'text-blue-700 dark:text-blue-400' },
+  TAISHIN: { bg: 'bg-rose-100 dark:bg-rose-900/40', text: 'text-rose-700 dark:text-rose-400' },
+  CTBC:    { bg: 'bg-sky-100 dark:bg-sky-900/40', text: 'text-sky-700 dark:text-sky-400' },
+  FUBON:   { bg: 'bg-indigo-100 dark:bg-indigo-900/40', text: 'text-indigo-700 dark:text-indigo-400' },
+  MEGA:    { bg: 'bg-amber-100 dark:bg-amber-900/40', text: 'text-amber-700 dark:text-amber-400' },
+  FIRST:   { bg: 'bg-orange-100 dark:bg-orange-900/40', text: 'text-orange-700 dark:text-orange-400' },
+  SINOPAC: { bg: 'bg-violet-100 dark:bg-violet-900/40', text: 'text-violet-700 dark:text-violet-400' },
+  TPBANK:  { bg: 'bg-teal-100 dark:bg-teal-900/40', text: 'text-teal-700 dark:text-teal-400' },
+  UBOT:    { bg: 'bg-cyan-100 dark:bg-cyan-900/40', text: 'text-cyan-700 dark:text-cyan-400' },
+}
+
+export const DEFAULT_BANK_COLOR = { bg: 'bg-primary/10', text: 'text-primary' }
+
 export const CATEGORIES = [
   'DINING', 'TRANSPORT', 'ONLINE', 'OVERSEAS',
   'SHOPPING', 'GROCERY', 'ENTERTAINMENT', 'OTHER',
