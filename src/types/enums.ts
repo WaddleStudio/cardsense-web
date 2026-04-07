@@ -20,14 +20,22 @@ export const BANK_COLORS: Record<BankCode, { bg: string; text: string }> = {
 
 export const DEFAULT_BANK_COLOR = { bg: 'bg-primary/10', text: 'text-primary' }
 
-/** Condition types that represent designated channels/merchants (shown in blue) */
-export const CHANNEL_CONDITION_TYPES = new Set([
+/** Condition types for designated venues/merchants (where you spend) */
+export const VENUE_CONDITION_TYPES = new Set([
+  'VENUE',
   'LOCATION_ONLY',
   'LOCATION_EXCLUDE',
-  'ECOMMERCE_PLATFORM',
-  'RETAIL_CHAIN',
-  'PAYMENT_PLATFORM',
-  'MERCHANT',
+])
+
+/** Condition types for payment methods (how you pay) */
+export const PAYMENT_CONDITION_TYPES = new Set([
+  'PAYMENT',
+])
+
+/** All channel-related condition types (union of venue + payment) */
+export const CHANNEL_CONDITION_TYPES = new Set([
+  ...VENUE_CONDITION_TYPES,
+  ...PAYMENT_CONDITION_TYPES,
 ])
 
 export const CATEGORIES = [
@@ -51,7 +59,8 @@ export const SUBCATEGORIES: Partial<Record<Category, { value: string; label: str
   ENTERTAINMENT: [
     { value: 'MOVIE', label: '電影' },
     { value: 'THEME_PARK', label: '主題樂園' },
-    { value: 'VENUE', label: 'KTV / 展演' },
+    { value: 'SINGING', label: 'KTV' },
+    { value: 'LIVE_EVENT', label: '展演 / 演唱會' },
     { value: 'STREAMING', label: '影音串流' },
   ],
   DINING: [

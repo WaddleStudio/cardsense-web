@@ -17,7 +17,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import { cn } from '@/lib/utils'
-import { CATEGORY_LABELS, SUBCATEGORY_LABELS, BANK_COLORS, DEFAULT_BANK_COLOR, CHANNEL_CONDITION_TYPES } from '@/types'
+import { CATEGORY_LABELS, SUBCATEGORY_LABELS, BANK_COLORS, DEFAULT_BANK_COLOR, CHANNEL_CONDITION_TYPES, VENUE_CONDITION_TYPES, PAYMENT_CONDITION_TYPES } from '@/types'
 import type { BankCode, BenefitPlan, CardPromotion, Category } from '@/types'
 
 const SCOPE_LABELS: Record<string, string> = {
@@ -331,8 +331,14 @@ function PromotionItem({ promotion }: { promotion: CardPromotion }) {
 
       <div className="flex flex-wrap gap-1.5">
         {/* 指定通路 — 藍色系 */}
-        {promotion.conditions?.filter((c) => CHANNEL_CONDITION_TYPES.has(c.type)).map((condition, index) => (
-          <Badge key={`ch-${index}`} variant="outline" className="text-xs rounded-full border-blue-300 text-blue-700 dark:border-blue-700 dark:text-blue-400">
+        {promotion.conditions?.filter((c) => VENUE_CONDITION_TYPES.has(c.type)).map((condition, index) => (
+          <Badge key={`venue-${index}`} variant="outline" className="text-xs rounded-full border-blue-300 text-blue-700 dark:border-blue-700 dark:text-blue-400">
+            {condition.label || `${condition.type}: ${condition.value}`}
+          </Badge>
+        ))}
+        {/* 支付方式 — 紫色系 */}
+        {promotion.conditions?.filter((c) => PAYMENT_CONDITION_TYPES.has(c.type)).map((condition, index) => (
+          <Badge key={`pay-${index}`} variant="outline" className="text-xs rounded-full border-purple-300 text-purple-700 dark:border-purple-700 dark:text-purple-400">
             {condition.label || `${condition.type}: ${condition.value}`}
           </Badge>
         ))}
