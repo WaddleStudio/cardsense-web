@@ -398,6 +398,8 @@ export const UNICARD_FLEXIBLE_MERCHANT_OPTIONS: UnicardMerchantGroup[] = [
       { value: 'SOGO', label: '遠東 SOGO' },
       { value: 'FAR_EAST_DEPARTMENT_STORE', label: '遠東百貨' },
       { value: 'GLOBAL_MALL', label: '環球購物中心' },
+      { value: 'CHUNGYO', label: '中友百貨' },
+      { value: 'METROWALK', label: '大江購物中心' },
     ],
   },
   {
