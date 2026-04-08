@@ -111,19 +111,6 @@ function deriveMerchantSuggestions(): Record<string, { value: string; label: str
     result[subKey].push({ value: m.code, label: m.label })
   }
 
-  // Also build category-level fallbacks (first 3 merchants per category)
-  const byCat: Record<string, { value: string; label: string }[]> = {}
-  for (const m of merchantRegistry) {
-    const frontendCat = FRONTEND_CATEGORY_OVERRIDES[m.subcategory] ?? m.category
-    if (!byCat[frontendCat]) byCat[frontendCat] = []
-    if (byCat[frontendCat].length < 3) {
-      byCat[frontendCat].push({ value: m.code, label: m.label })
-    }
-  }
-  for (const [cat, merchants] of Object.entries(byCat)) {
-    if (!result[cat]) result[cat] = merchants
-  }
-
   return result
 }
 
