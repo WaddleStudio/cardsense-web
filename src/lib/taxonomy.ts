@@ -64,7 +64,6 @@ const SUBCATEGORY_LABEL_MAP: Record<string, string> = {
   EV_CHARGING: '充電',
   PARKING: '停車',
   HOME_LIVING: '居家生活',
-  CHARITY_DONATION: '公益 / 捐款',
   // fallback
   GENERAL: '一般',
 }
