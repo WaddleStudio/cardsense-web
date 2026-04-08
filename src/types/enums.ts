@@ -55,59 +55,7 @@ export const CATEGORY_LABELS: Record<Category, string> = {
   OTHER: '其他',
 }
 
-export const SUBCATEGORIES: Partial<Record<Category, { value: string; label: string }[]>> = {
-  ENTERTAINMENT: [
-    { value: 'MOVIE', label: '電影' },
-    { value: 'THEME_PARK', label: '主題樂園' },
-    { value: 'SINGING', label: 'KTV' },
-    { value: 'LIVE_EVENT', label: '展演 / 演唱會' },
-    { value: 'STREAMING', label: '影音串流' },
-  ],
-  DINING: [
-    { value: 'DELIVERY', label: '外送' },
-    { value: 'RESTAURANT', label: '餐廳' },
-    { value: 'CAFE', label: '咖啡 / 茶飲' },
-    { value: 'HOTEL_DINING', label: '飯店餐飲' },
-  ],
-  SHOPPING: [
-    { value: 'DEPARTMENT', label: '百貨' },
-    { value: 'WAREHOUSE', label: '量販' },
-    { value: 'ELECTRONICS', label: '3C 家電' },
-    { value: 'DRUGSTORE', label: '藥妝' },
-    { value: 'SPORTING_GOODS', label: '運動用品' },
-    { value: 'APPAREL', label: '服飾' },
-  ],
-  ONLINE: [
-    { value: 'ECOMMERCE', label: '電商平台' },
-    { value: 'SUBSCRIPTION', label: '訂閱服務' },
-    { value: 'AI_TOOL', label: 'AI 工具' },
-    { value: 'TRAVEL_PLATFORM', label: '旅遊平台' },
-    { value: 'INTERNATIONAL_ECOMMERCE', label: '跨境電商' },
-  ],
-  TRANSPORT: [
-    { value: 'RIDESHARE', label: '叫車 / 共享' },
-    { value: 'PUBLIC_TRANSIT', label: '大眾運輸' },
-    { value: 'GAS_STATION', label: '加油' },
-    { value: 'AIRLINE', label: '航空' },
-  ],
-  GROCERY: [
-    { value: 'SUPERMARKET', label: '超市量販' },
-    { value: 'CONVENIENCE_STORE', label: '便利商店' },
-  ],
-  OVERSEAS: [
-    { value: 'OVERSEAS_IN_STORE', label: '海外實體' },
-  ],
-  OTHER: [
-    { value: 'EV_CHARGING', label: '充電' },
-    { value: 'PARKING', label: '停車' },
-    { value: 'HOME_LIVING', label: '居家生活' },
-    { value: 'CHARITY_DONATION', label: '公益 / 捐款' },
-  ],
-}
-
-export const SUBCATEGORY_LABELS: Record<string, string> = Object.fromEntries(
-  Object.values(SUBCATEGORIES).flatMap((subs) => subs?.map((s) => [s.value, s.label]) ?? []),
-)
+export { SUBCATEGORIES, SUBCATEGORY_LABELS } from '@/lib/taxonomy'
 
 const PAYMENT_METHOD_OPTIONS = [
   { value: 'LINE_PAY', label: 'LINE Pay' },
@@ -172,97 +120,7 @@ export const PAYMENT_METHOD_LABELS: Record<string, string> = {
   街口支付: '街口支付',
 }
 
-export const MERCHANT_SUGGESTIONS: Record<string, { value: string; label: string }[]> = {
-  ONLINE: [
-    { value: 'MOMO', label: 'momo' },
-    { value: 'SHOPEE', label: '蝦皮' },
-    { value: 'PCHOME_24H', label: 'PChome 24h' },
-  ],
-  'ONLINE:AI_TOOL': [
-    { value: 'CHATGPT', label: 'ChatGPT' },
-    { value: 'CLAUDE', label: 'Claude' },
-    { value: 'CANVA', label: 'Canva' },
-    { value: 'CURSOR', label: 'Cursor' },
-    { value: 'NOTION', label: 'Notion' },
-  ],
-  'ONLINE:ECOMMERCE': [
-    { value: 'MOMO', label: 'momo' },
-    { value: 'SHOPEE', label: '蝦皮' },
-    { value: 'PCHOME_24H', label: 'PChome 24h' },
-  ],
-  'ONLINE:INTERNATIONAL_ECOMMERCE': [
-    { value: 'COUPANG', label: 'Coupang' },
-    { value: 'TAOBAO', label: '淘寶' },
-    { value: 'TMALL', label: '天貓' },
-  ],
-  'ONLINE:TRAVEL_PLATFORM': [
-    { value: 'AGODA', label: 'Agoda' },
-    { value: 'BOOKING', label: 'Booking.com' },
-    { value: 'TRIP_COM', label: 'Trip.com' },
-    { value: 'KLOOK', label: 'Klook' },
-    { value: 'KKDAY', label: 'KKday' },
-    { value: 'HOTELS_COM', label: 'Hotels.com' },
-    { value: 'ASIAYO', label: 'AsiaYo' },
-    { value: 'AIRSIM', label: 'AIRSIM' },
-  ],
-  'ENTERTAINMENT:STREAMING': [
-    { value: 'NETFLIX', label: 'Netflix' },
-    { value: 'DISNEY_PLUS', label: 'Disney+' },
-    { value: 'SPOTIFY', label: 'Spotify' },
-    { value: 'YOUTUBE_PREMIUM', label: 'YouTube Premium' },
-  ],
-  'DINING:DELIVERY': [
-    { value: 'UBER_EATS', label: 'Uber Eats' },
-    { value: 'FOODPANDA', label: 'foodpanda' },
-  ],
-  'SHOPPING:DRUGSTORE': [
-    { value: 'COSMED', label: '康是美' },
-    { value: 'WATSONS', label: '屈臣氏' },
-  ],
-  'SHOPPING:SPORTING_GOODS': [
-    { value: 'DECATHLON', label: '迪卡儂' },
-  ],
-  'SHOPPING:APPAREL': [
-    { value: 'UNIQLO', label: 'UNIQLO' },
-    { value: 'NET', label: 'NET' },
-  ],
-  'TRANSPORT:RIDESHARE': [
-    { value: 'UBER', label: 'Uber' },
-    { value: 'GRAB', label: 'Grab' },
-    { value: 'YOXI', label: 'yoxi' },
-  ],
-  'TRANSPORT:PUBLIC_TRANSIT': [
-    { value: 'TRA', label: '台鐵' },
-    { value: 'THSR', label: '高鐵' },
-  ],
-  'TRANSPORT:GAS_STATION': [
-    { value: 'CPC', label: '台灣中油' },
-    { value: 'NATIONWIDE_GAS', label: '全國加油' },
-    { value: 'FORMOSA_PETROCHEMICAL', label: '台塑石油' },
-    { value: 'TAIA', label: '台亞' },
-    { value: 'FORMOZA', label: '福懋' },
-  ],
-  'TRANSPORT:AIRLINE': [
-    { value: 'CHINA_AIRLINES', label: '中華航空' },
-    { value: 'EVA_AIR', label: '長榮航空' },
-    { value: 'STARLUX', label: '星宇航空' },
-    { value: 'CATHAY_PACIFIC', label: '國泰航空' },
-  ],
-  'GROCERY:SUPERMARKET': [
-    { value: 'PXMART', label: '全聯' },
-    { value: 'CARREFOUR', label: '家樂福' },
-    { value: 'LOPIA', label: 'LOPIA' },
-  ],
-  'OTHER:EV_CHARGING': [
-    { value: 'U_POWER', label: 'U-POWER' },
-    { value: 'EVOASIS', label: 'EVOASIS' },
-    { value: 'ICHARGING', label: 'iCharging' },
-  ],
-  'OTHER:CHARITY_DONATION': [
-    { value: 'ESUN_WALLET_DONATION_SINGLE', label: '玉山 Wallet 單筆捐款' },
-    { value: 'ESUN_WALLET_DONATION_RECURRING', label: '玉山 Wallet 定期定額' },
-  ],
-}
+export { MERCHANT_SUGGESTIONS } from '@/lib/taxonomy'
 
 export const CUBE_BENEFIT_TIERS = [
   { value: 'LEVEL_1', label: 'Level 1', description: '一般持卡，預設 2%' },
