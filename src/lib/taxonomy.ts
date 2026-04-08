@@ -17,8 +17,8 @@ interface RawMerchant {
   aliases: string[]
 }
 
-const subcategoryTaxonomy = rawSubcategoryTaxonomy as Record<string, RawSubcategory>
-const merchantRegistry = rawMerchantRegistry as RawMerchant[]
+const subcategoryTaxonomy = rawSubcategoryTaxonomy as unknown as Record<string, RawSubcategory>
+const merchantRegistry = rawMerchantRegistry as unknown as RawMerchant[]
 
 // ---------- Chinese label map (presentation concern, maintained here) ----------
 

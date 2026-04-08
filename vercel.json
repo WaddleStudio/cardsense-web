@@ -1,4 +1,5 @@
 {
+  "buildCommand": "git clone --depth 1 https://github.com/WaddleStudio/cardsense-contracts.git ../cardsense-contracts && npm run build",
   "rewrites": [
     { "source": "/(.*)", "destination": "/index.html" }
   ]
