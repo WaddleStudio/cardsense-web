@@ -4,7 +4,8 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Label } from "./label"
 import { RadioGroup, RadioGroupItem } from "./radio-group"
 import { Textarea } from "./textarea"
-import { MessageSquare, Bug, CheckCircle2, Loader2 } from "lucide-react"
+import { Input } from "./input"
+import { MessageSquare, Bug, CheckCircle2, Loader2, Image as ImageIcon } from "lucide-react"
 
 export function FeedbackWidget() {
   const [open, setOpen] = useState(false)
@@ -12,28 +13,54 @@ export function FeedbackWidget() {
   const [success, setSuccess] = useState(false)
   const [feedbackType, setFeedbackType] = useState("BUG")
   const [description, setDescription] = useState("")
+  const [image, setImage] = useState<File | null>(null)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     
-    // Auto capture context
-    const payload = {
-      type: feedbackType,
-      description,
-      context: {
-        url: window.location.href,
-        pathname: window.location.pathname,
-        search: window.location.search,
-        userAgent: navigator.userAgent,
-        screenWidth: window.innerWidth,
-        timestamp: new Date().toISOString()
-      }
-    }
-    
     try {
       const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL
       const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY
+      
+      let screenshotUrl = null
+
+      if (SUPABASE_URL && SUPABASE_ANON_KEY && image) {
+        // 1. Upload Image to Supabase Storage Bucket
+        const fileExt = image.name.split('.').pop()
+        const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 10)}.${fileExt}`
+        
+        const uploadRes = await fetch(`${SUPABASE_URL}/storage/v1/object/feedback-images/${fileName}`, {
+          method: 'POST',
+          headers: {
+            'apikey': SUPABASE_ANON_KEY,
+            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+            'Content-Type': image.type
+          },
+          body: image
+        })
+
+        if (uploadRes.ok) {
+          screenshotUrl = `${SUPABASE_URL}/storage/v1/object/public/feedback-images/${fileName}`
+        } else {
+          console.error("Image upload failed", await uploadRes.text())
+        }
+      }
+
+      // Auto capture context
+      const payload = {
+        type: feedbackType,
+        description,
+        context: {
+          url: window.location.href,
+          pathname: window.location.pathname,
+          search: window.location.search,
+          userAgent: navigator.userAgent,
+          screenWidth: window.innerWidth,
+          timestamp: new Date().toISOString(),
+          screenshot_url: screenshotUrl
+        }
+      }
 
       if (SUPABASE_URL && SUPABASE_ANON_KEY) {
         // Real submission to Supabase
@@ -59,6 +86,7 @@ export function FeedbackWidget() {
         setOpen(false)
         setSuccess(false)
         setDescription("")
+        setImage(null)
       }, 2000)
     } catch (err) {
       console.error("Failed to submit feedback", err)
@@ -157,6 +185,20 @@ export function FeedbackWidget() {
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   required
+                />
+              </div>
+
+              <div className="grid gap-3">
+                <Label htmlFor="screenshot" className="flex items-center gap-2">
+                  <ImageIcon className="h-4 w-4" /> 
+                  附上截圖 (選填)
+                </Label>
+                <Input 
+                  id="screenshot" 
+                  type="file" 
+                  accept="image/*" 
+                  className="cursor-pointer"
+                  onChange={(e) => setImage(e.target.files?.[0] || null)}
                 />
               </div>
 
