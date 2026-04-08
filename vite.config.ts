@@ -11,4 +11,7 @@ export default defineConfig({
       '@contracts': path.resolve(__dirname, '../cardsense-contracts'),
     },
   },
+  build: {
+    chunkSizeWarningLimit: 1000,
+  },
 })

@@ -64,6 +64,10 @@ export interface RecommendationComparisonOptions {
   compareCardCodes?: string[]
 }
 
+export interface ExchangeRatesResponse {
+  rates: Record<string, number>
+}
+
 export interface RecommendationRequest {
   amount?: number
   category?: Category
@@ -78,6 +82,7 @@ export interface RecommendationRequest {
   date?: string
   scenario?: RecommendationScenario
   comparison?: RecommendationComparisonOptions
+  customExchangeRates?: Record<string, number>
 }
 
 // --- Recommendation Response ---
@@ -97,6 +102,14 @@ export interface ActivePlan {
   subscriptionCost: string | null
 }
 
+export interface RewardDetail {
+  rawRewardAmount: number
+  rewardUnit: string
+  exchangeRate: number
+  exchangeRateSource: 'SYSTEM_DEFAULT' | 'USER_CUSTOM'
+  note: string | null
+}
+
 export interface PromotionRewardBreakdown {
   promotionId: string
   promoVersionId: string
@@ -110,6 +123,7 @@ export interface PromotionRewardBreakdown {
   validUntil: string | null
   conditions: PromotionCondition[]
   reason: string
+  rewardDetail?: RewardDetail
 }
 
 export interface BreakEvenAnalysis {
@@ -153,6 +167,7 @@ export interface CardRecommendation {
   applyUrl: string | null
   activePlan: ActivePlan | null
   generalRewardOnly: boolean
+  rewardDetail?: RewardDetail
 }
 
 export interface RecommendationResponse {

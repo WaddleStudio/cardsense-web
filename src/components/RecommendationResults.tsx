@@ -1,4 +1,4 @@
-﻿import { useState } from 'react'
+import { useState } from 'react'
 import {
   ArrowLeftRight,
   Check,
@@ -447,6 +447,11 @@ function PromotionBreakdown({
                   </span>
                   {promo.cashbackType === 'PERCENT' && (
                     <span className="text-muted-foreground ml-1">({promo.cashbackValue}%)</span>
+                  )}
+                  {promo.rewardDetail && (
+                    <div className="text-[10px] text-muted-foreground opacity-80 mt-0.5">
+                      {promo.rewardDetail.rawRewardAmount} {promo.rewardDetail.rewardUnit} × {promo.rewardDetail.exchangeRate} TWD
+                    </div>
                   )}
                 </div>
               </div>

@@ -6,6 +6,7 @@ import type {
   BenefitPlan,
   CardPromotion,
   CardSummary,
+  ExchangeRatesResponse,
   HealthResponse,
   RecommendationRequest,
   RecommendationResponse,
@@ -24,6 +25,14 @@ export function useBanks() {
   return useQuery({
     queryKey: ['banks'],
     queryFn: () => get<BankSummary[]>('/v1/banks'),
+  })
+}
+
+export function useExchangeRates() {
+  return useQuery({
+    queryKey: ['exchange-rates'],
+    queryFn: () => get<ExchangeRatesResponse>('/v1/exchange-rates'),
+    staleTime: 1000 * 60 * 60 * 24,
   })
 }
 

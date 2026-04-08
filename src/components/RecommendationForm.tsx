@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { MerchantPicker } from '@/components/MerchantPicker'
 import { PaymentMethodPicker } from '@/components/PaymentMethodPicker'
 import { SwitchingCardPanel } from '@/components/SwitchingCardPanel'
+import { ExchangeRatesPanel } from '@/components/ExchangeRatesPanel'
 import { SubcategoryGrid } from '@/pages/calc/SubcategoryGrid'
 import {
   CATEGORIES,
@@ -39,6 +40,7 @@ export function RecommendationForm({ onResult, prefillCard }: Props) {
   const [selectedCard, setSelectedCard] = useState<string | undefined>(prefillCard)
   const [activePlansByCard, setActivePlansByCard] = useState<Record<string, string>>({})
   const [planRuntimeByCard, setPlanRuntimeByCard] = useState<Record<string, Record<string, string>>>({})
+  const [customExchangeRates, setCustomExchangeRates] = useState<Record<string, number>>({})
 
   const mutation = useRecommendation()
   const sceneSpecificMerchantSuggestions =
@@ -119,6 +121,7 @@ export function RecommendationForm({ onResult, prefillCard }: Props) {
         ...(Object.values(planRuntimeByCard).some((runtime) => Object.keys(runtime).length > 0) && { planRuntimeByCard }),
         ...(Object.keys(benefitPlanTiers).length > 0 && { benefitPlanTiers }),
         ...(selectedCard && { cardCodes: [selectedCard] }),
+        ...(Object.keys(customExchangeRates).length > 0 && { customExchangeRates }),
         comparison: {
           includePromotionBreakdown: true,
           includeBreakEvenAnalysis: true,
@@ -309,6 +312,8 @@ export function RecommendationForm({ onResult, prefillCard }: Props) {
               </SelectContent>
             </Select>
           </div>
+
+          <ExchangeRatesPanel onChange={setCustomExchangeRates} />
 
           {mutation.error && (
             <div className="flex items-start gap-2 rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2.5 text-sm text-destructive">
