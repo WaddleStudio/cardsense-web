@@ -1,4 +1,4 @@
-import { Bus, Globe, Package, Popcorn, ShoppingBag, ShoppingCart, Store, Utensils, type LucideIcon } from 'lucide-react'
+import { Bus, Globe, Luggage, Package, Popcorn, ShoppingBag, ShoppingCart, Store, Utensils, type LucideIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { Category } from '@/types'
 
@@ -7,6 +7,7 @@ const CALC_CATEGORIES: { value: Category; label: string; icon: LucideIcon }[] = 
   { value: 'ONLINE', label: '網購', icon: ShoppingCart },
   { value: 'GROCERY', label: '超市', icon: Store },
   { value: 'TRANSPORT', label: '交通', icon: Bus },
+  { value: 'TRAVEL', label: '旅遊', icon: Luggage },
   { value: 'OVERSEAS', label: '海外', icon: Globe },
   { value: 'SHOPPING', label: '百貨', icon: ShoppingBag },
   { value: 'ENTERTAINMENT', label: '娛樂', icon: Popcorn },

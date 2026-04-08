@@ -39,7 +39,7 @@ export const CHANNEL_CONDITION_TYPES = new Set([
 ])
 
 export const CATEGORIES = [
-  'DINING', 'TRANSPORT', 'ONLINE', 'OVERSEAS',
+  'DINING', 'TRANSPORT', 'ONLINE', 'TRAVEL', 'OVERSEAS',
   'SHOPPING', 'GROCERY', 'ENTERTAINMENT', 'OTHER',
 ] as const
 export type Category = (typeof CATEGORIES)[number]
@@ -48,6 +48,7 @@ export const CATEGORY_LABELS: Record<Category, string> = {
   DINING: '餐飲',
   TRANSPORT: '交通',
   ONLINE: '線上',
+  TRAVEL: '旅遊',
   OVERSEAS: '海外',
   SHOPPING: '購物',
   GROCERY: '生活採買',

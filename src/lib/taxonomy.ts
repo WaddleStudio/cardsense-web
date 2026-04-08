@@ -41,6 +41,7 @@ const SUBCATEGORY_LABEL_MAP: Record<string, string> = {
   DRUGSTORE: '藥妝',
   SPORTING_GOODS: '運動用品',
   APPAREL: '服飾',
+  HOME_LIVING: '居家生活',
   // ONLINE
   ECOMMERCE: '電商平台',
   SUBSCRIPTION: '訂閱服務',
@@ -52,31 +53,25 @@ const SUBCATEGORY_LABEL_MAP: Record<string, string> = {
   PUBLIC_TRANSIT: '大眾運輸',
   GAS_STATION: '加油',
   AIRLINE: '航空',
+  EV_CHARGING: '充電',
+  PARKING: '停車',
   // GROCERY
   SUPERMARKET: '超市量販',
   CONVENIENCE_STORE: '便利商店',
-  // OVERSEAS
-  OVERSEAS_IN_STORE: '海外實體',
+  // TRAVEL
   HOTEL: '旅宿',
   TRAVEL_PLATFORM: '旅遊平台',
   TRAVEL_AGENCY: '旅行社',
-  // OTHER
-  EV_CHARGING: '充電',
-  PARKING: '停車',
-  HOME_LIVING: '居家生活',
+  // OVERSEAS
+  OVERSEAS_IN_STORE: '海外實體',
   // fallback
   GENERAL: '一般',
 }
 
 // ---------- Derive SUBCATEGORIES from taxonomy ----------
 
-/** Category overrides: some subcategories are reclassified in the frontend for UX reasons. */
-const FRONTEND_CATEGORY_OVERRIDES: Record<string, Category> = {
-  // TRAVEL_PLATFORM is OVERSEAS in contracts but shown under ONLINE in frontend
-  TRAVEL_PLATFORM: 'ONLINE',
-  // GAS_STATION is OTHER in contracts but shown under TRANSPORT in frontend
-  GAS_STATION: 'TRANSPORT',
-}
+/** Category overrides: reclassify subcategories in the frontend when needed. */
+const FRONTEND_CATEGORY_OVERRIDES: Record<string, Category> = {}
 
 function deriveSubcategories(): Partial<Record<Category, { value: string; label: string }[]>> {
   const grouped: Record<string, { value: string; label: string }[]> = {}
