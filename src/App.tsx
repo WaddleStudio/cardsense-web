@@ -5,6 +5,7 @@ import { HomePage } from '@/pages/HomePage'
 import { CardsPage } from '@/pages/CardsPage'
 import { CardDetailPage } from '@/pages/CardDetailPage'
 import { CalcPage } from '@/pages/CalcPage'
+import { FeedbackWidget } from '@/components/ui/feedback-widget'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -27,6 +28,7 @@ export default function App() {
             <Route path="cards/:cardCode" element={<CardDetailPage />} />
           </Route>
         </Routes>
+        <FeedbackWidget />
       </BrowserRouter>
     </QueryClientProvider>
   )
