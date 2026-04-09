@@ -77,7 +77,7 @@ export function ExchangeRatesPanel({ onChange }: Props) {
       </DialogTrigger>
 
       <DialogContent
-        className="!top-0 !left-auto !right-0 !h-dvh !max-h-dvh !w-[min(100vw,42rem)] !translate-x-0 !translate-y-0 !rounded-none !border-l !p-0 sm:!max-w-none"
+        className="!top-0 !left-auto !right-0 !h-dvh !max-h-dvh !w-[min(100vw,42rem)] !max-w-none !translate-x-0 !translate-y-0 !rounded-none !border-l !p-0"
         showCloseButton={false}
       >
         <div className="flex h-full flex-col">
