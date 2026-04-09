@@ -313,7 +313,9 @@ export function RecommendationForm({ onResult, prefillCard }: Props) {
             </Select>
           </div>
 
-          <ExchangeRatesPanel onChange={setCustomExchangeRates} />
+          <div className="pt-1">
+            <ExchangeRatesPanel onChange={setCustomExchangeRates} />
+          </div>
 
           {mutation.error && (
             <div className="flex items-start gap-2 rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2.5 text-sm text-destructive">
