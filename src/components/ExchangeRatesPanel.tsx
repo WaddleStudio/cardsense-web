@@ -1,9 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
 import { ChevronDown, Tag } from 'lucide-react'
 import { useExchangeRates } from '@/api'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import type { ExchangeRateBoardRow } from './exchange-rates/exchange-rate-board.types'
+import { ExchangeRatesBoard } from './exchange-rates/ExchangeRatesBoard'
 import { getDefaultRateMap, normalizeExchangeRates } from './exchange-rates/normalize-exchange-rates'
 
 interface Props {
@@ -20,9 +19,8 @@ export function ExchangeRatesPanel({ onChange }: Props) {
     [data?.rates],
   )
   const defaultRateMap = useMemo(() => getDefaultRateMap(normalizedRates), [normalizedRates])
-
-  useEffect(() => {
-    const activeRates: Record<string, number> = {}
+  const activeRates = useMemo<Record<string, number>>(() => {
+    const nextActiveRates: Record<string, number> = {}
 
     Object.entries(customRates).forEach(([key, value]) => {
       const numericValue = Number(value)
@@ -31,12 +29,17 @@ export function ExchangeRatesPanel({ onChange }: Props) {
       }
 
       if (!(key in defaultRateMap) || defaultRateMap[key] !== numericValue) {
-        activeRates[key] = numericValue
+        nextActiveRates[key] = numericValue
       }
     })
 
+    return nextActiveRates
+  }, [customRates, defaultRateMap])
+  const activeOverrideKeys = useMemo(() => new Set(Object.keys(activeRates)), [activeRates])
+
+  useEffect(() => {
     onChange(activeRates)
-  }, [customRates, defaultRateMap, onChange])
+  }, [activeRates, onChange])
 
   if (isLoading || normalizedRates.length === 0) {
     return null
@@ -65,36 +68,17 @@ export function ExchangeRatesPanel({ onChange }: Props) {
           <p className="mb-4 text-xs text-muted-foreground">
             可依你的估值覆寫預設換算，只有和系統預設不同的項目才會送到推薦 API。
           </p>
-          <div className="space-y-3">
-            {normalizedRates.map((rate) => (
-              <div key={rate.key} className="space-y-1.5">
-                <Label htmlFor={`rate-${rate.key}`} className="text-xs">
-                  {rate.label} (預設: {rate.value})
-                </Label>
-                {rate.note && <p className="text-[11px] text-muted-foreground">{rate.note}</p>}
-                <div className="relative">
-                  <Input
-                    id={`rate-${rate.key}`}
-                    type="number"
-                    step="0.01"
-                    min={0}
-                    placeholder={String(rate.value)}
-                    value={customRates[rate.key] ?? ''}
-                    onChange={(e) =>
-                      setCustomRates((prev) => ({
-                        ...prev,
-                        [rate.key]: e.target.value,
-                      }))
-                    }
-                    className="pr-12 text-sm"
-                  />
-                  <span className="absolute inset-y-0 right-3 flex items-center text-xs text-muted-foreground">
-                    TWD
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
+          <ExchangeRatesBoard
+            rows={normalizedRates}
+            values={customRates}
+            activeOverrideKeys={activeOverrideKeys}
+            onValueChange={(key, value) =>
+              setCustomRates((prev) => ({
+                ...prev,
+                [key]: value,
+              }))
+            }
+          />
         </div>
       )}
     </div>
