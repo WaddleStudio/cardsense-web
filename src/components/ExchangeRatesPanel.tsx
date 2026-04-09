@@ -3,87 +3,11 @@ import { ChevronDown, Tag } from 'lucide-react'
 import { useExchangeRates } from '@/api'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import type { ExchangeRateEntry, ExchangeRatesResponse } from '@/types'
+import type { ExchangeRateBoardRow } from './exchange-rates/exchange-rate-board.types'
+import { getDefaultRateMap, normalizeExchangeRates } from './exchange-rates/normalize-exchange-rates'
 
 interface Props {
   onChange: (customRates: Record<string, number>) => void
-}
-
-interface NormalizedExchangeRate {
-  key: string
-  type: string
-  bank: string
-  unit: string
-  value: number
-  note: string | null
-  label: string
-}
-
-const TYPE_LABEL_MAP: Record<string, string> = {
-  POINTS: '點數價值',
-  MILES: '哩程價值',
-}
-
-const BANK_LABEL_MAP: Record<string, string> = {
-  _DEFAULT: '通用',
-  ASIA_MILES: '亞洲萬里通',
-  CATHAY: '國泰世華',
-  CTBC: '中國信託',
-  ESUN: '玉山銀行',
-  EVA_INFINITY: '長榮航空',
-  FUBON: '富邦銀行',
-  JALPAK: 'JAL',
-  TAISHIN: '台新銀行',
-}
-
-function formatRateLabel(type: string, bank: string, unit: string) {
-  const typeLabel = TYPE_LABEL_MAP[type] ?? type
-  const bankLabel = BANK_LABEL_MAP[bank] ?? bank
-
-  if (bank === '_DEFAULT') {
-    return `${typeLabel} / ${unit || bankLabel}`
-  }
-
-  return `${bankLabel} / ${unit || typeLabel}`
-}
-
-function normalizeRates(rates: ExchangeRatesResponse['rates'] | undefined): NormalizedExchangeRate[] {
-  if (!rates) return []
-
-  if (Array.isArray(rates)) {
-    return rates
-      .map((entry: ExchangeRateEntry) => {
-        const value = Number(entry.value)
-        return {
-          key: `${entry.type}.${entry.bank}`,
-          type: entry.type,
-          bank: entry.bank,
-          unit: entry.unit,
-          value,
-          note: entry.note,
-          label: formatRateLabel(entry.type, entry.bank, entry.unit),
-        }
-      })
-      .filter((entry) => !Number.isNaN(entry.value))
-  }
-
-  return Object.entries(rates)
-    .map(([key, rawValue]) => {
-      const [type = 'POINTS', bank = '_DEFAULT'] = key.split('.')
-      const value = Number(rawValue)
-      const unit = TYPE_LABEL_MAP[type] ?? type
-
-      return {
-        key,
-        type,
-        bank,
-        unit,
-        value,
-        note: null,
-        label: formatRateLabel(type, bank, unit),
-      }
-    })
-    .filter((entry) => !Number.isNaN(entry.value))
 }
 
 export function ExchangeRatesPanel({ onChange }: Props) {
@@ -91,11 +15,11 @@ export function ExchangeRatesPanel({ onChange }: Props) {
   const [isOpen, setIsOpen] = useState(false)
   const [customRates, setCustomRates] = useState<Record<string, string>>({})
 
-  const normalizedRates = useMemo(() => normalizeRates(data?.rates), [data?.rates])
-  const defaultRateMap = useMemo(
-    () => Object.fromEntries(normalizedRates.map((rate) => [rate.key, rate.value])),
-    [normalizedRates],
+  const normalizedRates = useMemo<ExchangeRateBoardRow[]>(
+    () => normalizeExchangeRates(data?.rates),
+    [data?.rates],
   )
+  const defaultRateMap = useMemo(() => getDefaultRateMap(normalizedRates), [normalizedRates])
 
   useEffect(() => {
     const activeRates: Record<string, number> = {}
