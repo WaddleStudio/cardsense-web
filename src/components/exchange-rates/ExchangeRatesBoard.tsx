@@ -11,14 +11,53 @@ interface Props {
   onValueChange: (key: string, value: string) => void
 }
 
-const SECTION_ORDER: Array<'POINTS' | 'MILES'> = ['POINTS', 'MILES']
+type SectionGroup = {
+  type: string
+  rows: ExchangeRateBoardRow[]
+}
 
-function getSectionRows(rows: ExchangeRateBoardRow[], type: 'POINTS' | 'MILES') {
-  return rows.filter((row) => row.type === type)
+function formatDisplayName(value: string) {
+  if (!value) return value
+
+  return value
+    .replaceAll('_', ' ')
+    .split(' ')
+    .map((word) => {
+      if (/^[A-Z0-9]+$/.test(word) && word.length <= 4) {
+        return word
+      }
+
+      const lower = word.toLowerCase()
+      return lower.charAt(0).toUpperCase() + lower.slice(1)
+    })
+    .join(' ')
+}
+
+function formatSectionLabel(type: string) {
+  return formatDisplayName(type)
 }
 
 function formatRowBadge(row: ExchangeRateBoardRow) {
-  return row.bank === '_DEFAULT' ? 'DEFAULT' : row.bank
+  return row.bank === '_DEFAULT' ? 'Default' : formatDisplayName(row.bank)
+}
+
+function groupRowsBySection(rows: ExchangeRateBoardRow[]): SectionGroup[] {
+  const sections = new Map<string, ExchangeRateBoardRow[]>()
+
+  rows.forEach((row) => {
+    const sectionRows = sections.get(row.type)
+    if (sectionRows) {
+      sectionRows.push(row)
+      return
+    }
+
+    sections.set(row.type, [row])
+  })
+
+  return Array.from(sections.entries()).map(([type, sectionRows]) => ({
+    type,
+    rows: sectionRows,
+  }))
 }
 
 export function ExchangeRatesBoard({
@@ -27,10 +66,7 @@ export function ExchangeRatesBoard({
   activeOverrideKeys,
   onValueChange,
 }: Props) {
-  const sections = SECTION_ORDER.map((type) => ({
-    type,
-    rows: getSectionRows(rows, type),
-  })).filter((section) => section.rows.length > 0)
+  const sections = groupRowsBySection(rows)
 
   return (
     <div className="space-y-5">
@@ -40,7 +76,7 @@ export function ExchangeRatesBoard({
 
           <div className="flex items-center justify-between gap-3">
             <Badge variant="secondary" className="rounded-full">
-              {section.type}
+              {formatSectionLabel(section.type)}
             </Badge>
             <span className="text-[11px] font-medium uppercase tracking-[0.24em] text-muted-foreground">
               TWD board
