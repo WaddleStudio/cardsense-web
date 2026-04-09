@@ -24,6 +24,7 @@ const TYPE_ORDER: Record<string, number> = {
 }
 
 type NormalizedExchangeRateCandidate = Omit<ExchangeRateBoardRow, 'rowOrder'> & {
+  sectionKey: string
   sourceOrder: number
 }
 
@@ -38,6 +39,7 @@ function normalizeRatesByArray(rates: readonly ExchangeRateEntry[]): NormalizedE
     return {
       key: `${entry.type}.${entry.bank}`,
       type: entry.type,
+      sectionKey: entry.type,
       bank: entry.bank,
       unit: entry.unit,
       value,
@@ -58,6 +60,7 @@ function normalizeRatesByRecord(rates: Record<string, number>): NormalizedExchan
     return {
       key,
       type,
+      sectionKey: type,
       bank,
       unit,
       value,
@@ -83,13 +86,13 @@ function sortNormalizedExchangeRates(
     return left.sourceOrder - right.sourceOrder
   })
 
-  const sectionRowOrders = new Map<number, number>()
+  const sectionRowOrderByKey = new Map<string, number>()
 
   return sortedRates.map((rate) => {
-    const { sourceOrder, ...normalizedRate } = rate
+    const { sourceOrder, sectionKey, ...normalizedRate } = rate
     void sourceOrder
-    const rowOrder = sectionRowOrders.get(rate.sectionOrder) ?? 0
-    sectionRowOrders.set(rate.sectionOrder, rowOrder + 1)
+    const rowOrder = sectionRowOrderByKey.get(sectionKey) ?? 0
+    sectionRowOrderByKey.set(sectionKey, rowOrder + 1)
 
     return {
       ...normalizedRate,
