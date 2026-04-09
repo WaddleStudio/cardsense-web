@@ -22,10 +22,6 @@ export function FeedbackWidget() {
     try {
       const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL
       const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY
-      console.log('MODE =', import.meta.env.MODE)
-      console.log('ENV =', import.meta.env)
-      console.log('VITE_SUPABASE_URL =', import.meta.env.VITE_SUPABASE_URL)
-      console.log('VITE_SUPABASE_ANON_KEY exists =', !!import.meta.env.VITE_SUPABASE_ANON_KEY)
       let screenshotUrl = null
 
       if (SUPABASE_URL && SUPABASE_ANON_KEY && image) {
