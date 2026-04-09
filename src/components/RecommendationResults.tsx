@@ -310,6 +310,7 @@ function RunnerUpCard({ rec, rank }: { rec: CardRecommendation; rank: number }) 
 
 function CashbackDisplay({ rec, size }: { rec: CardRecommendation; size: 'lg' | 'sm' }) {
   const isLg = size === 'lg'
+  const cashbackHint = formatCashbackHint(rec.cashbackType, rec.cashbackValue)
 
   return (
     <div className="text-right shrink-0">
@@ -322,7 +323,7 @@ function CashbackDisplay({ rec, size }: { rec: CardRecommendation; size: 'lg' | 
         <span className="text-[0.6em] font-semibold mr-0.5 opacity-80">NT$</span>
         {rec.estimatedReturn.toLocaleString()}
       </div>
-      {rec.cashbackType === 'PERCENT' && (
+      {cashbackHint && (
         <p
           className={cn(
             'text-muted-foreground tabular-nums',
@@ -330,11 +331,32 @@ function CashbackDisplay({ rec, size }: { rec: CardRecommendation; size: 'lg' | 
           )}
         >
           <TrendingUp className="inline h-3 w-3 mr-0.5 text-reward/70" />
-          {rec.cashbackValue}% 回饋
+          {cashbackHint}
         </p>
       )}
     </div>
   )
+}
+
+function formatRewardDetailValue(value: number) {
+  return Number.isInteger(value)
+    ? value.toLocaleString()
+    : value.toLocaleString(undefined, { maximumFractionDigits: 2 })
+}
+
+function formatCashbackHint(cashbackType: CardRecommendation['cashbackType'], cashbackValue: number) {
+  switch (cashbackType) {
+    case 'PERCENT':
+      return `${cashbackValue}% 回饋`
+    case 'POINTS':
+      return cashbackValue >= 30 ? `${cashbackValue} 點回饋` : `${cashbackValue}% 點數回饋`
+    case 'MILES':
+      return `每 ${formatRewardDetailValue(cashbackValue)} 元 1 哩`
+    case 'FIXED':
+      return `固定回饋 NT$ ${formatRewardDetailValue(cashbackValue)}`
+    default:
+      return null
+  }
 }
 
 function ConditionBadges({ rec }: { rec: CardRecommendation }) {
@@ -445,12 +467,15 @@ function PromotionBreakdown({
                   >
                     NT$ {promo.cappedReturn.toLocaleString()}
                   </span>
-                  {promo.cashbackType === 'PERCENT' && (
-                    <span className="text-muted-foreground ml-1">({promo.cashbackValue}%)</span>
+                  {formatCashbackHint(promo.cashbackType, promo.cashbackValue) && (
+                    <span className="ml-1 text-muted-foreground">
+                      ({formatCashbackHint(promo.cashbackType, promo.cashbackValue)})
+                    </span>
                   )}
                   {promo.rewardDetail && (
                     <div className="text-[10px] text-muted-foreground opacity-80 mt-0.5">
-                      {promo.rewardDetail.rawRewardAmount} {promo.rewardDetail.rewardUnit} × {promo.rewardDetail.exchangeRate} TWD
+                      {formatRewardDetailValue(promo.rewardDetail.rawReward)} {promo.rewardDetail.rawUnit}
+                      {' '}× {formatRewardDetailValue(promo.rewardDetail.exchangeRate)} TWD
                     </div>
                   )}
                 </div>

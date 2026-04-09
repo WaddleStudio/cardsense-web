@@ -287,8 +287,12 @@ function PromotionItem({ promotion }: { promotion: CardPromotion }) {
   const isMutuallyExclusive = promotion.stackability?.relationshipMode === 'MUTUALLY_EXCLUSIVE'
   const cashbackDisplay = promotion.cashbackType === 'FIXED'
     ? `NT$ ${promotion.cashbackValue}`
+    : promotion.cashbackType === 'MILES'
+      ? `每 ${promotion.cashbackValue} 元 1 哩`
     : promotion.cashbackType === 'POINTS'
-      ? `${promotion.cashbackValue} 點`
+      ? promotion.cashbackValue >= 30
+        ? `${promotion.cashbackValue} 點`
+        : `${promotion.cashbackValue}% 點數回饋`
       : `${promotion.cashbackValue}%`
   const subcategoryLabel = promotion.subcategory && promotion.subcategory !== 'GENERAL'
     ? SUBCATEGORY_LABELS[promotion.subcategory]

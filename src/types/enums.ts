@@ -327,7 +327,7 @@ export const CHANNEL_LABELS: Record<Channel, string> = {
   ALL: '不限',
 }
 
-export const CASHBACK_TYPES = ['PERCENT', 'FIXED', 'POINTS'] as const
+export const CASHBACK_TYPES = ['PERCENT', 'FIXED', 'POINTS', 'MILES'] as const
 export type CashbackType = (typeof CASHBACK_TYPES)[number]
 
 export const RECOMMENDATION_SCOPES = ['RECOMMENDABLE', 'CATALOG_ONLY', 'FUTURE_SCOPE'] as const

@@ -112,10 +112,11 @@ export interface ActivePlan {
 }
 
 export interface RewardDetail {
-  rawRewardAmount: number
-  rewardUnit: string
+  rawReward: number
+  rawUnit: string
   exchangeRate: number
   exchangeRateSource: 'SYSTEM_DEFAULT' | 'USER_CUSTOM'
+  ntdEquivalent: number
   note: string | null
 }
 
