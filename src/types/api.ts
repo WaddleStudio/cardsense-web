@@ -64,8 +64,17 @@ export interface RecommendationComparisonOptions {
   compareCardCodes?: string[]
 }
 
+export interface ExchangeRateEntry {
+  type: string
+  bank: string
+  unit: string
+  value: number
+  note: string | null
+}
+
 export interface ExchangeRatesResponse {
-  rates: Record<string, number>
+  version?: string
+  rates: ExchangeRateEntry[] | Record<string, number>
 }
 
 export interface RecommendationRequest {

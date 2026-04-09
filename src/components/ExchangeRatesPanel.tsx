@@ -1,16 +1,89 @@
-import { useState, useEffect } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { ChevronDown, Tag } from 'lucide-react'
-import { Label } from '@/components/ui/label'
-import { Input } from '@/components/ui/input'
 import { useExchangeRates } from '@/api'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import type { ExchangeRateEntry, ExchangeRatesResponse } from '@/types'
 
 interface Props {
   onChange: (customRates: Record<string, number>) => void
 }
 
-const LABEL_MAP: Record<string, string> = {
-  POINTS: '點數 (P幣/小樹點等) 價值',
-  MILES: '航空哩程價值',
+interface NormalizedExchangeRate {
+  key: string
+  type: string
+  bank: string
+  unit: string
+  value: number
+  note: string | null
+  label: string
+}
+
+const TYPE_LABEL_MAP: Record<string, string> = {
+  POINTS: '點數價值',
+  MILES: '哩程價值',
+}
+
+const BANK_LABEL_MAP: Record<string, string> = {
+  _DEFAULT: '通用',
+  ASIA_MILES: '亞洲萬里通',
+  CATHAY: '國泰世華',
+  CTBC: '中國信託',
+  ESUN: '玉山銀行',
+  EVA_INFINITY: '長榮航空',
+  FUBON: '富邦銀行',
+  JALPAK: 'JAL',
+  TAISHIN: '台新銀行',
+}
+
+function formatRateLabel(type: string, bank: string, unit: string) {
+  const typeLabel = TYPE_LABEL_MAP[type] ?? type
+  const bankLabel = BANK_LABEL_MAP[bank] ?? bank
+
+  if (bank === '_DEFAULT') {
+    return `${typeLabel} / ${unit || bankLabel}`
+  }
+
+  return `${bankLabel} / ${unit || typeLabel}`
+}
+
+function normalizeRates(rates: ExchangeRatesResponse['rates'] | undefined): NormalizedExchangeRate[] {
+  if (!rates) return []
+
+  if (Array.isArray(rates)) {
+    return rates
+      .map((entry: ExchangeRateEntry) => {
+        const value = Number(entry.value)
+        return {
+          key: `${entry.type}.${entry.bank}`,
+          type: entry.type,
+          bank: entry.bank,
+          unit: entry.unit,
+          value,
+          note: entry.note,
+          label: formatRateLabel(entry.type, entry.bank, entry.unit),
+        }
+      })
+      .filter((entry) => !Number.isNaN(entry.value))
+  }
+
+  return Object.entries(rates)
+    .map(([key, rawValue]) => {
+      const [type = 'POINTS', bank = '_DEFAULT'] = key.split('.')
+      const value = Number(rawValue)
+      const unit = TYPE_LABEL_MAP[type] ?? type
+
+      return {
+        key,
+        type,
+        bank,
+        unit,
+        value,
+        note: null,
+        label: formatRateLabel(type, bank, unit),
+      }
+    })
+    .filter((entry) => !Number.isNaN(entry.value))
 }
 
 export function ExchangeRatesPanel({ onChange }: Props) {
@@ -18,45 +91,43 @@ export function ExchangeRatesPanel({ onChange }: Props) {
   const [isOpen, setIsOpen] = useState(false)
   const [customRates, setCustomRates] = useState<Record<string, string>>({})
 
+  const normalizedRates = useMemo(() => normalizeRates(data?.rates), [data?.rates])
+  const defaultRateMap = useMemo(
+    () => Object.fromEntries(normalizedRates.map((rate) => [rate.key, rate.value])),
+    [normalizedRates],
+  )
+
   useEffect(() => {
-    // Determine the active rates (convert to numbers)
     const activeRates: Record<string, number> = {}
-    let hasOverrides = false
 
     Object.entries(customRates).forEach(([key, value]) => {
-      const numValue = Number(value)
-      if (value.trim() !== '' && !Number.isNaN(numValue) && numValue >= 0) {
-        // If it's different from the default rate, we emit it
-        if (!data?.rates || data.rates[key] !== numValue) {
-          activeRates[key] = numValue
-          hasOverrides = true
-        }
+      const numericValue = Number(value)
+      if (value.trim() === '' || Number.isNaN(numericValue) || numericValue < 0) {
+        return
+      }
+
+      if (!(key in defaultRateMap) || defaultRateMap[key] !== numericValue) {
+        activeRates[key] = numericValue
       }
     })
 
-    if (hasOverrides) {
-      onChange(activeRates)
-    } else {
-      onChange({})
-    }
-  }, [customRates, data?.rates, onChange])
+    onChange(activeRates)
+  }, [customRates, defaultRateMap, onChange])
 
-  if (isLoading || !data?.rates) {
+  if (isLoading || normalizedRates.length === 0) {
     return null
   }
 
-  const defaultRates = data.rates
-
   return (
-    <div className="rounded-lg border border-border bg-card shadow-sm mt-4">
+    <div className="mt-4 rounded-lg border border-border bg-card shadow-sm">
       <button
         type="button"
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={() => setIsOpen((prev) => !prev)}
         className="flex w-full cursor-pointer items-center justify-between px-4 py-3 hover:bg-accent/50 focus-visible:outline-none"
       >
         <div className="flex items-center gap-2">
           <Tag className="h-4 w-4 text-muted-foreground" />
-          <span className="text-sm font-medium">自訂點數與哩程價值</span>
+          <span className="text-sm font-medium">自訂點數與里程價值</span>
         </div>
         <ChevronDown
           className={`h-4 w-4 text-muted-foreground transition-transform duration-200 ${
@@ -67,27 +138,28 @@ export function ExchangeRatesPanel({ onChange }: Props) {
 
       {isOpen && (
         <div className="px-4 pb-4 pt-1">
-          <p className="text-xs text-muted-foreground mb-4">
-            調整以下數值以影響等效現金回饋率的計算（預設由系統提供）。
+          <p className="mb-4 text-xs text-muted-foreground">
+            可依你的估值覆寫預設換算，只有和系統預設不同的項目才會送到推薦 API。
           </p>
           <div className="space-y-3">
-            {Object.entries(defaultRates).map(([key, defaultVal]) => (
-              <div key={key} className="space-y-1.5">
-                <Label htmlFor={`rate-${key}`} className="text-xs">
-                  {LABEL_MAP[key] ?? key} (預設: {defaultVal})
+            {normalizedRates.map((rate) => (
+              <div key={rate.key} className="space-y-1.5">
+                <Label htmlFor={`rate-${rate.key}`} className="text-xs">
+                  {rate.label} (預設: {rate.value})
                 </Label>
+                {rate.note && <p className="text-[11px] text-muted-foreground">{rate.note}</p>}
                 <div className="relative">
                   <Input
-                    id={`rate-${key}`}
+                    id={`rate-${rate.key}`}
                     type="number"
                     step="0.01"
                     min={0}
-                    placeholder={String(defaultVal)}
-                    value={customRates[key] ?? ''}
+                    placeholder={String(rate.value)}
+                    value={customRates[rate.key] ?? ''}
                     onChange={(e) =>
                       setCustomRates((prev) => ({
                         ...prev,
-                        [key]: e.target.value,
+                        [rate.key]: e.target.value,
                       }))
                     }
                     className="pr-12 text-sm"
