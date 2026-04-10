@@ -41,7 +41,7 @@ export function MyWalletPanel({
     statusMessage ??
     (hasRestoredWallet
       ? 'Wallet restored from saved data.'
-      : 'Save your card selection, benefit-plan state, and exchange-rate preferences so they are ready next time.')
+      : 'Save your card selection, benefit-plan state, and exchange-rate preferences so they are ready next time in this browser.')
 
   return (
     <section className="rounded-xl border bg-card p-4 shadow-sm space-y-4">
@@ -54,9 +54,14 @@ export function MyWalletPanel({
         <p className="text-sm leading-relaxed">{statusLine}</p>
         {savedAt && (
           <p className="text-xs text-muted-foreground">
-            Saved at: <span className="font-medium text-foreground">{formatSavedAt(savedAt)}</span>
+            Last saved at:{' '}
+            <span className="font-medium text-foreground">{formatSavedAt(savedAt)}</span>
           </p>
         )}
+        <p className="text-xs leading-relaxed text-muted-foreground">
+          Clearing removes the saved wallet and resets the current card, plan, and exchange-rate
+          setup in this browser.
+        </p>
       </div>
 
       <div className="flex flex-col gap-2 sm:flex-row">

@@ -3,12 +3,13 @@ import { ExchangeRatesBoard } from './ExchangeRatesBoard'
 import { ExchangeRatesControl } from './ExchangeRatesControl'
 
 interface Props {
+  initialCustomRates?: Record<string, number>
   onChange: (customRates: Record<string, number>) => void
 }
 
-export function InlineExchangeRatesPanel({ onChange }: Props) {
+export function InlineExchangeRatesPanel({ initialCustomRates, onChange }: Props) {
   return (
-    <ExchangeRatesControl onChange={onChange}>
+    <ExchangeRatesControl initialCustomRates={initialCustomRates} onChange={onChange}>
       {({ rows, customRates, activeOverrideKeys, totalRowCount, isLoading, onValueChange }) => {
         if (isLoading || rows.length === 0) {
           return null

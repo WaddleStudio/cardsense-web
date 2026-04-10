@@ -14,13 +14,50 @@ import { AmountInput } from './calc/AmountInput'
 import { buildCalcRecommendationRequest } from './calc/buildCalcRecommendationRequest'
 import { CardSelector } from './calc/CardSelector'
 import { CategoryGrid } from './calc/CategoryGrid'
+import { MyWalletPanel } from './calc/MyWalletPanel'
 import { ResultPanel } from './calc/ResultPanel'
 import { SubcategoryGrid } from './calc/SubcategoryGrid'
+import {
+  shouldRunWalletAutoSelect,
+  type WalletCardSelectionMode,
+} from './calc/my-wallet-auto-select'
+import {
+  MY_WALLET_STORAGE_KEY,
+  buildMyWalletSnapshot,
+  parseStoredMyWalletSnapshot,
+} from './calc/my-wallet-storage'
 
 const DEFAULT_AMOUNT = '1200'
 const DEFAULT_CATEGORY: Category = 'DINING'
 const AUTO_SELECT_AMOUNT = 1200
 const AUTO_SELECT_COUNT = 6
+
+function buildWalletStateSignature(input: {
+  selectedCards: string[]
+  activePlansByCard: Record<string, string>
+  planRuntimeByCard: Record<string, Record<string, string>>
+  customExchangeRates: Record<string, number>
+}) {
+  return JSON.stringify({
+    selectedCards: [...input.selectedCards].sort(),
+    activePlansByCard: Object.fromEntries(
+      Object.entries(input.activePlansByCard).sort(([left], [right]) => left.localeCompare(right)),
+    ),
+    planRuntimeByCard: Object.fromEntries(
+      Object.entries(input.planRuntimeByCard)
+        .sort(([left], [right]) => left.localeCompare(right))
+        .map(([cardCode, runtime]) => [
+          cardCode,
+          Object.fromEntries(
+            Object.entries(runtime).sort(([left], [right]) => left.localeCompare(right)),
+          ),
+        ]),
+    ),
+    customExchangeRates: Object.fromEntries(
+      Object.entries(input.customExchangeRates).sort(([left], [right]) => left.localeCompare(right)),
+    ),
+  })
+}
 
 export function CalcPage() {
   const [amount, setAmount] = useState(DEFAULT_AMOUNT)
@@ -30,10 +67,17 @@ export function CalcPage() {
   const [merchantName, setMerchantName] = useState('')
   const [paymentMethod, setPaymentMethod] = useState<string | null>(null)
   const [selectedCards, setSelectedCards] = useState<string[]>([])
+  const [cardSelectionMode, setCardSelectionMode] = useState<WalletCardSelectionMode>('initial')
   const [cardSelectorError, setCardSelectorError] = useState<string | undefined>()
   const [activePlansByCard, setActivePlansByCard] = useState<Record<string, string>>({})
   const [planRuntimeByCard, setPlanRuntimeByCard] = useState<Record<string, Record<string, string>>>({})
   const [customExchangeRates, setCustomExchangeRates] = useState<Record<string, number>>({})
+  const [walletSavedAt, setWalletSavedAt] = useState<string | null>(null)
+  const [walletStatusMessage, setWalletStatusMessage] = useState<string | null>(null)
+  const [hasRestoredWallet, setHasRestoredWallet] = useState(false)
+  const [hasResolvedWalletRestore, setHasResolvedWalletRestore] = useState(false)
+  const [walletBaselineSignature, setWalletBaselineSignature] = useState<string | null>(null)
+  const [exchangeRatesPanelKey, setExchangeRatesPanelKey] = useState(0)
   const resultRef = useRef<HTMLDivElement>(null)
 
   const { data: cards } = useCards()
@@ -63,9 +107,96 @@ export function CalcPage() {
       .map(([cardCode, runtime]) => [cardCode, runtime?.tier])
       .filter((entry): entry is [string, string] => Boolean(entry[1])),
   )
+  const walletCanClear = walletSavedAt !== null || hasRestoredWallet
+  const walletStateSignature = buildWalletStateSignature({
+    selectedCards,
+    activePlansByCard,
+    planRuntimeByCard,
+    customExchangeRates,
+  })
+  const hasWalletUnsavedChanges =
+    walletBaselineSignature !== null && walletStateSignature !== walletBaselineSignature
+  const effectiveWalletStatusMessage = hasWalletUnsavedChanges
+    ? 'Wallet has unsaved changes. Save to update the wallet stored in this browser.'
+    : walletStatusMessage
 
   useEffect(() => {
-    if (!cards || cards.length === 0) return
+    if (!cards || cards.length === 0 || hasResolvedWalletRestore) return
+
+    const snapshot = parseStoredMyWalletSnapshot(localStorage.getItem(MY_WALLET_STORAGE_KEY))
+
+    if (!snapshot) {
+      setHasResolvedWalletRestore(true)
+      return
+    }
+
+    const availableCardCodes = new Set(cards.map((card) => card.cardCode))
+    const restoredSelectedCards = snapshot.selectedCards.filter((cardCode) =>
+      availableCardCodes.has(cardCode),
+    )
+    const restoredActivePlansByCard = Object.fromEntries(
+      Object.entries(snapshot.activePlansByCard).filter(([cardCode]) => availableCardCodes.has(cardCode)),
+    )
+    const restoredPlanRuntimeByCard = Object.fromEntries(
+      Object.entries(snapshot.planRuntimeByCard).filter(([cardCode]) => availableCardCodes.has(cardCode)),
+    )
+    const unavailableCardCodes = new Set(
+      [
+        ...snapshot.selectedCards,
+        ...Object.keys(snapshot.activePlansByCard),
+        ...Object.keys(snapshot.planRuntimeByCard),
+      ].filter((cardCode) => !availableCardCodes.has(cardCode)),
+    )
+
+    setSelectedCards(restoredSelectedCards)
+    setCardSelectionMode(restoredSelectedCards.length >= 2 ? 'manual' : 'initial')
+    setActivePlansByCard(restoredActivePlansByCard)
+    setPlanRuntimeByCard(restoredPlanRuntimeByCard)
+    setCustomExchangeRates(snapshot.customExchangeRates)
+    setWalletSavedAt(snapshot.savedAt)
+    setHasRestoredWallet(true)
+    setWalletBaselineSignature(
+      buildWalletStateSignature({
+        selectedCards: restoredSelectedCards,
+        activePlansByCard: restoredActivePlansByCard,
+        planRuntimeByCard: restoredPlanRuntimeByCard,
+        customExchangeRates: snapshot.customExchangeRates,
+      }),
+    )
+    localStorage.setItem(
+      MY_WALLET_STORAGE_KEY,
+      JSON.stringify(
+        buildMyWalletSnapshot({
+          savedAt: snapshot.savedAt,
+          selectedCards: restoredSelectedCards,
+          activePlansByCard: restoredActivePlansByCard,
+          planRuntimeByCard: restoredPlanRuntimeByCard,
+          customExchangeRates: snapshot.customExchangeRates,
+        }),
+      ),
+    )
+    setWalletStatusMessage(
+      unavailableCardCodes.size > 0
+        ? `Wallet restored, but ${unavailableCardCodes.size} unavailable card${
+            unavailableCardCodes.size === 1 ? ' was' : 's were'
+          } removed.`
+        : 'Wallet restored from saved data.',
+    )
+    setHasResolvedWalletRestore(true)
+    setExchangeRatesPanelKey((prev) => prev + 1)
+  }, [cards, hasResolvedWalletRestore])
+
+  useEffect(() => {
+    if (!cards || cards.length === 0 || !hasResolvedWalletRestore) return
+    if (
+      !shouldRunWalletAutoSelect({
+        hasRestoredWallet,
+        selectedCardCount: selectedCards.length,
+        selectionMode: cardSelectionMode,
+      })
+    ) {
+      return
+    }
 
     autoSelectCards(
       buildCalcRecommendationRequest({
@@ -100,6 +231,9 @@ export function CalcPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     cards,
+    hasResolvedWalletRestore,
+    hasRestoredWallet,
+    cardSelectionMode,
     category,
     subcategory,
     merchantName,
@@ -184,6 +318,47 @@ export function CalcPage() {
         },
       },
     )
+  }
+
+  function handleSaveWallet() {
+    const savedAt = new Date().toISOString()
+    const snapshot = buildMyWalletSnapshot({
+      savedAt,
+      selectedCards,
+      activePlansByCard,
+      planRuntimeByCard,
+      customExchangeRates,
+    })
+
+    localStorage.setItem(MY_WALLET_STORAGE_KEY, JSON.stringify(snapshot))
+    setWalletSavedAt(savedAt)
+    setHasRestoredWallet(true)
+    setHasResolvedWalletRestore(true)
+    setWalletBaselineSignature(
+      buildWalletStateSignature({
+        selectedCards: snapshot.selectedCards,
+        activePlansByCard: snapshot.activePlansByCard,
+        planRuntimeByCard: snapshot.planRuntimeByCard,
+        customExchangeRates: snapshot.customExchangeRates,
+      }),
+    )
+    setWalletStatusMessage('Wallet saved for your next calculator session.')
+  }
+
+  function handleClearWallet() {
+    localStorage.removeItem(MY_WALLET_STORAGE_KEY)
+    setSelectedCards([])
+    setCardSelectionMode('manual')
+    setCardSelectorError(undefined)
+    setActivePlansByCard({})
+    setPlanRuntimeByCard({})
+    setCustomExchangeRates({})
+    setWalletSavedAt(null)
+    setWalletBaselineSignature(null)
+    setWalletStatusMessage('Saved wallet cleared from this browser.')
+    setHasRestoredWallet(false)
+    setHasResolvedWalletRestore(true)
+    setExchangeRatesPanelKey((prev) => prev + 1)
   }
 
   return (
@@ -282,12 +457,28 @@ export function CalcPage() {
             }
           />
 
-          <InlineExchangeRatesPanel onChange={setCustomExchangeRates} />
+          <InlineExchangeRatesPanel
+            key={exchangeRatesPanelKey}
+            initialCustomRates={customExchangeRates}
+            onChange={setCustomExchangeRates}
+          />
+
+          <MyWalletPanel
+            selectedCardCount={selectedCards.length}
+            customRateCount={Object.keys(customExchangeRates).length}
+            savedAt={walletSavedAt}
+            hasRestoredWallet={hasRestoredWallet}
+            statusMessage={effectiveWalletStatusMessage}
+            canClear={walletCanClear}
+            onSave={handleSaveWallet}
+            onClear={handleClearWallet}
+          />
 
           <CardSelector
             selected={selectedCards}
             onChange={(codes) => {
               setSelectedCards(codes)
+              setCardSelectionMode('manual')
               setCardSelectorError(undefined)
             }}
             error={cardSelectorError}
