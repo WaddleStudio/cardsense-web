@@ -10,6 +10,7 @@ interface ResultPanelProps {
   recommendations: CardRecommendation[]
   amount: number
   category: Category
+  customExchangeRates: Record<string, number>
 }
 
 interface CalcResult {
@@ -39,7 +40,12 @@ function truncateCardLabel(label: string, maxLength = 18) {
   return label.length > maxLength ? `${label.slice(0, maxLength - 1)}…` : label
 }
 
-export function ResultPanel({ recommendations, amount, category }: ResultPanelProps) {
+export function ResultPanel({
+  recommendations,
+  amount,
+  category,
+  customExchangeRates,
+}: ResultPanelProps) {
   const result = useMemo(() => processResult(recommendations), [recommendations])
 
   if (!result) return null
@@ -166,6 +172,7 @@ export function ResultPanel({ recommendations, amount, category }: ResultPanelPr
         worstCardName={worstLabel}
         category={CATEGORY_LABELS[category]}
         amount={amount}
+        customExchangeRates={customExchangeRates}
       />
 
       <CtaStrip amount={amount} category={category} />

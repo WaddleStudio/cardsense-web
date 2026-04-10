@@ -17,6 +17,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import { cn } from '@/lib/utils'
+import { formatRewardDetailExplainability } from '@/components/reward-detail-explainability'
 import { CATEGORY_LABELS, VENUE_CONDITION_TYPES, PAYMENT_CONDITION_TYPES, MERCHANT_SUGGESTIONS, PAYMENT_METHOD_LABELS, SUBCATEGORY_LABELS } from '@/types'
 import type { BreakEvenAnalysis, CardRecommendation, RecommendationResponse } from '@/types'
 
@@ -473,10 +474,7 @@ function PromotionBreakdown({
                     </span>
                   )}
                   {promo.rewardDetail && (
-                    <div className="text-[10px] text-muted-foreground opacity-80 mt-0.5">
-                      {formatRewardDetailValue(promo.rewardDetail.rawReward)} {promo.rewardDetail.rawUnit}
-                      {' '}× {formatRewardDetailValue(promo.rewardDetail.exchangeRate)} TWD
-                    </div>
+                    <RewardDetailBlock detail={promo.rewardDetail} />
                   )}
                 </div>
               </div>
@@ -510,6 +508,36 @@ function PromotionBreakdown({
         </div>
       )}
     </>
+  )
+}
+
+function RewardDetailBlock({
+  detail,
+}: {
+  detail: NonNullable<CardRecommendation['rewardDetail']>
+}) {
+  const explanation = formatRewardDetailExplainability(detail)
+
+  return (
+    <div className="mt-1.5 space-y-1 text-[10px] text-muted-foreground">
+      <div className="flex flex-wrap items-center justify-end gap-1.5">
+        <Badge
+          variant="outline"
+          className={cn(
+            'rounded-full px-1.5 py-0 text-[9px]',
+            detail.exchangeRateSource === 'USER_CUSTOM'
+              ? 'border-primary/40 text-primary'
+              : 'border-border text-muted-foreground',
+          )}
+        >
+          {explanation.sourceLabel}
+        </Badge>
+        <span>{explanation.primaryLine}</span>
+      </div>
+      {explanation.noteLine && (
+        <p className="text-right leading-relaxed opacity-80">{explanation.noteLine}</p>
+      )}
+    </div>
   )
 }
 

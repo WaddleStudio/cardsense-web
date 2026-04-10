@@ -2,6 +2,7 @@ import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
 import { cn } from '@/lib/utils'
+import { describeExchangeRateRow } from './exchange-rate-explainability'
 import type { ExchangeRateBoardRow } from './exchange-rate-board.types'
 
 interface Props {
@@ -86,6 +87,7 @@ export function ExchangeRatesBoard({
           <div className="space-y-2.5">
             {section.rows.map((row) => {
               const isActive = activeOverrideKeys.has(row.key)
+              const explanation = describeExchangeRateRow(row)
 
               return (
                 <div
@@ -101,13 +103,19 @@ export function ExchangeRatesBoard({
                         <Badge variant="outline" className="rounded-full">
                           {formatRowBadge(row)}
                         </Badge>
+                        <Badge variant="secondary" className="rounded-full">
+                          {explanation.sourceLabel}
+                        </Badge>
                         <p className="text-sm font-medium leading-tight text-foreground">
                           {row.label}
                         </p>
                       </div>
-                      {row.note && (
+                      <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
+                        {explanation.contextLabel}
+                      </p>
+                      {explanation.noteLine && (
                         <p className="text-xs leading-relaxed text-muted-foreground">
-                          {row.note}
+                          {explanation.noteLine}
                         </p>
                       )}
                     </div>
@@ -116,7 +124,7 @@ export function ExchangeRatesBoard({
                       <p className="text-lg font-semibold tabular-nums text-foreground">
                         {row.value}
                       </p>
-                      <p className="text-xs text-muted-foreground">1 unit = {row.value} TWD</p>
+                      <p className="text-xs text-muted-foreground">{explanation.detailLine}</p>
                     </div>
 
                     <div className="flex items-center gap-2 md:justify-end">

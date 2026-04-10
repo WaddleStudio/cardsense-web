@@ -340,6 +340,7 @@ export function CalcPage() {
               recommendations={result.recommendations}
               amount={amountNum}
               category={category}
+              customExchangeRates={customExchangeRates}
             />
           )}
 

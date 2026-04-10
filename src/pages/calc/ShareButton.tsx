@@ -1,6 +1,7 @@
-﻿import { useState } from 'react'
-import { Share2, Check } from 'lucide-react'
+import { useState } from 'react'
+import { Check, Share2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { buildShareRateSummary } from './share-image-rate-summary'
 
 export interface ShareImageData {
   annualLoss: number
@@ -8,6 +9,7 @@ export interface ShareImageData {
   worstCardName: string
   category: string
   amount: number
+  customExchangeRates: Record<string, number>
 }
 
 function fitCanvasLabel(label: string, maxLength = 28) {
@@ -19,6 +21,7 @@ function generateShareCanvas(data: ShareImageData): HTMLCanvasElement {
   canvas.width = 1200
   canvas.height = 630
   const ctx = canvas.getContext('2d')!
+  const rateSummary = buildShareRateSummary(data.customExchangeRates)
 
   const bestLabel = fitCanvasLabel(data.bestCardName)
   const worstLabel = fitCanvasLabel(data.worstCardName)
@@ -72,6 +75,25 @@ function generateShareCanvas(data: ShareImageData): HTMLCanvasElement {
   ctx.font = 'bold 22px system-ui, -apple-system, sans-serif'
   ctx.fillText('立即試算你的回饋差距：cardsense-web.vercel.app/calc', 60, 590)
 
+  ctx.fillStyle = '#eff6ff'
+  ctx.fillRect(760, 440, 360, 120)
+
+  ctx.strokeStyle = '#bfdbfe'
+  ctx.lineWidth = 2
+  ctx.strokeRect(760, 440, 360, 120)
+
+  ctx.fillStyle = '#1d4ed8'
+  ctx.font = 'bold 22px system-ui, -apple-system, sans-serif'
+  ctx.fillText(rateSummary.title, 788, 478)
+
+  ctx.fillStyle = '#1f2937'
+  ctx.font = 'bold 20px system-ui, -apple-system, sans-serif'
+  ctx.fillText(fitCanvasLabel(rateSummary.lines[0], 30), 788, 514)
+
+  ctx.fillStyle = '#475569'
+  ctx.font = '18px system-ui, -apple-system, sans-serif'
+  ctx.fillText(fitCanvasLabel(rateSummary.lines[1], 40), 788, 548)
+
   ctx.fillStyle = '#fef2f2'
   ctx.beginPath()
   ctx.arc(1050, 350, 200, 0, Math.PI * 2)
@@ -93,11 +115,19 @@ export function ShareButton({
   worstCardName,
   category,
   amount,
+  customExchangeRates,
 }: ShareImageData) {
   const [state, setState] = useState<'idle' | 'copied'>('idle')
 
   const handleShare = async () => {
-    const canvas = generateShareCanvas({ annualLoss, bestCardName, worstCardName, category, amount })
+    const canvas = generateShareCanvas({
+      annualLoss,
+      bestCardName,
+      worstCardName,
+      category,
+      amount,
+      customExchangeRates,
+    })
     const blob = await new Promise<Blob>((resolve) =>
       canvas.toBlob((b) => resolve(b!), 'image/png'),
     )
