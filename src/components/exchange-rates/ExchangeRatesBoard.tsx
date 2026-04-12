@@ -3,6 +3,7 @@ import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
 import { cn } from '@/lib/utils'
 import { describeExchangeRateRow } from './exchange-rate-explainability'
+import { getExchangeRateVisual } from './exchange-rate-display'
 import type { ExchangeRateBoardRow } from './exchange-rate-board.types'
 
 interface Props {
@@ -88,6 +89,7 @@ export function ExchangeRatesBoard({
             {section.rows.map((row) => {
               const isActive = activeOverrideKeys.has(row.key)
               const explanation = describeExchangeRateRow(row)
+              const visual = getExchangeRateVisual(row.type)
 
               return (
                 <div
@@ -98,7 +100,14 @@ export function ExchangeRatesBoard({
                   )}
                 >
                   <div className="grid gap-3 md:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)_minmax(0,auto)] md:items-center">
-                    <div className="space-y-1">
+                    <div className="flex min-w-0 items-start gap-3">
+                      <div
+                        className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border text-[11px] font-bold ${visual.toneClass}`}
+                        aria-hidden="true"
+                      >
+                        {visual.label.slice(0, 1)}
+                      </div>
+                      <div className="min-w-0 space-y-1">
                       <div className="flex flex-wrap items-center gap-2">
                         <Badge variant="outline" className="rounded-full">
                           {formatRowBadge(row)}
@@ -118,6 +127,7 @@ export function ExchangeRatesBoard({
                           {explanation.noteLine}
                         </p>
                       )}
+                      </div>
                     </div>
 
                     <div className="space-y-1 md:text-center">

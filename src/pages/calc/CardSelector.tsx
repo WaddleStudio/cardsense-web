@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { Search } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { useCards } from '@/api'
@@ -21,9 +21,9 @@ export function CardSelector({ selected, onChange, error, isUpdating }: CardSele
     const lower = search.toLowerCase()
     const filtered = search
       ? cards.filter(
-          (c) =>
-            c.cardName.toLowerCase().includes(lower) ||
-            c.bankName.toLowerCase().includes(lower),
+          (card) =>
+            card.cardName.toLowerCase().includes(lower) ||
+            card.bankName.toLowerCase().includes(lower),
         )
       : cards
 
@@ -36,10 +36,11 @@ export function CardSelector({ selected, onChange, error, isUpdating }: CardSele
 
   const toggle = (code: string) => {
     if (selected.includes(code)) {
-      onChange(selected.filter((c) => c !== code))
-    } else {
-      onChange([...selected, code])
+      onChange(selected.filter((cardCode) => cardCode !== code))
+      return
     }
+
+    onChange([...selected, code])
   }
 
   return (
@@ -48,7 +49,7 @@ export function CardSelector({ selected, onChange, error, isUpdating }: CardSele
         <label className="text-sm font-medium">持有卡片</label>
         <span className="text-xs text-muted-foreground">
           {isUpdating ? (
-            <span className="animate-pulse">依類別推薦中...</span>
+            <span className="animate-pulse">正在更新推薦卡片...</span>
           ) : (
             `已選 ${selected.length} 張`
           )}
@@ -56,26 +57,26 @@ export function CardSelector({ selected, onChange, error, isUpdating }: CardSele
       </div>
 
       <div className="relative">
-        <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
+        <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
         <Input
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={(event) => setSearch(event.target.value)}
           placeholder="搜尋卡名或銀行..."
-          className="pl-8 text-sm h-9"
+          className="h-9 pl-8 text-sm"
         />
       </div>
 
       {error && <p className="text-xs text-destructive">{error}</p>}
 
-      <div className="max-h-52 overflow-y-auto rounded-lg border divide-y text-xs">
+      <div className="max-h-52 overflow-y-auto rounded-lg border text-xs">
         {isLoading ? (
           <div className="p-4 text-center text-muted-foreground">載入卡片中...</div>
         ) : Object.keys(grouped).length === 0 ? (
-          <div className="p-4 text-center text-muted-foreground">找不到卡片</div>
+          <div className="p-4 text-center text-muted-foreground">找不到符合的卡片</div>
         ) : (
           Object.entries(grouped).map(([bank, bankCards]) => (
-            <div key={bank}>
-              <div className="px-3 py-1 text-xs font-semibold text-muted-foreground bg-muted/50 sticky top-0">
+            <div key={bank} className="border-b last:border-b-0">
+              <div className="sticky top-0 bg-muted/80 px-3 py-1 text-xs font-semibold text-muted-foreground backdrop-blur">
                 {bank}
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2">
@@ -83,7 +84,7 @@ export function CardSelector({ selected, onChange, error, isUpdating }: CardSele
                   <label
                     key={card.cardCode}
                     className={cn(
-                      'flex items-start gap-2 px-3 py-2.5 min-h-touch-sm cursor-pointer hover:bg-accent transition-colors',
+                      'flex min-h-touch-sm cursor-pointer items-start gap-2 px-3 py-2.5 transition-colors hover:bg-accent',
                       selected.includes(card.cardCode) && 'bg-primary/5',
                     )}
                   >

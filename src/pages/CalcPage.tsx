@@ -370,9 +370,9 @@ export function CalcPage() {
         </p>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-[380px_1fr] xl:grid-cols-[minmax(760px,0.95fr)_minmax(0,1.05fr)]">
+      <div className="grid gap-6">
         <div className="min-w-0 rounded-xl border bg-card p-5 shadow-sm">
-          <div className="grid gap-5 xl:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
+          <div className="grid gap-5 md:grid-cols-[minmax(280px,0.9fr)_minmax(300px,1.1fr)]">
             <div className="min-w-0 space-y-5">
               <AmountInput
                 value={amount}
@@ -447,6 +447,8 @@ export function CalcPage() {
 
             <div className="min-w-0 space-y-5">
               <MyWalletPanel
+                selectedCardCodes={selectedCards}
+                cards={cards}
                 selectedCardCount={selectedCards.length}
                 customRateCount={Object.keys(customExchangeRates).length}
                 savedAt={walletSavedAt}
