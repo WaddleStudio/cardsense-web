@@ -370,122 +370,130 @@ export function CalcPage() {
         </p>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-[380px_1fr]">
-        <div className="min-w-0 space-y-5 rounded-xl border bg-card p-5 shadow-sm">
-          <AmountInput
-            value={amount}
-            onChange={(value) => {
-              setAmount(value)
-              setAmountTouched(false)
-            }}
-            error={amountError}
-          />
+      <div className="grid gap-6 lg:grid-cols-[380px_1fr] xl:grid-cols-[minmax(760px,0.95fr)_minmax(0,1.05fr)]">
+        <div className="min-w-0 rounded-xl border bg-card p-5 shadow-sm">
+          <div className="grid gap-5 xl:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
+            <div className="min-w-0 space-y-5">
+              <AmountInput
+                value={amount}
+                onChange={(value) => {
+                  setAmount(value)
+                  setAmountTouched(false)
+                }}
+                error={amountError}
+              />
 
-          <CategoryGrid
-            value={category}
-            onChange={(nextCategory) => {
-              setCategory(nextCategory)
-              setSubcategory(null)
-              setMerchantName('')
-            }}
-          />
+              <CategoryGrid
+                value={category}
+                onChange={(nextCategory) => {
+                  setCategory(nextCategory)
+                  setSubcategory(null)
+                  setMerchantName('')
+                }}
+              />
 
-          <SubcategoryGrid
-            category={category}
-            value={subcategory}
-            onChange={(value) => {
-              setSubcategory(value)
-              setMerchantName('')
-            }}
-          />
+              <SubcategoryGrid
+                category={category}
+                value={subcategory}
+                onChange={(value) => {
+                  setSubcategory(value)
+                  setMerchantName('')
+                }}
+              />
 
-          <div className="space-y-2">
-            <label htmlFor="calc-merchant-name" className="text-sm font-medium">
-              Merchant / Channel hint
-              <span className="ml-1 font-normal text-muted-foreground">
-                (Examples: Agoda, Trip.com, ChatGPT)
-              </span>
-            </label>
-            <Input
-              id="calc-merchant-name"
-              type="text"
-              placeholder={merchantPlaceholder}
-              value={merchantName}
-              onChange={(event) => setMerchantName(event.target.value)}
-            />
-            {hasMerchantScopedScene && !merchantName.trim() && subcategory && (
-              <p className="text-xs leading-relaxed text-amber-700 dark:text-amber-400">
-                Add a merchant when comparing {SUBCATEGORY_LABELS[subcategory] ?? subcategory} so
-                the calculator can match bank-specific merchant promotions.
-              </p>
-            )}
-            {merchantSuggestions.length > 0 && (
-              <div className="space-y-1.5">
-                <p className="text-xs text-muted-foreground">Suggested merchants</p>
-                <div className="flex flex-wrap gap-1.5">
-                  {merchantSuggestions.map((merchant) => (
-                    <FilterChip
-                      key={merchant.value}
-                      active={merchantName.trim().toUpperCase() === merchant.value}
-                      onClick={() => setMerchantName(merchant.value)}
-                    >
-                      {merchant.label}
-                    </FilterChip>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Payment method</label>
-            <PaymentMethodPicker value={paymentMethod} onChange={setPaymentMethod} />
-          </div>
-
-          <SwitchingCardPanel
-            activePlansByCard={activePlansByCard}
-            planRuntimeByCard={planRuntimeByCard}
-            onActivePlanChange={handleActivePlanChange}
-            onRuntimeChange={handleRuntimeChange}
-            renderCardExtra={(cardCode, activePlan) =>
-              cardCode === 'ESUN_UNICARD' && activePlan === 'ESUN_UNICARD_FLEXIBLE' ? (
-                <MerchantPicker
-                  value={planRuntimeByCard.ESUN_UNICARD?.selected_merchants ?? ''}
-                  onChange={(value) => handleRuntimeChange('ESUN_UNICARD', 'selected_merchants', value)}
+              <div className="space-y-2">
+                <label htmlFor="calc-merchant-name" className="text-sm font-medium">
+                  Merchant / Channel hint
+                  <span className="ml-1 font-normal text-muted-foreground">
+                    (Examples: Agoda, Trip.com, ChatGPT)
+                  </span>
+                </label>
+                <Input
+                  id="calc-merchant-name"
+                  type="text"
+                  placeholder={merchantPlaceholder}
+                  value={merchantName}
+                  onChange={(event) => setMerchantName(event.target.value)}
                 />
-              ) : null
-            }
-          />
+                {hasMerchantScopedScene && !merchantName.trim() && subcategory && (
+                  <p className="text-xs leading-relaxed text-amber-700 dark:text-amber-400">
+                    Add a merchant when comparing {SUBCATEGORY_LABELS[subcategory] ?? subcategory} so
+                    the calculator can match bank-specific merchant promotions.
+                  </p>
+                )}
+                {merchantSuggestions.length > 0 && (
+                  <div className="space-y-1.5">
+                    <p className="text-xs text-muted-foreground">Suggested merchants</p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {merchantSuggestions.map((merchant) => (
+                        <FilterChip
+                          key={merchant.value}
+                          active={merchantName.trim().toUpperCase() === merchant.value}
+                          onClick={() => setMerchantName(merchant.value)}
+                        >
+                          {merchant.label}
+                        </FilterChip>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
 
-          <InlineExchangeRatesPanel
-            key={exchangeRatesPanelKey}
-            initialCustomRates={customExchangeRates}
-            onChange={setCustomExchangeRates}
-          />
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Payment method</label>
+                <PaymentMethodPicker value={paymentMethod} onChange={setPaymentMethod} />
+              </div>
+            </div>
 
-          <MyWalletPanel
-            selectedCardCount={selectedCards.length}
-            customRateCount={Object.keys(customExchangeRates).length}
-            savedAt={walletSavedAt}
-            hasRestoredWallet={hasRestoredWallet}
-            statusMessage={effectiveWalletStatusMessage}
-            canClear={walletCanClear}
-            onSave={handleSaveWallet}
-            onClear={handleClearWallet}
-          />
+            <div className="min-w-0 space-y-5">
+              <MyWalletPanel
+                selectedCardCount={selectedCards.length}
+                customRateCount={Object.keys(customExchangeRates).length}
+                savedAt={walletSavedAt}
+                hasRestoredWallet={hasRestoredWallet}
+                statusMessage={effectiveWalletStatusMessage}
+                canClear={walletCanClear}
+                onSave={handleSaveWallet}
+                onClear={handleClearWallet}
+              />
 
-          <CardSelector
-            selected={selectedCards}
-            onChange={(codes) => {
-              setSelectedCards(codes)
-              setCardSelectionMode('manual')
-              setCardSelectorError(undefined)
-            }}
-            error={cardSelectorError}
-            isUpdating={isAutoSelecting}
-          />
+              <CardSelector
+                selected={selectedCards}
+                onChange={(codes) => {
+                  setSelectedCards(codes)
+                  setCardSelectionMode('manual')
+                  setCardSelectorError(undefined)
+                }}
+                error={cardSelectorError}
+                isUpdating={isAutoSelecting}
+              />
 
-          <div className="sticky bottom-0 -mx-5 -mb-5 rounded-b-xl border-t bg-card/95 px-5 py-3 backdrop-blur-sm">
+              <InlineExchangeRatesPanel
+                key={exchangeRatesPanelKey}
+                initialCustomRates={customExchangeRates}
+                onChange={setCustomExchangeRates}
+              />
+
+              <SwitchingCardPanel
+                activePlansByCard={activePlansByCard}
+                planRuntimeByCard={planRuntimeByCard}
+                onActivePlanChange={handleActivePlanChange}
+                onRuntimeChange={handleRuntimeChange}
+                renderCardExtra={(cardCode, activePlan) =>
+                  cardCode === 'ESUN_UNICARD' && activePlan === 'ESUN_UNICARD_FLEXIBLE' ? (
+                    <MerchantPicker
+                      value={planRuntimeByCard.ESUN_UNICARD?.selected_merchants ?? ''}
+                      onChange={(value) =>
+                        handleRuntimeChange('ESUN_UNICARD', 'selected_merchants', value)
+                      }
+                    />
+                  ) : null
+                }
+              />
+            </div>
+          </div>
+
+          <div className="sticky bottom-0 -mx-5 -mb-5 mt-5 rounded-b-xl border-t bg-card/95 px-5 py-3 backdrop-blur-sm">
             <Button
               className="min-h-touch w-full gap-2"
               onClick={handleSubmit}
