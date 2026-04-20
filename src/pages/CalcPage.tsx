@@ -450,9 +450,11 @@ export function CalcPage() {
                 selectedCardCodes={selectedCards}
                 cards={cards}
                 selectedCardCount={selectedCards.length}
+                activePlanCount={Object.keys(activePlansByCard).length}
                 customRateCount={Object.keys(customExchangeRates).length}
                 savedAt={walletSavedAt}
                 hasRestoredWallet={hasRestoredWallet}
+                hasUnsavedChanges={hasWalletUnsavedChanges}
                 statusMessage={effectiveWalletStatusMessage}
                 canClear={walletCanClear}
                 onSave={handleSaveWallet}
