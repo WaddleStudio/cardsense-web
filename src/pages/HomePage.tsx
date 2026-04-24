@@ -14,7 +14,7 @@ export function HomePage() {
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">信用卡推薦</h1>
         <p className="text-muted-foreground text-sm mt-1">
-          輸入消費情境，找出最適合的信用卡
+          先輸入商家或消費情境，找出最適合的信用卡
         </p>
       </div>
 

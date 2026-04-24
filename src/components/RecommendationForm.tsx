@@ -23,6 +23,22 @@ import {
 import type { Category, Channel, RecommendationResponse } from '@/types'
 
 const QUICK_AMOUNTS = [500, 1000, 3000, 5000]
+const PRIMARY_MERCHANT_SHORTCUTS = [
+  { value: 'PXMART', label: '全聯' },
+  { value: 'MOMO', label: 'momo' },
+  { value: 'SHOPEE', label: '蝦皮' },
+  { value: 'AGODA', label: 'Agoda' },
+  { value: 'CHATGPT', label: 'ChatGPT' },
+  { value: 'UBER_EATS', label: 'Uber Eats' },
+] as const
+const MERCHANT_SHORTCUT_SCENES = {
+  PXMART: { category: 'GROCERY', subcategory: 'SUPERMARKET' },
+  MOMO: { category: 'ONLINE', subcategory: 'ECOMMERCE' },
+  SHOPEE: { category: 'ONLINE', subcategory: 'ECOMMERCE' },
+  AGODA: { category: 'ONLINE', subcategory: 'TRAVEL_PLATFORM' },
+  CHATGPT: { category: 'ONLINE', subcategory: 'AI_TOOL' },
+  UBER_EATS: { category: 'DINING', subcategory: 'DELIVERY' },
+} as const
 
 interface Props {
   onResult: (result: RecommendationResponse) => void
@@ -56,7 +72,7 @@ export function RecommendationForm({ onResult, prefillCard }: Props) {
   const merchantPlaceholder =
     merchantSuggestions.length > 0
       ? `例如 ${merchantSuggestions.slice(0, 3).map((merchant) => merchant.label).join('、')}`
-      : '例如 ChatGPT、Claude、Uber Eats'
+      : '例如 全聯、momo、Agoda、ChatGPT'
 
   const benefitPlanTiers = Object.fromEntries(
     Object.entries(planRuntimeByCard)
@@ -98,6 +114,14 @@ export function RecommendationForm({ onResult, prefillCard }: Props) {
       ...prev,
       [cardCode]: { ...prev[cardCode], [key]: value },
     }))
+  }
+
+  function handleMerchantShortcutClick(merchantValue: (typeof PRIMARY_MERCHANT_SHORTCUTS)[number]['value']) {
+    setMerchantName(merchantValue)
+    const scene = MERCHANT_SHORTCUT_SCENES[merchantValue]
+    if (!scene) return
+    setCategory(scene.category)
+    setSubcategory(scene.subcategory)
   }
 
   function handleSubmit(e: FormEvent) {
@@ -199,6 +223,95 @@ export function RecommendationForm({ onResult, prefillCard }: Props) {
           </div>
 
           <div className="space-y-2">
+            <div className="flex items-start justify-between gap-3">
+              <div className="space-y-1">
+                <Label htmlFor="merchantName" className="text-sm font-semibold text-foreground">
+                  先輸入商家也可以
+                </Label>
+                <p className="text-xs leading-relaxed text-muted-foreground">
+                  想直接問「我去全聯刷哪張？」時，先填商家名稱，再搭配金額與類別縮小範圍。
+                </p>
+              </div>
+              {merchantName.trim() && (
+                <button
+                  type="button"
+                  onClick={() => setMerchantName('')}
+                  className="shrink-0 rounded-md px-2 py-1 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+                >
+                  清除
+                </button>
+              )}
+            </div>
+            <div className="rounded-xl border border-primary/20 bg-primary/5 p-4">
+              <div className="space-y-3">
+                <Input
+                  id="merchantName"
+                  type="text"
+                  placeholder={merchantPlaceholder}
+                  value={merchantName}
+                  onChange={(e) => setMerchantName(e.target.value)}
+                />
+
+                <div className="space-y-1.5">
+                  <p className="text-xs text-muted-foreground">熱門商家捷徑</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {PRIMARY_MERCHANT_SHORTCUTS.map((merchant) => (
+                      <FilterChip
+                        key={merchant.value}
+                        active={merchantName.trim().toUpperCase() === merchant.value}
+                        onClick={() => handleMerchantShortcutClick(merchant.value)}
+                      >
+                        {merchant.label}
+                      </FilterChip>
+                    ))}
+                  </div>
+                </div>
+
+                {merchantName.trim() &&
+                  category &&
+                  merchantName.trim().toUpperCase() in MERCHANT_SHORTCUT_SCENES && (
+                    <p className="text-xs text-muted-foreground">
+                      已帶入 {CATEGORY_LABELS[category]}
+                      {subcategoryLabel ? ` / ${subcategoryLabel}` : ''}
+                      ，你也可以再手動改成別的消費情境。
+                    </p>
+                  )}
+
+                {!category && merchantName.trim() && (
+                  <p className="text-xs text-amber-700 dark:text-amber-400">
+                    已指定商家，接著補上消費類別後，推薦會更精準。
+                  </p>
+                )}
+
+                {hasSceneSpecificMerchantSuggestions && !merchantName.trim() && (
+                  <p className="text-xs text-amber-700 dark:text-amber-400">
+                    {subcategoryLabel ? `這個${subcategoryLabel}場景` : '這個消費場景'}常有指定商家優惠，補上通路後命中會更準。
+                  </p>
+                )}
+
+                {merchantSuggestions.length > 0 && (
+                  <div className="space-y-1.5">
+                    <p className="text-xs text-muted-foreground">
+                      {subcategoryLabel ? `${subcategoryLabel}常見商家` : '這個類別常見商家'}
+                    </p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {merchantSuggestions.map((merchant) => (
+                        <FilterChip
+                          key={merchant.value}
+                          active={merchantName.trim().toUpperCase() === merchant.value}
+                          onClick={() => setMerchantName(merchant.value)}
+                        >
+                          {merchant.label}
+                        </FilterChip>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-2">
             <Label className="flex items-center gap-1">
               消費類別
               <span className="ml-0.5 text-destructive" aria-hidden>*</span>
@@ -208,7 +321,6 @@ export function RecommendationForm({ onResult, prefillCard }: Props) {
               onValueChange={(v: string) => {
                 setCategory(v as Category)
                 setSubcategory(null)
-                setMerchantName('')
               }}
             >
               <SelectTrigger>
@@ -230,47 +342,9 @@ export function RecommendationForm({ onResult, prefillCard }: Props) {
               value={subcategory}
               onChange={(value) => {
                 setSubcategory(value)
-                setMerchantName('')
               }}
             />
           )}
-
-          <div className="space-y-2">
-            <Label htmlFor="merchantName">
-              指定商家 / 通路
-              <span className="ml-1 font-normal text-muted-foreground">(可不填，像 Agoda、ChatGPT、全聯這類指定通路再填即可)</span>
-            </Label>
-            <Input
-              id="merchantName"
-              type="text"
-              placeholder={merchantPlaceholder}
-              value={merchantName}
-              onChange={(e) => setMerchantName(e.target.value)}
-            />
-            {hasSceneSpecificMerchantSuggestions && !merchantName.trim() && (
-              <p className="text-xs text-amber-700 dark:text-amber-400">
-                {subcategoryLabel ? `這個${subcategoryLabel}場景` : '這個消費場景'}常有指定商家優惠，補上通路後命中會更準。
-              </p>
-            )}
-            {merchantSuggestions.length > 0 && (
-              <div className="space-y-1.5">
-                <p className="text-xs text-muted-foreground">
-                  {subcategoryLabel ? `${subcategoryLabel}常見商家` : '常見商家'}
-                </p>
-                <div className="flex flex-wrap gap-1.5">
-                  {merchantSuggestions.map((merchant) => (
-                    <FilterChip
-                      key={merchant.value}
-                      active={merchantName.trim().toUpperCase() === merchant.value}
-                      onClick={() => setMerchantName(merchant.value)}
-                    >
-                      {merchant.label}
-                    </FilterChip>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
 
           <div className="space-y-2">
             <Label>支付方式</Label>
