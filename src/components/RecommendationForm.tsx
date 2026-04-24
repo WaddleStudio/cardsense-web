@@ -25,18 +25,20 @@ import type { Category, Channel, RecommendationResponse } from '@/types'
 const QUICK_AMOUNTS = [500, 1000, 3000, 5000]
 const PRIMARY_MERCHANT_SHORTCUTS = [
   { value: 'PXMART', label: '全聯' },
+  { value: 'CARREFOUR', label: '家樂福' },
   { value: 'MOMO', label: 'momo' },
   { value: 'SHOPEE', label: '蝦皮' },
   { value: 'AGODA', label: 'Agoda' },
-  { value: 'CHATGPT', label: 'ChatGPT' },
+  { value: 'STARBUCKS', label: '星巴克' },
   { value: 'UBER_EATS', label: 'Uber Eats' },
 ] as const
 const MERCHANT_SHORTCUT_SCENES = {
   PXMART: { category: 'GROCERY', subcategory: 'SUPERMARKET' },
+  CARREFOUR: { category: 'GROCERY', subcategory: 'SUPERMARKET' },
   MOMO: { category: 'ONLINE', subcategory: 'ECOMMERCE' },
   SHOPEE: { category: 'ONLINE', subcategory: 'ECOMMERCE' },
   AGODA: { category: 'ONLINE', subcategory: 'TRAVEL_PLATFORM' },
-  CHATGPT: { category: 'ONLINE', subcategory: 'AI_TOOL' },
+  STARBUCKS: { category: 'DINING', subcategory: 'CAFE' },
   UBER_EATS: { category: 'DINING', subcategory: 'DELIVERY' },
 } as const
 
