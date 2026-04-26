@@ -8,7 +8,7 @@ import { InlineExchangeRatesPanel } from '@/components/exchange-rates/InlineExch
 import { Button } from '@/components/ui/button'
 import { FilterChip } from '@/components/ui/filter-chip'
 import { Input } from '@/components/ui/input'
-import { MERCHANT_SUGGESTIONS, SUBCATEGORY_LABELS } from '@/types'
+import { MERCHANT_SUGGESTIONS, POPULAR_MERCHANT_SHORTCUTS, SUBCATEGORY_LABELS } from '@/types'
 import type { Category } from '@/types'
 import { AmountInput } from './calc/AmountInput'
 import { buildCalcRecommendationRequest } from './calc/buildCalcRecommendationRequest'
@@ -92,12 +92,14 @@ export function CalcPage() {
       : category
         ? (MERCHANT_SUGGESTIONS[category] ?? [])
         : []
+  const displayedMerchantSuggestions =
+    merchantSuggestions.length > 0 ? merchantSuggestions : POPULAR_MERCHANT_SHORTCUTS
   const hasMerchantScopedScene = Boolean(
     category && subcategory && MERCHANT_SUGGESTIONS[`${category}:${subcategory}`]?.length,
   )
   const merchantPlaceholder =
-    merchantSuggestions.length > 0
-      ? `e.g. ${merchantSuggestions
+    displayedMerchantSuggestions.length > 0
+      ? `e.g. ${displayedMerchantSuggestions
           .slice(0, 3)
           .map((merchant) => merchant.label)
           .join(', ')}`
@@ -421,11 +423,13 @@ export function CalcPage() {
                     the calculator can match bank-specific merchant promotions.
                   </p>
                 )}
-                {merchantSuggestions.length > 0 && (
+                {displayedMerchantSuggestions.length > 0 && (
                   <div className="space-y-1.5">
-                    <p className="text-xs text-muted-foreground">Suggested merchants</p>
+                    <p className="text-xs text-muted-foreground">
+                      {merchantSuggestions.length > 0 ? 'Suggested merchants' : 'Popular merchants'}
+                    </p>
                     <div className="flex flex-wrap gap-1.5">
-                      {merchantSuggestions.map((merchant) => (
+                      {displayedMerchantSuggestions.map((merchant) => (
                         <FilterChip
                           key={merchant.value}
                           active={merchantName.trim().toUpperCase() === merchant.value}

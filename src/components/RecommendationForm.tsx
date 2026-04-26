@@ -18,6 +18,7 @@ import {
   CHANNELS,
   CHANNEL_LABELS,
   MERCHANT_SUGGESTIONS,
+  POPULAR_MERCHANT_SHORTCUTS,
   SUBCATEGORY_LABELS,
 } from '@/types'
 import type { Category, Channel, RecommendationResponse } from '@/types'
@@ -51,11 +52,13 @@ export function RecommendationForm({ onResult, prefillCard }: Props) {
       : category
         ? (MERCHANT_SUGGESTIONS[category] ?? [])
         : []
+  const displayedMerchantSuggestions =
+    merchantSuggestions.length > 0 ? merchantSuggestions : POPULAR_MERCHANT_SHORTCUTS
   const hasSceneSpecificMerchantSuggestions = Boolean(category && subcategory && merchantSuggestions.length > 0)
   const subcategoryLabel = subcategory ? (SUBCATEGORY_LABELS[subcategory] ?? subcategory) : null
   const merchantPlaceholder =
-    merchantSuggestions.length > 0
-      ? `例如 ${merchantSuggestions.slice(0, 3).map((merchant) => merchant.label).join('、')}`
+    displayedMerchantSuggestions.length > 0
+      ? `例如 ${displayedMerchantSuggestions.slice(0, 3).map((merchant) => merchant.label).join('、')}`
       : '例如 ChatGPT、Claude、Uber Eats'
 
   const benefitPlanTiers = Object.fromEntries(
@@ -252,13 +255,15 @@ export function RecommendationForm({ onResult, prefillCard }: Props) {
                 {subcategoryLabel ? `這個${subcategoryLabel}場景` : '這個消費場景'}常有指定商家優惠，補上通路後命中會更準。
               </p>
             )}
-            {merchantSuggestions.length > 0 && (
+            {displayedMerchantSuggestions.length > 0 && (
               <div className="space-y-1.5">
                 <p className="text-xs text-muted-foreground">
-                  {subcategoryLabel ? `${subcategoryLabel}常見商家` : '常見商家'}
+                  {merchantSuggestions.length > 0
+                    ? (subcategoryLabel ? `${subcategoryLabel}常見商家` : '常見商家')
+                    : '熱門商家'}
                 </p>
                 <div className="flex flex-wrap gap-1.5">
-                  {merchantSuggestions.map((merchant) => (
+                  {displayedMerchantSuggestions.map((merchant) => (
                     <FilterChip
                       key={merchant.value}
                       active={merchantName.trim().toUpperCase() === merchant.value}
