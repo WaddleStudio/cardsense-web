@@ -8,7 +8,7 @@ import { InlineExchangeRatesPanel } from '@/components/exchange-rates/InlineExch
 import { Button } from '@/components/ui/button'
 import { FilterChip } from '@/components/ui/filter-chip'
 import { Input } from '@/components/ui/input'
-import { MERCHANT_SUGGESTIONS, SUBCATEGORY_LABELS } from '@/types'
+import { MERCHANT_SUGGESTIONS, POPULAR_MERCHANT_SHORTCUTS, SUBCATEGORY_LABELS } from '@/types'
 import type { Category } from '@/types'
 import { AmountInput } from './calc/AmountInput'
 import { buildCalcRecommendationRequest } from './calc/buildCalcRecommendationRequest'
@@ -48,6 +48,7 @@ const MERCHANT_SHORTCUT_SCENES = {
   AGODA: { category: 'ONLINE', subcategory: 'TRAVEL_PLATFORM' },
   STARBUCKS: { category: 'DINING', subcategory: 'CAFE' },
   UBER_EATS: { category: 'DINING', subcategory: 'DELIVERY' },
+  MCDONALD: { category: 'DINING', subcategory: 'RESTAURANT' },
 } as const
 
 function buildWalletStateSignature(input: {
@@ -110,12 +111,14 @@ export function CalcPage() {
       : category
         ? (MERCHANT_SUGGESTIONS[category] ?? [])
         : []
+  const displayedMerchantSuggestions =
+    merchantSuggestions.length > 0 ? merchantSuggestions : POPULAR_MERCHANT_SHORTCUTS
   const hasMerchantScopedScene = Boolean(
     category && subcategory && MERCHANT_SUGGESTIONS[`${category}:${subcategory}`]?.length,
   )
   const merchantPlaceholder =
-    merchantSuggestions.length > 0
-      ? `e.g. ${merchantSuggestions
+    displayedMerchantSuggestions.length > 0
+      ? `e.g. ${displayedMerchantSuggestions
           .slice(0, 3)
           .map((merchant) => merchant.label)
           .join(', ')}`

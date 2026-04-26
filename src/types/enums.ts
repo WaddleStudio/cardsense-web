@@ -121,7 +121,7 @@ export const PAYMENT_METHOD_LABELS: Record<string, string> = {
   街口支付: '街口支付',
 }
 
-export { MERCHANT_SUGGESTIONS } from '@/lib/taxonomy'
+export { MERCHANT_SUGGESTIONS, POPULAR_MERCHANT_SHORTCUTS } from '@/lib/taxonomy'
 
 export const CUBE_BENEFIT_TIERS = [
   { value: 'LEVEL_1', label: 'Level 1', description: '一般持卡，預設 2%' },

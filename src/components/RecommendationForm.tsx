@@ -18,6 +18,7 @@ import {
   CHANNELS,
   CHANNEL_LABELS,
   MERCHANT_SUGGESTIONS,
+  POPULAR_MERCHANT_SHORTCUTS,
   SUBCATEGORY_LABELS,
 } from '@/types'
 import type { Category, Channel, RecommendationResponse } from '@/types'
@@ -69,11 +70,13 @@ export function RecommendationForm({ onResult, prefillCard }: Props) {
       : category
         ? (MERCHANT_SUGGESTIONS[category] ?? [])
         : []
+  const displayedMerchantSuggestions =
+    merchantSuggestions.length > 0 ? merchantSuggestions : POPULAR_MERCHANT_SHORTCUTS
   const hasSceneSpecificMerchantSuggestions = Boolean(category && subcategory && merchantSuggestions.length > 0)
   const subcategoryLabel = subcategory ? (SUBCATEGORY_LABELS[subcategory] ?? subcategory) : null
   const merchantPlaceholder =
-    merchantSuggestions.length > 0
-      ? `例如 ${merchantSuggestions.slice(0, 3).map((merchant) => merchant.label).join('、')}`
+    displayedMerchantSuggestions.length > 0
+      ? `例如 ${displayedMerchantSuggestions.slice(0, 3).map((merchant) => merchant.label).join('、')}`
       : '例如 全聯、momo、Agoda、ChatGPT'
 
   const benefitPlanTiers = Object.fromEntries(

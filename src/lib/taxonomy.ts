@@ -19,6 +19,16 @@ interface RawMerchant {
 
 const subcategoryTaxonomy = rawSubcategoryTaxonomy as unknown as Record<string, RawSubcategory>
 const merchantRegistry = rawMerchantRegistry as unknown as RawMerchant[]
+const POPULAR_MERCHANT_CODES = [
+  'PXMART',
+  'CARREFOUR',
+  'MOMO',
+  'SHOPEE',
+  'AGODA',
+  'STARBUCKS',
+  'UBER_EATS',
+  'MCDONALD',
+] as const
 
 // ---------- Chinese label map (presentation concern, maintained here) ----------
 
@@ -119,3 +129,8 @@ function deriveMerchantSuggestions(): Record<string, { value: string; label: str
 }
 
 export const MERCHANT_SUGGESTIONS = deriveMerchantSuggestions()
+
+export const POPULAR_MERCHANT_SHORTCUTS = POPULAR_MERCHANT_CODES.map((code) => {
+  const merchant = merchantRegistry.find((entry) => entry.code === code)
+  return merchant ? { value: merchant.code, label: merchant.label } : null
+}).filter((merchant): merchant is { value: string; label: string } => merchant !== null)
