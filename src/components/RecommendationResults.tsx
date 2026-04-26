@@ -34,7 +34,7 @@ export function RecommendationResults({ result }: Props) {
         </div>
         <div className="text-center">
           <p className="text-sm font-medium">等待推薦結果</p>
-          <p className="text-xs mt-0.5">輸入消費情境後，這裡會顯示最佳卡片與比較範圍。</p>
+          <p className="text-xs mt-0.5">先試全聯、家樂福、momo 或星巴克，這裡會顯示最佳卡片與比較範圍。</p>
         </div>
       </div>
     )

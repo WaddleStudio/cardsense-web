@@ -107,13 +107,22 @@ export const SUBCATEGORY_LABELS: Record<string, string> = Object.fromEntries(
 
 function deriveMerchantSuggestions(): Record<string, { value: string; label: string }[]> {
   const result: Record<string, { value: string; label: string }[]> = {}
+  const seenByKey: Record<string, Set<string>> = {}
+
+  function addSuggestion(key: string, merchant: RawMerchant) {
+    if (!result[key]) result[key] = []
+    if (!seenByKey[key]) seenByKey[key] = new Set()
+    if (seenByKey[key].has(merchant.code)) return
+    seenByKey[key].add(merchant.code)
+    result[key].push({ value: merchant.code, label: merchant.label })
+  }
 
   for (const m of merchantRegistry) {
     // Use the frontend-overridden category so lookup keys match the UI state
     const frontendCat = FRONTEND_CATEGORY_OVERRIDES[m.subcategory] ?? m.category
     const subKey = `${frontendCat}:${m.subcategory}`
-    if (!result[subKey]) result[subKey] = []
-    result[subKey].push({ value: m.code, label: m.label })
+    addSuggestion(subKey, m)
+    addSuggestion(frontendCat, m)
   }
 
   return result

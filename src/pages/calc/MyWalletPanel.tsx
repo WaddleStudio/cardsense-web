@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ChevronLeft, ChevronRight, CreditCard } from 'lucide-react'
+import { AlertTriangle, ChevronLeft, ChevronRight, CreditCard } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import type { CardSummary } from '@/types'
 import {
@@ -11,21 +11,25 @@ interface MyWalletPanelProps {
   selectedCardCodes: string[]
   cards: CardSummary[] | undefined
   selectedCardCount: number
+  activePlanCount: number
   customRateCount: number
   savedAt: string | null
   hasRestoredWallet: boolean
+  hasUnsavedChanges: boolean
   canClear: boolean
   statusMessage: string | null
   onSave: () => void
   onClear: () => void
 }
 
-function buildSummaryLine(selectedCardCount: number, customRateCount: number) {
-  const cardLabel = selectedCardCount === 1 ? '1 selected card' : `${selectedCardCount} selected cards`
-  const rateLabel =
-    customRateCount === 1 ? '1 custom rate' : `${customRateCount} custom rates`
-
-  return `${cardLabel}, ${rateLabel}`
+function buildSummaryLine(selectedCardCount: number, activePlanCount: number, customRateCount: number) {
+  const parts: string[] = []
+  parts.push(selectedCardCount === 1 ? '1 selected card' : `${selectedCardCount} selected cards`)
+  if (activePlanCount > 0)
+    parts.push(activePlanCount === 1 ? '1 active plan' : `${activePlanCount} active plans`)
+  if (customRateCount > 0)
+    parts.push(customRateCount === 1 ? '1 custom rate' : `${customRateCount} custom rates`)
+  return parts.join(', ')
 }
 
 function formatSavedAt(savedAt: string) {
@@ -39,9 +43,11 @@ export function MyWalletPanel({
   selectedCardCodes,
   cards,
   selectedCardCount,
+  activePlanCount,
   customRateCount,
   savedAt,
   hasRestoredWallet,
+  hasUnsavedChanges,
   canClear,
   statusMessage,
   onSave,
@@ -49,7 +55,7 @@ export function MyWalletPanel({
 }: MyWalletPanelProps) {
   const walletCards = buildWalletCarouselCards(selectedCardCodes, cards)
   const [activeIndex, setActiveIndex] = useState(0)
-  const summaryLine = buildSummaryLine(selectedCardCount, customRateCount)
+  const summaryLine = buildSummaryLine(selectedCardCount, activePlanCount, customRateCount)
   const statusLine =
     statusMessage ??
     (hasRestoredWallet
@@ -144,33 +150,45 @@ export function MyWalletPanel({
         )}
       </div>
 
-      <div className="space-y-2 rounded-lg bg-muted/35 p-3">
-        <p className="text-sm leading-relaxed">{statusLine}</p>
-        {savedAt && (
-          <p className="text-xs text-muted-foreground">
-            Last saved at:{' '}
-            <span className="font-medium text-foreground">{formatSavedAt(savedAt)}</span>
+      {hasUnsavedChanges ? (
+        <div className="flex items-start gap-2 rounded-lg border border-amber-400/50 bg-amber-50 p-3 text-amber-800 dark:border-amber-500/40 dark:bg-amber-950/40 dark:text-amber-300">
+          <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+          <p className="text-sm leading-relaxed">{statusLine}</p>
+        </div>
+      ) : (
+        <div className="space-y-2 rounded-lg bg-muted/35 p-3">
+          <p className="text-sm leading-relaxed">{statusLine}</p>
+          {savedAt && (
+            <p className="text-xs text-muted-foreground">
+              Last saved at:{' '}
+              <span className="font-medium text-foreground">{formatSavedAt(savedAt)}</span>
+            </p>
+          )}
+          <p className="text-xs leading-relaxed text-muted-foreground">
+            Clearing removes the saved wallet and resets the current card, plan, and exchange-rate
+            setup in this browser.
           </p>
-        )}
-        <p className="text-xs leading-relaxed text-muted-foreground">
-          Clearing removes the saved wallet and resets the current card, plan, and exchange-rate
-          setup in this browser.
-        </p>
-      </div>
+        </div>
+      )}
 
-      <div className="flex flex-col gap-2 sm:flex-row">
-        <Button type="button" className="flex-1 cursor-pointer" onClick={onSave}>
-          Save my wallet
-        </Button>
-        <Button
-          type="button"
-          variant="outline"
-          className="flex-1 cursor-pointer"
-          onClick={onClear}
-          disabled={!canClear}
-        >
-          Clear wallet
-        </Button>
+      <div className="space-y-1.5">
+        <div className="flex flex-col gap-2 sm:flex-row">
+          <Button type="button" className="flex-1 cursor-pointer" onClick={onSave}>
+            Save my wallet
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            className="flex-1 cursor-pointer"
+            onClick={onClear}
+            disabled={!canClear}
+          >
+            Clear wallet
+          </Button>
+        </div>
+        <p className="text-center text-xs text-muted-foreground">
+          Saves cards, benefit plans, and exchange rate settings
+        </p>
       </div>
     </section>
   )
