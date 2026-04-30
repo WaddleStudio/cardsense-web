@@ -23,6 +23,7 @@ export default function App() {
         <Routes>
           <Route element={<Layout />}>
             <Route index element={<CalcPage />} />
+            <Route path="calc" element={<CalcPage />} />
             <Route path="recommend" element={<HomePage />} />
             <Route path="cards" element={<CardsPage />} />
             <Route path="cards/:cardCode" element={<CardDetailPage />} />

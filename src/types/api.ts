@@ -175,6 +175,9 @@ export interface CardRecommendation {
   conditions: PromotionCondition[]
   promotionBreakdown: PromotionRewardBreakdown[]
   applyUrl: string | null
+  sourceUrl: string | null
+  verifiedAt: string | null
+  confidence: number | null
   activePlan: ActivePlan | null
   generalRewardOnly: boolean
   rewardDetail?: RewardDetail
@@ -185,6 +188,7 @@ export interface RecommendationResponse {
   scenario: RecommendationScenario
   comparison: RecommendationComparisonSummary
   recommendations: CardRecommendation[]
+  noResultReasons: string[]
   generatedAt: string
   disclaimer: string
 }
