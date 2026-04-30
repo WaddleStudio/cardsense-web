@@ -162,9 +162,7 @@ export function ResultPanel({
 
       <AnnualLossBox annualLoss={result.annualLoss} monthlyDiff={result.singleDiff} />
 
-      <p className="text-xs text-muted-foreground leading-relaxed px-1">
-        本結果依目前卡片優惠資料估算，實際回饋仍會受到登錄、名額、通路限制與活動期間影響。建議在申辦或切換主力卡前，再確認官方條件。
-      </p>
+      <TrustLayer rec={result.best} />
 
       <ShareButton
         annualLoss={result.annualLoss}
@@ -176,6 +174,52 @@ export function ResultPanel({
       />
 
       <CtaStrip amount={amount} category={category} />
+    </div>
+  )
+}
+
+function TrustLayer({ rec }: { rec: CardRecommendation }) {
+  const confidencePct =
+    typeof rec.confidence === 'number' ? `${Math.round(rec.confidence * 100)}%` : null
+  const conditionLabels = rec.conditions.slice(0, 3).map((condition) => condition.label)
+
+  return (
+    <div className="rounded-xl border bg-card p-4 text-xs text-muted-foreground shadow-sm">
+      <div className="mb-2 flex items-center justify-between gap-3">
+        <p className="font-semibold text-foreground">信任檢查</p>
+        {confidencePct && (
+          <span className="rounded-full bg-reward/10 px-2 py-0.5 font-medium text-reward">
+            信心 {confidencePct}
+          </span>
+        )}
+      </div>
+      <div className="grid gap-2 sm:grid-cols-2">
+        <p>資料驗證：{rec.verifiedAt ? rec.verifiedAt.slice(0, 10) : '尚未提供驗證時間'}</p>
+        <p>優惠期限：{rec.validUntil ?? '依銀行公告'}</p>
+        <p>命中優惠：{rec.matchedPromotionCount} 筆</p>
+        <p>活動代碼：{rec.promoVersionId ?? rec.promotionId ?? '未提供'}</p>
+      </div>
+      {conditionLabels.length > 0 && (
+        <div className="mt-3 border-t pt-3">
+          <p className="mb-1 font-medium text-foreground">主要條件</p>
+          <ul className="space-y-1">
+            {conditionLabels.map((label) => (
+              <li key={label}>• {label}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+      <p className="mt-3 border-t pt-3 leading-relaxed">
+        本結果依目前卡片優惠資料估算，實際回饋仍會受到登錄、名額、通路限制與活動期間影響。
+        {rec.sourceUrl && (
+          <>
+            {' '}
+            <a className="font-medium text-primary underline-offset-4 hover:underline" href={rec.sourceUrl} target="_blank" rel="noreferrer">
+              查看官方來源
+            </a>
+          </>
+        )}
+      </p>
     </div>
   )
 }

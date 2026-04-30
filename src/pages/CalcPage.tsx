@@ -543,28 +543,35 @@ export function CalcPage() {
                 isUpdating={isAutoSelecting}
               />
 
-              <InlineExchangeRatesPanel
-                key={exchangeRatesPanelKey}
-                initialCustomRates={customExchangeRates}
-                onChange={setCustomExchangeRates}
-              />
+              <details className="rounded-xl border bg-muted/20 p-4 open:bg-card">
+                <summary className="cursor-pointer text-sm font-medium text-foreground">
+                  Advanced valuation and plan settings
+                </summary>
+                <div className="mt-4 space-y-5">
+                  <InlineExchangeRatesPanel
+                    key={exchangeRatesPanelKey}
+                    initialCustomRates={customExchangeRates}
+                    onChange={setCustomExchangeRates}
+                  />
 
-              <SwitchingCardPanel
-                activePlansByCard={activePlansByCard}
-                planRuntimeByCard={planRuntimeByCard}
-                onActivePlanChange={handleActivePlanChange}
-                onRuntimeChange={handleRuntimeChange}
-                renderCardExtra={(cardCode, activePlan) =>
-                  cardCode === 'ESUN_UNICARD' && activePlan === 'ESUN_UNICARD_FLEXIBLE' ? (
-                    <MerchantPicker
-                      value={planRuntimeByCard.ESUN_UNICARD?.selected_merchants ?? ''}
-                      onChange={(value) =>
-                        handleRuntimeChange('ESUN_UNICARD', 'selected_merchants', value)
-                      }
-                    />
-                  ) : null
-                }
-              />
+                  <SwitchingCardPanel
+                    activePlansByCard={activePlansByCard}
+                    planRuntimeByCard={planRuntimeByCard}
+                    onActivePlanChange={handleActivePlanChange}
+                    onRuntimeChange={handleRuntimeChange}
+                    renderCardExtra={(cardCode, activePlan) =>
+                      cardCode === 'ESUN_UNICARD' && activePlan === 'ESUN_UNICARD_FLEXIBLE' ? (
+                        <MerchantPicker
+                          value={planRuntimeByCard.ESUN_UNICARD?.selected_merchants ?? ''}
+                          onChange={(value) =>
+                            handleRuntimeChange('ESUN_UNICARD', 'selected_merchants', value)
+                          }
+                        />
+                      ) : null
+                    }
+                  />
+                </div>
+              </details>
             </div>
           </div>
 
@@ -619,15 +626,46 @@ export function CalcPage() {
           )}
 
           {result && result.recommendations.length < 2 && (
-            <div className="flex min-h-56 items-center justify-center rounded-xl border bg-muted/20">
-              <p className="px-4 text-center text-sm text-muted-foreground">
-                Not enough recommendable cards were returned for this scenario. Try broadening the
-                filters or selecting a different category.
-              </p>
+            <div className="flex min-h-56 items-center justify-center rounded-xl border bg-muted/20 p-5">
+              <div className="max-w-md space-y-3 text-center text-sm text-muted-foreground">
+                <p className="font-medium text-foreground">Not enough recommendable cards were returned.</p>
+                <p>Try broadening the filters, clearing merchant/payment constraints, or selecting a different category.</p>
+                {result.noResultReasons?.length > 0 && (
+                  <div className="rounded-lg border bg-card p-3 text-left text-xs">
+                    <p className="mb-2 font-medium text-foreground">Why this happened</p>
+                    <ul className="space-y-1">
+                      {result.noResultReasons.map((reason) => (
+                        <li key={reason}>• {formatNoResultReason(reason)}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
             </div>
           )}
         </div>
       </div>
     </>
   )
+}
+
+function formatNoResultReason(reason: string) {
+  switch (reason) {
+    case 'NO_ACTIVE_PROMOTIONS_FOR_DATE':
+      return 'No active promotions matched the transaction date.'
+    case 'NO_PROMOTIONS_MATCH_SCENARIO':
+      return 'Promotions existed, but none matched this category, merchant, channel, or payment method.'
+    case 'NO_POSITIVE_REWARD_AFTER_CAPS':
+      return 'Matching promotions did not produce a positive estimated reward after caps or limits.'
+    case 'MERCHANT_FILTER_APPLIED':
+      return 'A merchant filter was applied.'
+    case 'PAYMENT_METHOD_FILTER_APPLIED':
+      return 'A payment method filter was applied.'
+    case 'CHANNEL_FILTER_APPLIED':
+      return 'A channel filter was applied.'
+    case 'CARD_FILTER_APPLIED':
+      return 'Only selected wallet cards were compared.'
+    default:
+      return reason
+  }
 }
