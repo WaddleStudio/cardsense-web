@@ -395,9 +395,12 @@ export function CalcPage() {
   return (
     <>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold tracking-tight">Card Calculator</h1>
+        <h1 className="text-2xl font-bold tracking-tight">
+          這筆消費該刷哪張卡
+          <span className="ml-2 text-base font-normal text-muted-foreground">Payment Decision</span>
+        </h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Start with a merchant or spending scenario, then compare the best cards side by side.
+          輸入商家、付款方式和金額，馬上知道該刷哪張卡、實拿多少、以及哪個條件可能讓你拿不到。
         </p>
       </div>
 
