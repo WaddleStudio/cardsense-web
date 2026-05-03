@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Calculator } from 'lucide-react'
+import { Calculator, ChevronDown, ChevronUp } from 'lucide-react'
 import { useCards, useRecommendation } from '@/api'
 import { MerchantPicker } from '@/components/MerchantPicker'
 import { PaymentMethodPicker } from '@/components/PaymentMethodPicker'
@@ -99,6 +99,7 @@ export function CalcPage() {
   const [hasResolvedWalletRestore, setHasResolvedWalletRestore] = useState(false)
   const [walletBaselineSignature, setWalletBaselineSignature] = useState<string | null>(null)
   const [exchangeRatesPanelKey, setExchangeRatesPanelKey] = useState(0)
+  const [showAdvanced, setShowAdvanced] = useState(false)
   const resultRef = useRef<HTMLDivElement>(null)
 
   const { data: cards } = useCards()
@@ -548,11 +549,23 @@ export function CalcPage() {
                 isUpdating={isAutoSelecting}
               />
 
-              <details className="rounded-xl border bg-muted/20 p-4 open:bg-card">
-                <summary className="cursor-pointer text-sm font-medium text-foreground">
-                  Advanced valuation and plan settings
-                </summary>
-                <div className="mt-4 space-y-5">
+              <div className="rounded-xl border bg-muted/20">
+                {/* Mobile toggle — hidden on md+ where section is always open */}
+                <button
+                  className="md:hidden flex w-full items-center justify-between px-4 py-3 text-sm font-medium text-foreground"
+                  onClick={() => setShowAdvanced((v) => !v)}
+                  type="button"
+                  aria-expanded={showAdvanced}
+                >
+                  <span>進階設定</span>
+                  {showAdvanced ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
+                </button>
+                {/* Desktop header */}
+                <div className="hidden md:flex items-center px-4 py-3">
+                  <span className="text-sm font-medium text-foreground">進階設定</span>
+                </div>
+                {/* Content: always visible on md+, toggle on mobile */}
+                <div className={`px-4 pb-4 space-y-5 ${showAdvanced ? 'block' : 'hidden md:block'}`}>
                   <InlineExchangeRatesPanel
                     key={exchangeRatesPanelKey}
                     initialCustomRates={customExchangeRates}
@@ -576,7 +589,7 @@ export function CalcPage() {
                     }
                   />
                 </div>
-              </details>
+              </div>
             </div>
           </div>
 
