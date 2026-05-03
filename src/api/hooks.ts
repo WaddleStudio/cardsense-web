@@ -16,7 +16,8 @@ export function useHealth() {
   return useQuery({
     queryKey: ['health'],
     queryFn: () => get<HealthResponse>('/health'),
-    retry: 1,
+    retry: 3,
+    retryDelay: 20_000,
     refetchInterval: 30_000,
   })
 }

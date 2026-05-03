@@ -1,5 +1,5 @@
 import { Link, Outlet, useLocation } from 'react-router-dom'
-import { Calculator, CreditCard, LayoutGrid, Sparkles, Sun, Moon, Wifi, WifiOff } from 'lucide-react'
+import { Calculator, CreditCard, LayoutGrid, Loader2, Sparkles, Sun, Moon, Wifi, WifiOff } from 'lucide-react'
 import { useHealth } from '@/api'
 import { useDarkMode } from '@/hooks/use-dark-mode'
 import { Button } from '@/components/ui/button'
@@ -11,9 +11,28 @@ const NAV_ITEMS = [
   { to: '/cards', label: '卡片目錄', icon: LayoutGrid },
 ] as const
 
+function ColdStartBanner({ onRetry }: { onRetry: () => void }) {
+  return (
+    <div className="flex items-center justify-between gap-3 bg-amber-50 dark:bg-amber-950/40 border-b border-amber-200 dark:border-amber-800 px-4 py-2.5 text-sm text-amber-800 dark:text-amber-200">
+      <div className="flex items-center gap-2">
+        <Loader2 className="h-4 w-4 shrink-0 animate-spin text-amber-600 dark:text-amber-400" />
+        <span>後端喚醒中，約 60 秒後自動重試</span>
+      </div>
+      <Button
+        variant="outline"
+        size="sm"
+        className="h-7 border-amber-300 dark:border-amber-700 bg-amber-100 dark:bg-amber-900/50 text-amber-800 dark:text-amber-200 hover:bg-amber-200 dark:hover:bg-amber-800/60 text-xs px-2.5"
+        onClick={onRetry}
+      >
+        重試
+      </Button>
+    </div>
+  )
+}
+
 export function Layout() {
   const location = useLocation()
-  const { data: health } = useHealth()
+  const { data: health, refetch: refetchHealth } = useHealth()
   const { isDark, toggle: toggleDark } = useDarkMode()
   const isUp = health?.status === 'UP'
 
@@ -99,6 +118,8 @@ export function Layout() {
           </div>
         </div>
       </header>
+
+      {!isUp && <ColdStartBanner onRetry={refetchHealth} />}
 
       <main className="flex-1">
         <div className="mx-auto max-w-5xl px-4 py-6">
