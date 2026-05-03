@@ -40,6 +40,8 @@ const PRIMARY_MERCHANT_SHORTCUTS = [
   { value: 'STARBUCKS', label: '星巴克' },
   { value: 'UBER_EATS', label: 'Uber Eats' },
 ] as const
+export const SUBMIT_CTA_BAR_CLASS_NAME =
+  'sticky bottom-0 -mx-5 -mb-5 mt-5 rounded-b-xl border-t bg-card/95 px-5 py-3 backdrop-blur-sm lg:static'
 const MERCHANT_SHORTCUT_SCENES = {
   PXMART: { category: 'GROCERY', subcategory: 'SUPERMARKET' },
   CARREFOUR: { category: 'GROCERY', subcategory: 'SUPERMARKET' },
@@ -575,7 +577,7 @@ export function CalcPage() {
             </div>
           </div>
 
-          <div className="sticky bottom-0 -mx-5 -mb-5 mt-5 rounded-b-xl border-t bg-card/95 px-5 py-3 backdrop-blur-sm">
+          <div className={SUBMIT_CTA_BAR_CLASS_NAME}>
             <Button
               className="min-h-touch w-full gap-2"
               onClick={handleSubmit}
