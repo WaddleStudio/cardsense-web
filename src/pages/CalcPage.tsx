@@ -14,6 +14,11 @@ import { AmountInput } from './calc/AmountInput'
 import { buildCalcRecommendationRequest } from './calc/buildCalcRecommendationRequest'
 import { CardSelector } from './calc/CardSelector'
 import { CategoryGrid } from './calc/CategoryGrid'
+import {
+  getEffectiveMerchantName,
+  getNextCategoryState,
+  type MerchantIntent,
+} from './calc/merchant-intent'
 import { MyWalletPanel } from './calc/MyWalletPanel'
 import { ResultPanel } from './calc/ResultPanel'
 import { SubcategoryGrid } from './calc/SubcategoryGrid'
@@ -86,6 +91,7 @@ export function CalcPage() {
   const [category, setCategory] = useState<Category | null>(DEFAULT_CATEGORY)
   const [subcategory, setSubcategory] = useState<string | null>(null)
   const [merchantName, setMerchantName] = useState('')
+  const [merchantIntent, setMerchantIntent] = useState<MerchantIntent>('merchant')
   const [paymentMethod, setPaymentMethod] = useState<string | null>(null)
   const [selectedCards, setSelectedCards] = useState<string[]>([])
   const [cardSelectionMode, setCardSelectionMode] = useState<WalletCardSelectionMode>('initial')
@@ -227,7 +233,8 @@ export function CalcPage() {
         amount: AUTO_SELECT_AMOUNT,
         category,
         subcategory,
-        merchantName,
+        merchantIntent,
+        merchantName: getEffectiveMerchantName(merchantIntent, merchantName),
         paymentMethod,
         activePlansByCard,
         planRuntimeByCard,
@@ -260,6 +267,7 @@ export function CalcPage() {
     cardSelectionMode,
     category,
     subcategory,
+    merchantIntent,
     merchantName,
     paymentMethod,
     activePlansByCard,
@@ -308,11 +316,28 @@ export function CalcPage() {
   }
 
   function handleMerchantShortcutClick(merchantValue: (typeof PRIMARY_MERCHANT_SHORTCUTS)[number]['value']) {
+    setMerchantIntent('merchant')
     setMerchantName(merchantValue)
     const scene = MERCHANT_SHORTCUT_SCENES[merchantValue]
     if (!scene) return
-    setCategory(scene.category)
-    setSubcategory(scene.subcategory)
+    const next = getNextCategoryState({
+      currentCategory: category,
+      currentSubcategory: subcategory,
+      nextCategory: scene.category,
+      nextSubcategory: scene.subcategory,
+    })
+    setCategory(next.category)
+    setSubcategory(next.subcategory)
+  }
+
+  function handleCategoryChange(nextCategory: Category | null) {
+    const next = getNextCategoryState({
+      currentCategory: category,
+      currentSubcategory: subcategory,
+      nextCategory,
+    })
+    setCategory(next.category)
+    setSubcategory(next.subcategory)
   }
 
   function handleSubmit() {
@@ -330,7 +355,8 @@ export function CalcPage() {
         amount: amountNum,
         category,
         subcategory,
-        merchantName,
+        merchantIntent,
+        merchantName: getEffectiveMerchantName(merchantIntent, merchantName),
         paymentMethod,
         activePlansByCard,
         planRuntimeByCard,
@@ -409,6 +435,117 @@ export function CalcPage() {
         <div className="min-w-0 rounded-xl border bg-card p-5 shadow-sm">
           <div className="grid gap-5 md:grid-cols-[minmax(280px,0.9fr)_minmax(300px,1.1fr)]">
             <div className="min-w-0 space-y-5">
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Merchant intent</label>
+                <div className="grid grid-cols-2 gap-1 rounded-lg border bg-muted/20 p-1">
+                  <button
+                    type="button"
+                    onClick={() => setMerchantIntent('merchant')}
+                    className={merchantIntent === 'merchant' ? 'rounded-md bg-background px-3 py-2 text-sm font-medium shadow-sm' : 'rounded-md px-3 py-2 text-sm font-medium text-muted-foreground'}
+                  >
+                    Specific merchant
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setMerchantIntent('general')}
+                    className={merchantIntent === 'general' ? 'rounded-md bg-background px-3 py-2 text-sm font-medium shadow-sm' : 'rounded-md px-3 py-2 text-sm font-medium text-muted-foreground'}
+                  >
+                    General purchase
+                  </button>
+                </div>
+                {merchantIntent === 'general' && (
+                  <p className="text-xs leading-relaxed text-muted-foreground">
+                    General purchase mode skips merchant-specific filters. Add an advanced category if you want a narrower comparison.
+                  </p>
+                )}
+              </div>
+
+              {merchantIntent === 'merchant' && (
+                <div className="space-y-2">
+                  <div className="flex items-start justify-between gap-3">
+                    <label htmlFor="calc-merchant-name" className="text-sm font-medium">
+                      Merchant
+                    </label>
+                    {merchantName.trim() && (
+                      <button
+                        type="button"
+                        onClick={() => setMerchantName('')}
+                        className="shrink-0 rounded-md px-2 py-1 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+                      >
+                        Clear
+                      </button>
+                    )}
+                  </div>
+
+                  <div className="rounded-xl border border-primary/20 bg-primary/5 p-4">
+                    <div className="space-y-3">
+                      <Input
+                        id="calc-merchant-name"
+                        type="text"
+                        placeholder={merchantPlaceholder}
+                        value={merchantName}
+                        onChange={(event) => setMerchantName(event.target.value)}
+                      />
+
+                      <div className="space-y-1.5">
+                        <p className="text-xs text-muted-foreground">Popular merchant shortcuts</p>
+                        <div className="flex flex-wrap gap-1.5">
+                          {PRIMARY_MERCHANT_SHORTCUTS.map((merchant) => (
+                            <FilterChip
+                              key={merchant.value}
+                              active={merchantName.trim().toUpperCase() === merchant.value}
+                              onClick={() => handleMerchantShortcutClick(merchant.value)}
+                            >
+                              {merchant.label}
+                            </FilterChip>
+                          ))}
+                        </div>
+                      </div>
+
+                      {merchantIntent === 'merchant' &&
+                        merchantName.trim() &&
+                        merchantName.trim().toUpperCase() in MERCHANT_SHORTCUT_SCENES &&
+                        category && (
+                          <p className="text-xs text-muted-foreground">
+                            Inferred scene applied. Open advanced category to clear or adjust it.
+                          </p>
+                        )}
+
+                      {!merchantName.trim() && hasMerchantScopedScene && subcategory && (
+                        <p className="text-xs leading-relaxed text-amber-700 dark:text-amber-400">
+                          Add a merchant when comparing {SUBCATEGORY_LABELS[subcategory] ?? subcategory} so
+                          the calculator can match bank-specific merchant promotions.
+                        </p>
+                      )}
+
+                      {merchantSuggestions.length > 0 && (
+                        <div className="space-y-1.5">
+                          <p className="text-xs text-muted-foreground">
+                            {subcategory ? 'Suggested merchants for this scene' : 'Suggested merchants for this category'}
+                          </p>
+                          <div className="flex flex-wrap gap-1.5">
+                            {merchantSuggestions.map((merchant) => (
+                              <FilterChip
+                                key={merchant.value}
+                                active={merchantName.trim().toUpperCase() === merchant.value}
+                                onClick={() => setMerchantName(merchant.value)}
+                              >
+                                {merchant.label}
+                              </FilterChip>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Payment method</label>
+                <PaymentMethodPicker value={paymentMethod} onChange={setPaymentMethod} />
+              </div>
+
               <AmountInput
                 value={amount}
                 onChange={(value) => {
@@ -417,111 +554,6 @@ export function CalcPage() {
                 }}
                 error={amountError}
               />
-
-              <div className="space-y-2">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="space-y-1">
-                    <label htmlFor="calc-merchant-name" className="text-sm font-medium">
-                      Merchant-first entry
-                    </label>
-                    <p className="text-xs leading-relaxed text-muted-foreground">
-                      Ask questions like "Which card should I use at Pxmart?" by starting with the merchant first.
-                    </p>
-                  </div>
-                  {merchantName.trim() && (
-                    <button
-                      type="button"
-                      onClick={() => setMerchantName('')}
-                      className="shrink-0 rounded-md px-2 py-1 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-                    >
-                      Clear
-                    </button>
-                  )}
-                </div>
-
-                <div className="rounded-xl border border-primary/20 bg-primary/5 p-4">
-                  <div className="space-y-3">
-                    <Input
-                      id="calc-merchant-name"
-                      type="text"
-                      placeholder={merchantPlaceholder}
-                      value={merchantName}
-                      onChange={(event) => setMerchantName(event.target.value)}
-                    />
-
-                    <div className="space-y-1.5">
-                      <p className="text-xs text-muted-foreground">Popular merchant shortcuts</p>
-                      <div className="flex flex-wrap gap-1.5">
-                        {PRIMARY_MERCHANT_SHORTCUTS.map((merchant) => (
-                          <FilterChip
-                            key={merchant.value}
-                            active={merchantName.trim().toUpperCase() === merchant.value}
-                            onClick={() => handleMerchantShortcutClick(merchant.value)}
-                          >
-                            {merchant.label}
-                          </FilterChip>
-                        ))}
-                      </div>
-                    </div>
-
-                    {merchantName.trim() &&
-                      merchantName.trim().toUpperCase() in MERCHANT_SHORTCUT_SCENES && (
-                        <p className="text-xs text-muted-foreground">
-                          Scene preset applied. You can still change the category below if needed.
-                        </p>
-                      )}
-
-                    {!merchantName.trim() && hasMerchantScopedScene && subcategory && (
-                      <p className="text-xs leading-relaxed text-amber-700 dark:text-amber-400">
-                        Add a merchant when comparing {SUBCATEGORY_LABELS[subcategory] ?? subcategory} so
-                        the calculator can match bank-specific merchant promotions.
-                      </p>
-                    )}
-
-                    {merchantSuggestions.length > 0 && (
-                      <div className="space-y-1.5">
-                        <p className="text-xs text-muted-foreground">
-                          {subcategory ? 'Suggested merchants for this scene' : 'Suggested merchants for this category'}
-                        </p>
-                        <div className="flex flex-wrap gap-1.5">
-                          {merchantSuggestions.map((merchant) => (
-                            <FilterChip
-                              key={merchant.value}
-                              active={merchantName.trim().toUpperCase() === merchant.value}
-                              onClick={() => setMerchantName(merchant.value)}
-                            >
-                              {merchant.label}
-                            </FilterChip>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              <CategoryGrid
-                value={category}
-                onChange={(nextCategory) => {
-                  setCategory(nextCategory)
-                  setSubcategory(null)
-                }}
-              />
-
-              {category && (
-                <SubcategoryGrid
-                  category={category}
-                  value={subcategory}
-                  onChange={(value) => {
-                    setSubcategory(value)
-                  }}
-                />
-              )}
-
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Payment method</label>
-                <PaymentMethodPicker value={paymentMethod} onChange={setPaymentMethod} />
-              </div>
             </div>
 
             <div className="min-w-0 space-y-5">
@@ -568,6 +600,25 @@ export function CalcPage() {
                 </div>
                 {/* Content: always visible on md+, toggle on mobile */}
                 <div className={`px-4 pb-4 space-y-5 ${showAdvanced ? 'block' : 'hidden md:block'}`}>
+                  <div className="space-y-3 rounded-lg border bg-background p-3">
+                    <div className="space-y-1">
+                      <p className="text-sm font-medium">Advanced category</p>
+                      <p className="text-xs text-muted-foreground">
+                        Optional. Use this when the merchant is unknown or you want to narrow a broad comparison.
+                      </p>
+                    </div>
+                    <CategoryGrid value={category} onChange={handleCategoryChange} />
+                    {category && (
+                      <SubcategoryGrid
+                        category={category}
+                        value={subcategory}
+                        onChange={(value) => {
+                          setSubcategory(value)
+                        }}
+                      />
+                    )}
+                  </div>
+
                   <InlineExchangeRatesPanel
                     key={exchangeRatesPanelKey}
                     initialCustomRates={customExchangeRates}
