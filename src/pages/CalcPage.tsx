@@ -28,7 +28,7 @@ import {
 } from './calc/my-wallet-storage'
 
 const DEFAULT_AMOUNT = '1200'
-const DEFAULT_CATEGORY: Category = 'DINING'
+const DEFAULT_CATEGORY: Category | null = null
 const AUTO_SELECT_AMOUNT = 1200
 const AUTO_SELECT_COUNT = 6
 const PRIMARY_MERCHANT_SHORTCUTS = [
@@ -83,7 +83,7 @@ function buildWalletStateSignature(input: {
 export function CalcPage() {
   const [amount, setAmount] = useState(DEFAULT_AMOUNT)
   const [amountTouched, setAmountTouched] = useState(false)
-  const [category, setCategory] = useState<Category>(DEFAULT_CATEGORY)
+  const [category, setCategory] = useState<Category | null>(DEFAULT_CATEGORY)
   const [subcategory, setSubcategory] = useState<string | null>(null)
   const [merchantName, setMerchantName] = useState('')
   const [paymentMethod, setPaymentMethod] = useState<string | null>(null)
@@ -508,13 +508,15 @@ export function CalcPage() {
                 }}
               />
 
-              <SubcategoryGrid
-                category={category}
-                value={subcategory}
-                onChange={(value) => {
-                  setSubcategory(value)
-                }}
-              />
+              {category && (
+                <SubcategoryGrid
+                  category={category}
+                  value={subcategory}
+                  onChange={(value) => {
+                    setSubcategory(value)
+                  }}
+                />
+              )}
 
               <div className="space-y-2">
                 <label className="text-sm font-medium">Payment method</label>
@@ -638,7 +640,7 @@ export function CalcPage() {
             <ResultPanel
               recommendations={result.recommendations}
               amount={amountNum}
-              category={category}
+              category={category ?? 'OTHER'}
               customExchangeRates={customExchangeRates}
             />
           )}
