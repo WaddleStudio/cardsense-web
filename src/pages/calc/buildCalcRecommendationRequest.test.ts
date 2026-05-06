@@ -83,7 +83,15 @@ describe('buildCalcRecommendationRequest', () => {
   })
 
   it('builds merchant payment amount requests without category defaults', () => {
-    const { merchantIntent: _merchantIntent, ...legacyInput } = baseInput
+    const legacyInput = {
+      amount: baseInput.amount,
+      subcategory: baseInput.subcategory,
+      merchantName: baseInput.merchantName,
+      paymentMethod: baseInput.paymentMethod,
+      activePlansByCard: baseInput.activePlansByCard,
+      planRuntimeByCard: baseInput.planRuntimeByCard,
+      benefitPlanTiers: baseInput.benefitPlanTiers,
+    }
 
     expect(
       buildCalcRecommendationRequest({

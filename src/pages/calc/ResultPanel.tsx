@@ -53,7 +53,7 @@ export function ResultPanel({
   const maxReturn = result.ranked[0].estimatedReturn
   const bestLabel = buildCardLabel(result.best)
   const worstLabel = buildCardLabel(result.worst)
-  const categoryLabel = category ? CATEGORY_LABELS[category] : 'No category filter'
+  const categoryLabel = category ? CATEGORY_LABELS[category] : '未指定類別'
   const hasAnomalousRate = result.ranked.some(
     (rec) => amount > 0 && rec.estimatedReturn / amount > 0.2,
   )
