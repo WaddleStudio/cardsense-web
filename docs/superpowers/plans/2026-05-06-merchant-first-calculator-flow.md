@@ -332,7 +332,7 @@ git commit -m "[agent] test: lock merchant-first request semantics"
 - Create: `src/pages/calc/merchant-intent.test.ts`
 - Modify: `src/pages/CalcPage.tsx`
 
-- [ ] **Step 1: Write helper tests**
+- [x] **Step 1: Write helper tests**
 
 Create `src/pages/calc/merchant-intent.test.ts`:
 
@@ -399,7 +399,7 @@ describe('merchant intent helpers', () => {
 })
 ```
 
-- [ ] **Step 2: Run helper tests and verify they fail**
+- [x] **Step 2: Run helper tests and verify they fail**
 
 Run:
 
@@ -409,7 +409,7 @@ npm run test:unit -- src/pages/calc/merchant-intent.test.ts
 
 Expected: FAIL because `merchant-intent.ts` does not exist.
 
-- [ ] **Step 3: Create merchant intent helper module**
+- [x] **Step 3: Create merchant intent helper module**
 
 Create `src/pages/calc/merchant-intent.ts`:
 
@@ -452,7 +452,7 @@ export function getNextCategoryState({
 }
 ```
 
-- [ ] **Step 4: Run helper tests and existing request tests**
+- [x] **Step 4: Run helper tests and existing request tests**
 
 Run:
 
@@ -462,7 +462,7 @@ npm run test:unit -- src/pages/calc/merchant-intent.test.ts src/pages/calc/build
 
 Expected: PASS.
 
-- [ ] **Step 5: Commit Task 2**
+- [x] **Step 5: Commit Task 2**
 
 Run:
 
