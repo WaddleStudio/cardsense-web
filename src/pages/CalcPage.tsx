@@ -700,7 +700,9 @@ export function CalcPage() {
             <div className="flex min-h-56 items-center justify-center rounded-xl border bg-muted/20 p-5">
               <div className="max-w-md space-y-3 text-center text-sm text-muted-foreground">
                 <p className="font-medium text-foreground">Not enough recommendable cards were returned.</p>
-                <p>Try broadening the filters, clearing merchant/payment constraints, or selecting a different category.</p>
+                <p>
+                  Try choosing a known merchant shortcut, opening advanced category, clearing payment constraints, or selecting different cards.
+                </p>
                 {result.noResultReasons?.length > 0 && (
                   <div className="rounded-lg border bg-card p-3 text-left text-xs">
                     <p className="mb-2 font-medium text-foreground">Why this happened</p>
