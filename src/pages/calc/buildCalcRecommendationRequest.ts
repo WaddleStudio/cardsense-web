@@ -4,7 +4,7 @@ interface BuildCalcRecommendationRequestInput {
   amount: number
   category: Category | null
   subcategory?: string | null
-  merchantIntent: 'merchant' | 'general'
+  merchantIntent?: 'merchant' | 'general'
   merchantName: string
   paymentMethod: string | null
   activePlansByCard: Record<string, string>
@@ -23,7 +23,7 @@ export function buildCalcRecommendationRequest({
   amount,
   category,
   subcategory,
-  merchantIntent,
+  merchantIntent = 'merchant',
   merchantName,
   paymentMethod,
   activePlansByCard,

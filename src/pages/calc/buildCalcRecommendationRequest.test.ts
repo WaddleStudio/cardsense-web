@@ -83,9 +83,11 @@ describe('buildCalcRecommendationRequest', () => {
   })
 
   it('builds merchant payment amount requests without category defaults', () => {
+    const { merchantIntent: _merchantIntent, ...legacyInput } = baseInput
+
     expect(
       buildCalcRecommendationRequest({
-        ...baseInput,
+        ...legacyInput,
         category: null,
         subcategory: null,
         activePlansByCard: {},
