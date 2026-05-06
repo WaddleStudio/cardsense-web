@@ -9,7 +9,7 @@ import { CtaStrip } from './CtaStrip'
 interface ResultPanelProps {
   recommendations: CardRecommendation[]
   amount: number
-  category: Category
+  category: Category | null
   customExchangeRates: Record<string, number>
 }
 
@@ -53,6 +53,7 @@ export function ResultPanel({
   const maxReturn = result.ranked[0].estimatedReturn
   const bestLabel = buildCardLabel(result.best)
   const worstLabel = buildCardLabel(result.worst)
+  const categoryLabel = category ? CATEGORY_LABELS[category] : 'No category filter'
   const hasAnomalousRate = result.ranked.some(
     (rec) => amount > 0 && rec.estimatedReturn / amount > 0.2,
   )
@@ -148,7 +149,7 @@ export function ResultPanel({
         </div>
 
         <p className="mt-3 text-xs text-muted-foreground leading-relaxed border-t pt-3">
-          以 {CATEGORY_LABELS[category]} 類別、單筆消費 NT${amount.toLocaleString()} 估算，
+          以 {categoryLabel}、單筆消費 NT${amount.toLocaleString()} 估算，
           <span className="font-medium text-foreground">{worstLabel}</span>
           {' '}與{' '}
           <span className="font-medium text-foreground">{bestLabel}</span>
@@ -168,7 +169,7 @@ export function ResultPanel({
         annualLoss={result.annualLoss}
         bestCardName={bestLabel}
         worstCardName={worstLabel}
-        category={CATEGORY_LABELS[category]}
+        category={categoryLabel}
         amount={amount}
         customExchangeRates={customExchangeRates}
       />

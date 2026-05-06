@@ -640,7 +640,7 @@ export function CalcPage() {
             <ResultPanel
               recommendations={result.recommendations}
               amount={amountNum}
-              category={category ?? 'OTHER'}
+              category={category}
               customExchangeRates={customExchangeRates}
             />
           )}
