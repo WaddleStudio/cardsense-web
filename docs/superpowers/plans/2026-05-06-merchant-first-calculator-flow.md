@@ -49,7 +49,7 @@ User controls
 - Modify: `src/pages/calc/buildCalcRecommendationRequest.ts`
 - Modify: `src/pages/calc/buildCalcRecommendationRequest.test.ts`
 
-- [ ] **Step 1: Write failing request-builder tests**
+- [x] **Step 1: Write failing request-builder tests**
 
 Replace `src/pages/calc/buildCalcRecommendationRequest.test.ts` with this expanded suite:
 
@@ -232,7 +232,7 @@ describe('buildCalcRecommendationRequest', () => {
 })
 ```
 
-- [ ] **Step 2: Run request-builder tests and verify they fail**
+- [x] **Step 2: Run request-builder tests and verify they fail**
 
 Run:
 
@@ -242,7 +242,7 @@ npm run test:unit -- src/pages/calc/buildCalcRecommendationRequest.test.ts
 
 Expected: FAIL because `merchantIntent` is not accepted and `category` cannot be `null`.
 
-- [ ] **Step 3: Update request-builder types and payload construction**
+- [x] **Step 3: Update request-builder types and payload construction**
 
 Edit `src/pages/calc/buildCalcRecommendationRequest.ts` to match this implementation:
 
@@ -304,7 +304,7 @@ export function buildCalcRecommendationRequest({
 }
 ```
 
-- [ ] **Step 4: Run request-builder tests and verify they pass**
+- [x] **Step 4: Run request-builder tests and verify they pass**
 
 Run:
 
@@ -314,7 +314,7 @@ npm run test:unit -- src/pages/calc/buildCalcRecommendationRequest.test.ts
 
 Expected: PASS.
 
-- [ ] **Step 5: Commit Task 1**
+- [x] **Step 5: Commit Task 1**
 
 Run:
 
