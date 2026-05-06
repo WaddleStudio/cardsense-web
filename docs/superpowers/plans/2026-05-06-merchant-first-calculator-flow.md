@@ -479,7 +479,7 @@ git commit -m "[agent] feat: add merchant intent helpers"
 - Modify: `src/pages/calc/CategoryGrid.tsx`
 - Modify: `src/pages/CalcPage.tsx`
 
-- [ ] **Step 1: Update `CategoryGrid` to accept `null`**
+- [x] **Step 1: Update `CategoryGrid` to accept `null`**
 
 Edit `src/pages/calc/CategoryGrid.tsx`:
 
@@ -546,7 +546,7 @@ export function CategoryGrid({ value, onChange }: CategoryGridProps) {
 }
 ```
 
-- [ ] **Step 2: Update CalcPage category state type**
+- [x] **Step 2: Update CalcPage category state type**
 
 In `src/pages/CalcPage.tsx`, change:
 
@@ -572,7 +572,7 @@ to:
 const [category, setCategory] = useState<Category | null>(DEFAULT_CATEGORY)
 ```
 
-- [ ] **Step 3: Guard `SubcategoryGrid` rendering**
+- [x] **Step 3: Guard `SubcategoryGrid` rendering**
 
 Replace direct `SubcategoryGrid` rendering in the left/main form with:
 
@@ -590,7 +590,7 @@ Replace direct `SubcategoryGrid` rendering in the left/main form with:
 
 If Task 4 moves this section into advanced details, apply this guard there instead.
 
-- [ ] **Step 4: Run TypeScript build**
+- [x] **Step 4: Run TypeScript build**
 
 Run:
 
@@ -600,7 +600,7 @@ npm run build
 
 Expected: PASS after all `CategoryGrid`, `SubcategoryGrid`, `buildCalcRecommendationRequest`, and `ResultPanel` call sites accept `Category | null`. If TypeScript reports `Type 'Category | null' is not assignable to type 'Category'`, update that named call site in the same step by adding a `category && (...)` guard or changing the prop type to `Category | null`.
 
-- [ ] **Step 5: Commit Task 3**
+- [x] **Step 5: Commit Task 3**
 
 Run:
 
@@ -617,7 +617,7 @@ git commit -m "[agent] feat: make calculator category optional"
 - Modify: `src/pages/CalcPage.tsx`
 - Modify: `src/pages/calc/submit-cta-layout.test.ts`
 
-- [ ] **Step 1: Add merchant intent state**
+- [x] **Step 1: Add merchant intent state**
 
 In `src/pages/CalcPage.tsx`, add this import near the other local calc imports:
 
@@ -649,7 +649,7 @@ function handleCategoryChange(nextCategory: Category | null) {
 }
 ```
 
-- [ ] **Step 2: Update merchant shortcut behavior**
+- [x] **Step 2: Update merchant shortcut behavior**
 
 Replace `handleMerchantShortcutClick` with:
 
@@ -670,7 +670,7 @@ function handleMerchantShortcutClick(merchantValue: (typeof PRIMARY_MERCHANT_SHO
 }
 ```
 
-- [ ] **Step 3: Pass merchant intent into auto-select and submit requests**
+- [x] **Step 3: Pass merchant intent into auto-select and submit requests**
 
 In both `buildCalcRecommendationRequest` calls in `CalcPage`, add:
 
@@ -681,7 +681,7 @@ merchantName: getEffectiveMerchantName(merchantIntent, merchantName),
 
 Replace the existing `merchantName,` argument line. The payload must use the effective merchant value so general intent never leaks stale merchant text.
 
-- [ ] **Step 4: Reorder the main form**
+- [x] **Step 4: Reorder the main form**
 
 In `CalcPage` JSX, the first column should render sections in this order:
 
@@ -729,7 +729,7 @@ After the merchant block, render:
 
 Remove the original top-of-form `AmountInput`, original top-level `CategoryGrid`, original top-level `SubcategoryGrid`, and original top-level payment method block so each control appears once.
 
-- [ ] **Step 5: Move category/subcategory into advanced details**
+- [x] **Step 5: Move category/subcategory into advanced details**
 
 Inside the advanced details content block, before `InlineExchangeRatesPanel`, add:
 
@@ -754,7 +754,7 @@ Inside the advanced details content block, before `InlineExchangeRatesPanel`, ad
 </div>
 ```
 
-- [ ] **Step 6: Add general escape-hatch copy**
+- [x] **Step 6: Add general escape-hatch copy**
 
 Below the intent segmented control, render this copy when general intent is active:
 
@@ -766,7 +766,7 @@ Below the intent segmented control, render this copy when general intent is acti
 )}
 ```
 
-- [ ] **Step 7: Update inferred-scene note**
+- [x] **Step 7: Update inferred-scene note**
 
 When a shortcut has applied a category/subcategory, show:
 
@@ -781,7 +781,7 @@ When a shortcut has applied a category/subcategory, show:
   )}
 ```
 
-- [ ] **Step 8: Keep submit CTA layout test passing**
+- [x] **Step 8: Keep submit CTA layout test passing**
 
 Run:
 
@@ -791,7 +791,7 @@ npm run test:unit -- src/pages/calc/submit-cta-layout.test.ts
 
 Expected: PASS. If the CTA class changes, update only the test expectations that match the intended sticky mobile/static desktop behavior.
 
-- [ ] **Step 9: Run build**
+- [x] **Step 9: Run build**
 
 Run:
 
@@ -801,7 +801,7 @@ npm run build
 
 Expected: PASS.
 
-- [ ] **Step 10: Commit Task 4**
+- [x] **Step 10: Commit Task 4**
 
 Run:
 
@@ -818,7 +818,7 @@ git commit -m "[agent] feat: reorder calculator around merchant intent"
 - Modify: `src/pages/CalcPage.tsx`
 - Modify: `src/pages/calc/ResultPanel.tsx`
 
-- [ ] **Step 1: Pass nullable category to `ResultPanel` safely**
+- [x] **Step 1: Pass nullable category to `ResultPanel` safely**
 
 Inspect `ResultPanel` props. If it requires `category: Category`, change it to:
 
@@ -840,7 +840,7 @@ Then render broad-copy fallback:
   : `Using NT${amount.toLocaleString()} with no category filter,`}
 ```
 
-- [ ] **Step 2: Update no-result action copy in CalcPage**
+- [x] **Step 2: Update no-result action copy in CalcPage**
 
 In the existing `result && result.recommendations.length < 2` message, replace the second sentence with:
 
@@ -850,7 +850,7 @@ In the existing `result && result.recommendations.length < 2` message, replace t
 </p>
 ```
 
-- [ ] **Step 3: Run focused tests and build**
+- [x] **Step 3: Run focused tests and build**
 
 Run:
 
@@ -861,7 +861,7 @@ npm run build
 
 Expected: PASS.
 
-- [ ] **Step 4: Commit Task 5**
+- [x] **Step 4: Commit Task 5**
 
 Run:
 
@@ -878,7 +878,7 @@ git commit -m "[agent] fix: clarify broad calculator result messaging"
 - Modify: `docs/superpowers/plans/2026-05-06-merchant-first-calculator-flow.md`
 - Create evidence under: `../fleet-command/reviews/2026-05-06-merchant-first-calculator-flow/`
 
-- [ ] **Step 1: Run full unit tests**
+- [x] **Step 1: Run full unit tests**
 
 Run:
 
@@ -888,7 +888,7 @@ npm run test:unit
 
 Expected: PASS.
 
-- [ ] **Step 2: Run production build**
+- [x] **Step 2: Run production build**
 
 Run:
 
@@ -898,7 +898,7 @@ npm run build
 
 Expected: PASS.
 
-- [ ] **Step 3: Start local dev server**
+- [x] **Step 3: Start local dev server**
 
 Run from PowerShell:
 
@@ -908,7 +908,7 @@ $env:VITE_API_BASE_URL='https://cardsense-api-production.up.railway.app'; npm ru
 
 Expected: Vite serves on `http://127.0.0.1:5173` or the next available port.
 
-- [ ] **Step 4: Mobile merchant-specific smoke with gstack/browser**
+- [x] **Step 4: Mobile merchant-specific smoke with gstack/browser**
 
 Use the gstack browse binary as `$B`. Run:
 
@@ -931,7 +931,7 @@ Expected:
 - Screenshot shows the merchant-first layout on mobile.
 - Either results render or the UI shows a clear recoverable API/card-selection state. A silent blank state fails this smoke.
 
-- [ ] **Step 5: Mobile general-purchase smoke with gstack/browser**
+- [x] **Step 5: Mobile general-purchase smoke with gstack/browser**
 
 Run:
 
@@ -950,7 +950,7 @@ Expected:
 - Console has no blocking errors.
 - Either results render or the UI shows a clear recoverable API/card-selection state. A stale merchant constraint in the result state fails this smoke.
 
-- [ ] **Step 6: Desktop advanced-category smoke with gstack/browser**
+- [x] **Step 6: Desktop advanced-category smoke with gstack/browser**
 
 Run:
 
@@ -967,7 +967,7 @@ Expected:
 - Category can be selected and cleared.
 - The layout has no incoherent overlap.
 
-- [ ] **Step 7: Production API payload smoke**
+- [x] **Step 7: Production API payload smoke**
 
 After browser smoke, run one read-only-style recommendation POST against production API to verify category omission is accepted:
 
@@ -979,11 +979,11 @@ curl -s -X POST https://cardsense-api-production.up.railway.app/v1/recommendatio
 
 Expected: HTTP 200 JSON with `recommendations` or a JSON response with clear `noResultReasons`. HTTP 400 for missing `category` fails this task and requires pausing before frontend-only completion.
 
-- [ ] **Step 8: Stop dev server**
+- [x] **Step 8: Stop dev server**
 
 Stop the Vite process started in Step 3.
 
-- [ ] **Step 9: Commit verification evidence if screenshots were produced**
+- [x] **Step 9: Commit verification evidence if screenshots were produced**
 
 From `fleet-command`, run:
 
