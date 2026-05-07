@@ -2,9 +2,9 @@ import type { Category, RecommendationRequest } from '@/types'
 
 interface BuildCalcRecommendationRequestInput {
   amount: number
-  category: Category
+  category: Category | null
   subcategory?: string | null
-  merchantName: string
+  merchantName: string | null
   paymentMethod: string | null
   activePlansByCard: Record<string, string>
   planRuntimeByCard: Record<string, Record<string, string>>
@@ -31,18 +31,17 @@ export function buildCalcRecommendationRequest({
   comparison,
   customExchangeRates,
 }: BuildCalcRecommendationRequestInput): RecommendationRequest {
-  const trimmedMerchantName = merchantName.trim()
+  const trimmedMerchantName = merchantName?.trim() ?? ''
+  const scenario: NonNullable<RecommendationRequest['scenario']> = {
+    ...(trimmedMerchantName && { merchantName: trimmedMerchantName.toUpperCase() }),
+    ...(paymentMethod && { paymentMethod }),
+  }
 
   return {
     amount,
-    category,
-    subcategory: subcategory ?? undefined,
-    ...((trimmedMerchantName || paymentMethod) && {
-      scenario: {
-        ...(trimmedMerchantName && { merchantName: trimmedMerchantName.toUpperCase() }),
-        ...(paymentMethod && { paymentMethod }),
-      },
-    }),
+    ...(category && { category }),
+    ...(category && subcategory && { subcategory }),
+    ...(Object.keys(scenario).length > 0 && { scenario }),
     ...(Object.keys(activePlansByCard).length > 0 && { activePlansByCard }),
     ...(hasPlanRuntimeValues(planRuntimeByCard) && { planRuntimeByCard }),
     ...(Object.keys(benefitPlanTiers).length > 0 && { benefitPlanTiers }),

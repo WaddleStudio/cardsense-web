@@ -15,14 +15,25 @@ const CALC_CATEGORIES: { value: Category; label: string; icon: LucideIcon }[] = 
 ]
 
 interface CategoryGridProps {
-  value: Category
-  onChange: (value: Category) => void
+  value: Category | null
+  onChange: (value: Category | null) => void
 }
 
 export function CategoryGrid({ value, onChange }: CategoryGridProps) {
   return (
     <div className="space-y-2">
-      <label className="text-sm font-medium">消費類別</label>
+      <div className="flex items-center justify-between gap-3">
+        <label className="text-sm font-medium">消費類別</label>
+        {value && (
+          <button
+            type="button"
+            onClick={() => onChange(null)}
+            className="rounded-md px-2 py-1 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+          >
+            Clear
+          </button>
+        )}
+      </div>
       <div className="grid grid-cols-4 gap-1.5">
         {CALC_CATEGORIES.map((cat) => {
           const Icon = cat.icon

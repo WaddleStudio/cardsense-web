@@ -80,4 +80,126 @@ describe('buildCalcRecommendationRequest', () => {
       },
     })
   })
+
+  it('builds selected merchant requests with registry metadata', () => {
+    expect(
+      buildCalcRecommendationRequest({
+        ...baseInput,
+        category: 'DINING',
+        subcategory: 'CAFE',
+        merchantName: 'STARBUCKS',
+        activePlansByCard: {},
+        planRuntimeByCard: {},
+        benefitPlanTiers: {},
+        cardCodes: ['CARD_A', 'CARD_B'],
+        comparison: {
+          includePromotionBreakdown: false,
+          maxResults: 10,
+        },
+        customExchangeRates: {},
+      }),
+    ).toEqual<RecommendationRequest>({
+      amount: 1200,
+      category: 'DINING',
+      subcategory: 'CAFE',
+      scenario: {
+        merchantName: 'STARBUCKS',
+        paymentMethod: 'APPLE_PAY',
+      },
+      cardCodes: ['CARD_A', 'CARD_B'],
+      comparison: {
+        includePromotionBreakdown: false,
+        maxResults: 10,
+      },
+    })
+  })
+
+  it('builds explicit category fallback requests without merchant', () => {
+    expect(
+      buildCalcRecommendationRequest({
+        ...baseInput,
+        category: 'DINING',
+        subcategory: null,
+        merchantName: null,
+        activePlansByCard: {},
+        planRuntimeByCard: {},
+        benefitPlanTiers: {},
+        cardCodes: ['CARD_A', 'CARD_B'],
+        comparison: {
+          includePromotionBreakdown: false,
+          maxResults: 10,
+        },
+        customExchangeRates: {},
+      }),
+    ).toEqual<RecommendationRequest>({
+      amount: 1200,
+      category: 'DINING',
+      scenario: {
+        paymentMethod: 'APPLE_PAY',
+      },
+      cardCodes: ['CARD_A', 'CARD_B'],
+      comparison: {
+        includePromotionBreakdown: false,
+        maxResults: 10,
+      },
+    })
+  })
+
+  it('omits subcategory when category is null', () => {
+    expect(
+      buildCalcRecommendationRequest({
+        ...baseInput,
+        category: null,
+        subcategory: 'BUFFET',
+        paymentMethod: null,
+        activePlansByCard: {},
+        planRuntimeByCard: {},
+        benefitPlanTiers: {},
+        cardCodes: [],
+        comparison: {
+          includePromotionBreakdown: false,
+          maxResults: 1,
+        },
+        customExchangeRates: {},
+      }),
+    ).toEqual<RecommendationRequest>({
+      amount: 1200,
+      scenario: {
+        merchantName: 'AGODA',
+      },
+      cardCodes: [],
+      comparison: {
+        includePromotionBreakdown: false,
+        maxResults: 1,
+      },
+    })
+  })
+
+  it('omits scenario when no scenario fields are selected', () => {
+    expect(
+      buildCalcRecommendationRequest({
+        ...baseInput,
+        category: null,
+        subcategory: null,
+        merchantName: null,
+        paymentMethod: null,
+        activePlansByCard: {},
+        planRuntimeByCard: {},
+        benefitPlanTiers: {},
+        cardCodes: [],
+        comparison: {
+          includePromotionBreakdown: false,
+          maxResults: 1,
+        },
+        customExchangeRates: {},
+      }),
+    ).toEqual<RecommendationRequest>({
+      amount: 1200,
+      cardCodes: [],
+      comparison: {
+        includePromotionBreakdown: false,
+        maxResults: 1,
+      },
+    })
+  })
 })

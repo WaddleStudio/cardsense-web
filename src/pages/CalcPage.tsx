@@ -6,17 +6,14 @@ import { PaymentMethodPicker } from '@/components/PaymentMethodPicker'
 import { SwitchingCardPanel } from '@/components/SwitchingCardPanel'
 import { InlineExchangeRatesPanel } from '@/components/exchange-rates/InlineExchangeRatesPanel'
 import { Button } from '@/components/ui/button'
-import { FilterChip } from '@/components/ui/filter-chip'
-import { Input } from '@/components/ui/input'
-import { MERCHANT_SUGGESTIONS, POPULAR_MERCHANT_SHORTCUTS, SUBCATEGORY_LABELS } from '@/types'
 import type { Category } from '@/types'
 import { AmountInput } from './calc/AmountInput'
 import { buildCalcRecommendationRequest } from './calc/buildCalcRecommendationRequest'
 import { CardSelector } from './calc/CardSelector'
-import { CategoryGrid } from './calc/CategoryGrid'
+import { MerchantSearchPicker } from './calc/MerchantSearchPicker'
+import type { MerchantSearchOption } from './calc/merchant-search'
 import { MyWalletPanel } from './calc/MyWalletPanel'
 import { ResultPanel } from './calc/ResultPanel'
-import { SubcategoryGrid } from './calc/SubcategoryGrid'
 import {
   shouldRunWalletAutoSelect,
   type WalletCardSelectionMode,
@@ -28,30 +25,11 @@ import {
 } from './calc/my-wallet-storage'
 
 const DEFAULT_AMOUNT = '1200'
-const DEFAULT_CATEGORY: Category = 'DINING'
+const DEFAULT_CATEGORY: Category | null = null
 const AUTO_SELECT_AMOUNT = 1200
 const AUTO_SELECT_COUNT = 6
-const PRIMARY_MERCHANT_SHORTCUTS = [
-  { value: 'PXMART', label: '全聯' },
-  { value: 'CARREFOUR', label: '家樂福' },
-  { value: 'MOMO', label: 'momo' },
-  { value: 'SHOPEE', label: '蝦皮' },
-  { value: 'AGODA', label: 'Agoda' },
-  { value: 'STARBUCKS', label: '星巴克' },
-  { value: 'UBER_EATS', label: 'Uber Eats' },
-] as const
 export const SUBMIT_CTA_BAR_CLASS_NAME =
   'sticky bottom-0 -mx-5 -mb-5 mt-5 rounded-b-xl border-t bg-card/95 px-5 py-3 backdrop-blur-sm lg:static'
-const MERCHANT_SHORTCUT_SCENES = {
-  PXMART: { category: 'GROCERY', subcategory: 'SUPERMARKET' },
-  CARREFOUR: { category: 'GROCERY', subcategory: 'SUPERMARKET' },
-  MOMO: { category: 'ONLINE', subcategory: 'ECOMMERCE' },
-  SHOPEE: { category: 'ONLINE', subcategory: 'ECOMMERCE' },
-  AGODA: { category: 'ONLINE', subcategory: 'TRAVEL_PLATFORM' },
-  STARBUCKS: { category: 'DINING', subcategory: 'CAFE' },
-  UBER_EATS: { category: 'DINING', subcategory: 'DELIVERY' },
-  MCDONALD: { category: 'DINING', subcategory: 'RESTAURANT' },
-} as const
 
 function buildWalletStateSignature(input: {
   selectedCards: string[]
@@ -83,9 +61,11 @@ function buildWalletStateSignature(input: {
 export function CalcPage() {
   const [amount, setAmount] = useState(DEFAULT_AMOUNT)
   const [amountTouched, setAmountTouched] = useState(false)
-  const [category, setCategory] = useState<Category>(DEFAULT_CATEGORY)
+  const [category, setCategory] = useState<Category | null>(DEFAULT_CATEGORY)
   const [subcategory, setSubcategory] = useState<string | null>(null)
-  const [merchantName, setMerchantName] = useState('')
+  const [selectedMerchant, setSelectedMerchant] = useState<MerchantSearchOption | null>(null)
+  const [merchantFallbackCategory, setMerchantFallbackCategory] = useState<Category | null>(null)
+  const [merchantSearchError, setMerchantSearchError] = useState<string | undefined>()
   const [paymentMethod, setPaymentMethod] = useState<string | null>(null)
   const [selectedCards, setSelectedCards] = useState<string[]>([])
   const [cardSelectionMode, setCardSelectionMode] = useState<WalletCardSelectionMode>('initial')
@@ -106,26 +86,6 @@ export function CalcPage() {
   const { mutate: getRecommendation, data: result, isPending } = useRecommendation()
   const { mutate: autoSelectCards, isPending: isAutoSelecting } = useRecommendation()
 
-  const sceneSpecificMerchantSuggestions =
-    category && subcategory ? (MERCHANT_SUGGESTIONS[`${category}:${subcategory}`] ?? []) : []
-  const merchantSuggestions =
-    sceneSpecificMerchantSuggestions.length > 0
-      ? sceneSpecificMerchantSuggestions
-      : category
-        ? (MERCHANT_SUGGESTIONS[category] ?? [])
-        : []
-  const displayedMerchantSuggestions =
-    merchantSuggestions.length > 0 ? merchantSuggestions : POPULAR_MERCHANT_SHORTCUTS
-  const hasMerchantScopedScene = Boolean(
-    category && subcategory && MERCHANT_SUGGESTIONS[`${category}:${subcategory}`]?.length,
-  )
-  const merchantPlaceholder =
-    displayedMerchantSuggestions.length > 0
-      ? `e.g. ${displayedMerchantSuggestions
-          .slice(0, 3)
-          .map((merchant) => merchant.label)
-          .join(', ')}`
-      : 'e.g. ChatGPT, Claude, Uber Eats'
   const benefitPlanTiers = Object.fromEntries(
     Object.entries(planRuntimeByCard)
       .map(([cardCode, runtime]) => [cardCode, runtime?.tier])
@@ -227,7 +187,7 @@ export function CalcPage() {
         amount: AUTO_SELECT_AMOUNT,
         category,
         subcategory,
-        merchantName,
+        merchantName: selectedMerchant?.value ?? null,
         paymentMethod,
         activePlansByCard,
         planRuntimeByCard,
@@ -260,7 +220,7 @@ export function CalcPage() {
     cardSelectionMode,
     category,
     subcategory,
-    merchantName,
+    selectedMerchant,
     paymentMethod,
     activePlansByCard,
     planRuntimeByCard,
@@ -307,12 +267,26 @@ export function CalcPage() {
     }))
   }
 
-  function handleMerchantShortcutClick(merchantValue: (typeof PRIMARY_MERCHANT_SHORTCUTS)[number]['value']) {
-    setMerchantName(merchantValue)
-    const scene = MERCHANT_SHORTCUT_SCENES[merchantValue]
-    if (!scene) return
-    setCategory(scene.category)
-    setSubcategory(scene.subcategory)
+  function handleMerchantSelect(merchant: MerchantSearchOption) {
+    setSelectedMerchant(merchant)
+    setMerchantFallbackCategory(null)
+    setCategory(merchant.category)
+    setSubcategory(merchant.subcategory)
+    setMerchantSearchError(undefined)
+  }
+
+  function handleMerchantClear() {
+    setSelectedMerchant(null)
+    setCategory(null)
+    setSubcategory(null)
+  }
+
+  function handleFallbackCategorySelect(nextCategory: Category) {
+    setSelectedMerchant(null)
+    setMerchantFallbackCategory(nextCategory)
+    setCategory(nextCategory)
+    setSubcategory(null)
+    setMerchantSearchError(undefined)
   }
 
   function handleSubmit() {
@@ -324,13 +298,18 @@ export function CalcPage() {
       return
     }
 
+    if (!selectedMerchant && !merchantFallbackCategory) {
+      setMerchantSearchError('請先選擇支援商家，或在搜尋不到時改用消費類別比較。')
+      return
+    }
+
     setCardSelectorError(undefined)
     getRecommendation(
       buildCalcRecommendationRequest({
         amount: amountNum,
         category,
         subcategory,
-        merchantName,
+        merchantName: selectedMerchant?.value ?? null,
         paymentMethod,
         activePlansByCard,
         planRuntimeByCard,
@@ -409,6 +388,20 @@ export function CalcPage() {
         <div className="min-w-0 rounded-xl border bg-card p-5 shadow-sm">
           <div className="grid gap-5 md:grid-cols-[minmax(280px,0.9fr)_minmax(300px,1.1fr)]">
             <div className="min-w-0 space-y-5">
+              <MerchantSearchPicker
+                selectedMerchant={selectedMerchant}
+                fallbackCategory={merchantFallbackCategory}
+                error={merchantSearchError}
+                onMerchantSelect={handleMerchantSelect}
+                onMerchantClear={handleMerchantClear}
+                onFallbackCategorySelect={handleFallbackCategorySelect}
+              />
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Payment method</label>
+                <PaymentMethodPicker value={paymentMethod} onChange={setPaymentMethod} />
+              </div>
+
               <AmountInput
                 value={amount}
                 onChange={(value) => {
@@ -417,109 +410,6 @@ export function CalcPage() {
                 }}
                 error={amountError}
               />
-
-              <div className="space-y-2">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="space-y-1">
-                    <label htmlFor="calc-merchant-name" className="text-sm font-medium">
-                      Merchant-first entry
-                    </label>
-                    <p className="text-xs leading-relaxed text-muted-foreground">
-                      Ask questions like "Which card should I use at Pxmart?" by starting with the merchant first.
-                    </p>
-                  </div>
-                  {merchantName.trim() && (
-                    <button
-                      type="button"
-                      onClick={() => setMerchantName('')}
-                      className="shrink-0 rounded-md px-2 py-1 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-                    >
-                      Clear
-                    </button>
-                  )}
-                </div>
-
-                <div className="rounded-xl border border-primary/20 bg-primary/5 p-4">
-                  <div className="space-y-3">
-                    <Input
-                      id="calc-merchant-name"
-                      type="text"
-                      placeholder={merchantPlaceholder}
-                      value={merchantName}
-                      onChange={(event) => setMerchantName(event.target.value)}
-                    />
-
-                    <div className="space-y-1.5">
-                      <p className="text-xs text-muted-foreground">Popular merchant shortcuts</p>
-                      <div className="flex flex-wrap gap-1.5">
-                        {PRIMARY_MERCHANT_SHORTCUTS.map((merchant) => (
-                          <FilterChip
-                            key={merchant.value}
-                            active={merchantName.trim().toUpperCase() === merchant.value}
-                            onClick={() => handleMerchantShortcutClick(merchant.value)}
-                          >
-                            {merchant.label}
-                          </FilterChip>
-                        ))}
-                      </div>
-                    </div>
-
-                    {merchantName.trim() &&
-                      merchantName.trim().toUpperCase() in MERCHANT_SHORTCUT_SCENES && (
-                        <p className="text-xs text-muted-foreground">
-                          Scene preset applied. You can still change the category below if needed.
-                        </p>
-                      )}
-
-                    {!merchantName.trim() && hasMerchantScopedScene && subcategory && (
-                      <p className="text-xs leading-relaxed text-amber-700 dark:text-amber-400">
-                        Add a merchant when comparing {SUBCATEGORY_LABELS[subcategory] ?? subcategory} so
-                        the calculator can match bank-specific merchant promotions.
-                      </p>
-                    )}
-
-                    {merchantSuggestions.length > 0 && (
-                      <div className="space-y-1.5">
-                        <p className="text-xs text-muted-foreground">
-                          {subcategory ? 'Suggested merchants for this scene' : 'Suggested merchants for this category'}
-                        </p>
-                        <div className="flex flex-wrap gap-1.5">
-                          {merchantSuggestions.map((merchant) => (
-                            <FilterChip
-                              key={merchant.value}
-                              active={merchantName.trim().toUpperCase() === merchant.value}
-                              onClick={() => setMerchantName(merchant.value)}
-                            >
-                              {merchant.label}
-                            </FilterChip>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              <CategoryGrid
-                value={category}
-                onChange={(nextCategory) => {
-                  setCategory(nextCategory)
-                  setSubcategory(null)
-                }}
-              />
-
-              <SubcategoryGrid
-                category={category}
-                value={subcategory}
-                onChange={(value) => {
-                  setSubcategory(value)
-                }}
-              />
-
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Payment method</label>
-                <PaymentMethodPicker value={paymentMethod} onChange={setPaymentMethod} />
-              </div>
             </div>
 
             <div className="min-w-0 space-y-5">
@@ -647,7 +537,9 @@ export function CalcPage() {
             <div className="flex min-h-56 items-center justify-center rounded-xl border bg-muted/20 p-5">
               <div className="max-w-md space-y-3 text-center text-sm text-muted-foreground">
                 <p className="font-medium text-foreground">Not enough recommendable cards were returned.</p>
-                <p>Try broadening the filters, clearing merchant/payment constraints, or selecting a different category.</p>
+                <p>
+                  Try selecting another supported merchant, changing payment method, using category fallback, or selecting different cards.
+                </p>
                 {result.noResultReasons?.length > 0 && (
                   <div className="rounded-lg border bg-card p-3 text-left text-xs">
                     <p className="mb-2 font-medium text-foreground">Why this happened</p>
