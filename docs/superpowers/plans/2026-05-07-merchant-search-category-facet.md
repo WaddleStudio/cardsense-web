@@ -52,7 +52,7 @@ Facet state is search-only. It must not become request category unless the user 
 - Create: `src/pages/calc/merchant-search.ts`
 - Create: `src/pages/calc/merchant-search.test.ts`
 
-- [ ] **Step 1: Write failing helper tests**
+- [x] **Step 1: Write failing helper tests**
 
 Create `src/pages/calc/merchant-search.test.ts`:
 
@@ -106,7 +106,7 @@ describe('merchant search helpers', () => {
 })
 ```
 
-- [ ] **Step 2: Run helper tests and verify they fail**
+- [x] **Step 2: Run helper tests and verify they fail**
 
 Run:
 
@@ -116,7 +116,7 @@ npm run test:unit -- src/pages/calc/merchant-search.test.ts
 
 Expected: FAIL because `merchant-search.ts` does not exist.
 
-- [ ] **Step 3: Create merchant search helper module**
+- [x] **Step 3: Create merchant search helper module**
 
 Create `src/pages/calc/merchant-search.ts`:
 
@@ -216,7 +216,7 @@ export function getNoMatchFallbackCategories() {
 }
 ```
 
-- [ ] **Step 4: Run helper tests and verify they pass**
+- [x] **Step 4: Run helper tests and verify they pass**
 
 Run:
 
