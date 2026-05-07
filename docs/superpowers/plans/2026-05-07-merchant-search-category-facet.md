@@ -554,7 +554,7 @@ git commit -m "[agent] fix: clarify merchant search result messaging"
 - Modify: `docs/superpowers/plans/2026-05-07-merchant-search-category-facet.md`
 - Create evidence under: `../fleet-command/reviews/2026-05-07-merchant-search-category-facet/`
 
-- [ ] **Step 1: Run full unit tests**
+- [x] **Step 1: Run full unit tests**
 
 Run:
 
@@ -564,7 +564,7 @@ npm run test:unit
 
 Expected: PASS.
 
-- [ ] **Step 2: Run production build**
+- [x] **Step 2: Run production build**
 
 Run:
 
@@ -574,7 +574,7 @@ npm run build
 
 Expected: PASS.
 
-- [ ] **Step 3: Start local dev server**
+- [x] **Step 3: Start local dev server**
 
 Run:
 
@@ -584,7 +584,7 @@ $env:VITE_API_BASE_URL='https://cardsense-api-production.up.railway.app'; npm ru
 
 Expected: Vite serves on `http://127.0.0.1:5173` or the next available port.
 
-- [ ] **Step 4: Mobile selected-merchant smoke**
+- [x] **Step 4: Mobile selected-merchant smoke**
 
 Open `http://127.0.0.1:5173/calc`, set viewport `375x812`, select a featured merchant such as `momo`, select `LINE Pay`, run compare, and save:
 
@@ -594,7 +594,7 @@ Open `http://127.0.0.1:5173/calc`, set viewport `375x812`, select a featured mer
 
 Expected: merchant search appears first, selected merchant metadata is visible, no blocking console errors.
 
-- [ ] **Step 5: Mobile no-match fallback smoke**
+- [x] **Step 5: Mobile no-match fallback smoke**
 
 Search for an unsupported merchant string, choose `改用餐飲比較`, run compare, and save:
 
@@ -604,7 +604,7 @@ Search for an unsupported merchant string, choose `改用餐飲比較`, run comp
 
 Expected: fallback copy is visible and the request does not imply merchant-specific matching.
 
-- [ ] **Step 6: Desktop facet smoke**
+- [x] **Step 6: Desktop facet smoke**
 
 Set viewport `1440x900`, use a category facet such as `餐飲`, verify results narrow to dining merchants, select a merchant, and save:
 
@@ -614,7 +614,7 @@ Set viewport `1440x900`, use a category facet such as `餐飲`, verify results n
 
 Expected: no overlap, selected merchant shows system-located category/subcategory.
 
-- [ ] **Step 7: Stop dev server**
+- [x] **Step 7: Stop dev server**
 
 Stop the Vite process started in Step 3.
 
