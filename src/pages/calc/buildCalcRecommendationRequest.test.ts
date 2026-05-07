@@ -6,7 +6,6 @@ const baseInput = {
   amount: 1200,
   category: 'DINING' as const,
   subcategory: 'BUFFET',
-  merchantIntent: 'merchant' as const,
   merchantName: 'Agoda',
   paymentMethod: 'APPLE_PAY',
   activePlansByCard: { CATHAY_CUBE: 'CATHAY_CUBE_TRAVEL' },
@@ -82,73 +81,66 @@ describe('buildCalcRecommendationRequest', () => {
     })
   })
 
-  it('builds merchant payment amount requests without category defaults', () => {
-    const legacyInput = {
-      amount: baseInput.amount,
-      subcategory: baseInput.subcategory,
-      merchantName: baseInput.merchantName,
-      paymentMethod: baseInput.paymentMethod,
-      activePlansByCard: baseInput.activePlansByCard,
-      planRuntimeByCard: baseInput.planRuntimeByCard,
-      benefitPlanTiers: baseInput.benefitPlanTiers,
-    }
-
+  it('builds selected merchant requests with registry metadata', () => {
     expect(
       buildCalcRecommendationRequest({
-        ...legacyInput,
-        category: null,
-        subcategory: null,
+        ...baseInput,
+        category: 'DINING',
+        subcategory: 'CAFE',
+        merchantName: 'STARBUCKS',
         activePlansByCard: {},
         planRuntimeByCard: {},
         benefitPlanTiers: {},
-        cardCodes: ['CARD_A'],
+        cardCodes: ['CARD_A', 'CARD_B'],
         comparison: {
-          includePromotionBreakdown: true,
-          maxResults: 3,
+          includePromotionBreakdown: false,
+          maxResults: 10,
         },
         customExchangeRates: {},
       }),
     ).toEqual<RecommendationRequest>({
       amount: 1200,
+      category: 'DINING',
+      subcategory: 'CAFE',
       scenario: {
-        merchantName: 'AGODA',
+        merchantName: 'STARBUCKS',
         paymentMethod: 'APPLE_PAY',
       },
-      cardCodes: ['CARD_A'],
+      cardCodes: ['CARD_A', 'CARD_B'],
       comparison: {
-        includePromotionBreakdown: true,
-        maxResults: 3,
+        includePromotionBreakdown: false,
+        maxResults: 10,
       },
     })
   })
 
-  it('omits merchant and category for general intent payment amount requests', () => {
+  it('builds explicit category fallback requests without merchant', () => {
     expect(
       buildCalcRecommendationRequest({
         ...baseInput,
-        category: null,
+        category: 'DINING',
         subcategory: null,
-        merchantIntent: 'general',
-        merchantName: 'Agoda',
+        merchantName: null,
         activePlansByCard: {},
         planRuntimeByCard: {},
         benefitPlanTiers: {},
-        cardCodes: ['CARD_A'],
+        cardCodes: ['CARD_A', 'CARD_B'],
         comparison: {
-          includePromotionBreakdown: true,
-          maxResults: 3,
+          includePromotionBreakdown: false,
+          maxResults: 10,
         },
         customExchangeRates: {},
       }),
     ).toEqual<RecommendationRequest>({
       amount: 1200,
+      category: 'DINING',
       scenario: {
         paymentMethod: 'APPLE_PAY',
       },
-      cardCodes: ['CARD_A'],
+      cardCodes: ['CARD_A', 'CARD_B'],
       comparison: {
-        includePromotionBreakdown: true,
-        maxResults: 3,
+        includePromotionBreakdown: false,
+        maxResults: 10,
       },
     })
   })
@@ -189,8 +181,7 @@ describe('buildCalcRecommendationRequest', () => {
         ...baseInput,
         category: null,
         subcategory: null,
-        merchantIntent: 'general',
-        merchantName: 'Agoda',
+        merchantName: null,
         paymentMethod: null,
         activePlansByCard: {},
         planRuntimeByCard: {},

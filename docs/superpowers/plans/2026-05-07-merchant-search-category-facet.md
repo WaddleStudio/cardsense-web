@@ -243,7 +243,7 @@ git commit -m "[agent] feat: add calculator merchant search helpers"
 - Modify: `src/pages/calc/buildCalcRecommendationRequest.ts`
 - Modify: `src/pages/calc/buildCalcRecommendationRequest.test.ts`
 
-- [ ] **Step 1: Replace request-builder tests**
+- [x] **Step 1: Replace request-builder tests**
 
 Replace the merchant/general-intent tests in `src/pages/calc/buildCalcRecommendationRequest.test.ts` so the suite covers:
 
@@ -291,7 +291,7 @@ it('builds explicit category fallback requests without merchant', () => {
 })
 ```
 
-- [ ] **Step 2: Run request-builder tests and verify they fail**
+- [x] **Step 2: Run request-builder tests and verify they fail**
 
 Run:
 
@@ -301,7 +301,7 @@ npm run test:unit -- src/pages/calc/buildCalcRecommendationRequest.test.ts
 
 Expected: FAIL because `merchantName` does not accept `null` and `merchantIntent` still exists.
 
-- [ ] **Step 3: Update request-builder input and payload construction**
+- [x] **Step 3: Update request-builder input and payload construction**
 
 In `src/pages/calc/buildCalcRecommendationRequest.ts`, remove `merchantIntent` from `BuildCalcRecommendationRequestInput`, change `merchantName` to `string | null`, and build scenario with only the trimmed merchant:
 
@@ -331,7 +331,7 @@ const scenario: NonNullable<RecommendationRequest['scenario']> = {
 }
 ```
 
-- [ ] **Step 4: Run request-builder tests and verify they pass**
+- [x] **Step 4: Run request-builder tests and verify they pass**
 
 Run:
 

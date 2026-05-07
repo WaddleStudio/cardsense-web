@@ -4,8 +4,7 @@ interface BuildCalcRecommendationRequestInput {
   amount: number
   category: Category | null
   subcategory?: string | null
-  merchantIntent?: 'merchant' | 'general'
-  merchantName: string
+  merchantName: string | null
   paymentMethod: string | null
   activePlansByCard: Record<string, string>
   planRuntimeByCard: Record<string, Record<string, string>>
@@ -23,7 +22,6 @@ export function buildCalcRecommendationRequest({
   amount,
   category,
   subcategory,
-  merchantIntent = 'merchant',
   merchantName,
   paymentMethod,
   activePlansByCard,
@@ -33,10 +31,9 @@ export function buildCalcRecommendationRequest({
   comparison,
   customExchangeRates,
 }: BuildCalcRecommendationRequestInput): RecommendationRequest {
-  const trimmedMerchantName = merchantName.trim()
+  const trimmedMerchantName = merchantName?.trim() ?? ''
   const scenario: NonNullable<RecommendationRequest['scenario']> = {
-    ...(merchantIntent === 'merchant' &&
-      trimmedMerchantName && { merchantName: trimmedMerchantName.toUpperCase() }),
+    ...(trimmedMerchantName && { merchantName: trimmedMerchantName.toUpperCase() }),
     ...(paymentMethod && { paymentMethod }),
   }
 
