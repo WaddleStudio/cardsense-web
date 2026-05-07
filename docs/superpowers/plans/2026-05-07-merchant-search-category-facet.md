@@ -357,7 +357,7 @@ git commit -m "[agent] refactor: model merchant search request semantics"
 **Files:**
 - Create: `src/pages/calc/MerchantSearchPicker.tsx`
 
-- [ ] **Step 1: Create picker component**
+- [x] **Step 1: Create picker component**
 
 Create `src/pages/calc/MerchantSearchPicker.tsx` with props for `selectedMerchant`, `fallbackCategory`, `onMerchantSelect`, `onMerchantClear`, and `onFallbackCategorySelect`. The component should:
 
@@ -369,7 +369,7 @@ Create `src/pages/calc/MerchantSearchPicker.tsx` with props for `selectedMerchan
 - Render fallback buttons when a non-empty search has no matches.
 - Render validation error text passed from `CalcPage`.
 
-- [ ] **Step 2: Run TypeScript build and expect failure until wired later**
+- [x] **Step 2: Run TypeScript build and expect failure until wired later**
 
 Run:
 
@@ -397,7 +397,7 @@ git commit -m "[agent] feat: add calculator merchant search picker"
 - Delete if unused: `src/pages/calc/merchant-intent.ts`
 - Delete if unused: `src/pages/calc/merchant-intent.test.ts`
 
-- [ ] **Step 1: Replace merchant intent state**
+- [x] **Step 1: Replace merchant intent state**
 
 Remove `merchantIntent`, free-text `merchantName`, `PRIMARY_MERCHANT_SHORTCUTS`, `MERCHANT_SHORTCUT_SCENES`, `handleMerchantShortcutClick`, and `getEffectiveMerchantName` usage.
 
@@ -412,7 +412,7 @@ const [merchantFallbackCategory, setMerchantFallbackCategory] = useState<Categor
 const [merchantSearchError, setMerchantSearchError] = useState<string | undefined>()
 ```
 
-- [ ] **Step 2: Add selection handlers**
+- [x] **Step 2: Add selection handlers**
 
 Add:
 
@@ -440,7 +440,7 @@ function handleFallbackCategorySelect(nextCategory: Category) {
 }
 ```
 
-- [ ] **Step 3: Replace merchant JSX**
+- [x] **Step 3: Replace merchant JSX**
 
 Replace the merchant intent segmented-control block and free-text block with:
 
@@ -455,11 +455,11 @@ Replace the merchant intent segmented-control block and free-text block with:
 />
 ```
 
-- [ ] **Step 4: Remove primary advanced category editor**
+- [x] **Step 4: Remove primary advanced category editor**
 
 Remove the `Advanced category` block that contains `CategoryGrid` and `SubcategoryGrid`. Keep exchange rates and switching card settings in advanced settings.
 
-- [ ] **Step 5: Update auto-select and submit request calls**
+- [x] **Step 5: Update auto-select and submit request calls**
 
 Pass:
 
@@ -471,7 +471,7 @@ subcategory,
 
 Do not pass `merchantIntent`.
 
-- [ ] **Step 6: Update submit validation**
+- [x] **Step 6: Update submit validation**
 
 Before `getRecommendation`, add:
 
@@ -482,7 +482,7 @@ if (!selectedMerchant && !merchantFallbackCategory) {
 }
 ```
 
-- [ ] **Step 7: Run build and focused tests**
+- [x] **Step 7: Run build and focused tests**
 
 Run:
 
@@ -512,11 +512,11 @@ If the merchant-intent files were deleted, `git add -A src/pages/calc/merchant-i
 - Modify: `src/pages/calc/ResultPanel.tsx`
 - Modify: `src/pages/CalcPage.tsx`
 
-- [ ] **Step 1: Add result locator copy**
+- [x] **Step 1: Add result locator copy**
 
 In `ResultPanel`, change the scenario sentence so null category says `未指定場景`, selected category says `以 {categoryLabel} 場景`, and no longer implies category was the primary user input.
 
-- [ ] **Step 2: Update no-result recovery copy**
+- [x] **Step 2: Update no-result recovery copy**
 
 In `CalcPage`, update the no-result message to:
 
@@ -526,7 +526,7 @@ In `CalcPage`, update the no-result message to:
 </p>
 ```
 
-- [ ] **Step 3: Run focused tests and build**
+- [x] **Step 3: Run focused tests and build**
 
 Run:
 
