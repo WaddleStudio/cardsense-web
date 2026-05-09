@@ -38,7 +38,7 @@ export function PaymentMethodPicker({ value, onChange }: PaymentMethodPickerProp
   return (
     <div className="space-y-2">
       <FilterChip active={value === null} onClick={() => onChange(null)}>
-        不限方式
+        信用卡直刷
       </FilterChip>
 
       {PAYMENT_METHOD_GROUPS.map((group) => {
@@ -89,7 +89,7 @@ export function PaymentMethodPicker({ value, onChange }: PaymentMethodPickerProp
 
       {value && (
         <p className="text-xs text-muted-foreground">
-          已套用支付方式：{PAYMENT_METHOD_LABELS[value] ?? value}
+          已套用付款方式：{PAYMENT_METHOD_LABELS[value] ?? value}
         </p>
       )}
     </div>

@@ -6,10 +6,11 @@ import { PaymentMethodPicker } from '@/components/PaymentMethodPicker'
 import { SwitchingCardPanel } from '@/components/SwitchingCardPanel'
 import { InlineExchangeRatesPanel } from '@/components/exchange-rates/InlineExchangeRatesPanel'
 import { Button } from '@/components/ui/button'
-import type { Category } from '@/types'
+import { CATEGORY_LABELS, PAYMENT_METHOD_LABELS, type Category } from '@/types'
 import { AmountInput } from './calc/AmountInput'
 import { buildCalcRecommendationRequest } from './calc/buildCalcRecommendationRequest'
 import { CardSelector } from './calc/CardSelector'
+import { buildDecisionReadinessSummary } from './calc/decision-readiness'
 import { MerchantSearchPicker } from './calc/MerchantSearchPicker'
 import type { MerchantSearchOption } from './calc/merchant-search'
 import { MyWalletPanel } from './calc/MyWalletPanel'
@@ -85,6 +86,7 @@ export function CalcPage() {
   const { data: cards } = useCards()
   const { mutate: getRecommendation, data: result, isPending } = useRecommendation()
   const { mutate: autoSelectCards, isPending: isAutoSelecting } = useRecommendation()
+  const amountNum = parseInt(amount, 10)
 
   const benefitPlanTiers = Object.fromEntries(
     Object.entries(planRuntimeByCard)
@@ -103,6 +105,18 @@ export function CalcPage() {
   const effectiveWalletStatusMessage = hasWalletUnsavedChanges
     ? 'Wallet has unsaved changes. Save to update the wallet stored in this browser.'
     : walletStatusMessage
+  const hasMerchantScenario = Boolean(selectedMerchant || merchantFallbackCategory)
+  const decisionReadiness = buildDecisionReadinessSummary({
+    hasMerchantScenario,
+    selectedCardCount: selectedCards.length,
+    amount: amountNum,
+  })
+  const checkoutMerchantLabel =
+    selectedMerchant?.label ??
+    (merchantFallbackCategory ? `${CATEGORY_LABELS[merchantFallbackCategory]}場景` : '尚未選擇')
+  const checkoutPaymentMethodLabel = paymentMethod
+    ? PAYMENT_METHOD_LABELS[paymentMethod] ?? paymentMethod
+    : '信用卡直刷'
 
   useEffect(() => {
     if (!cards || cards.length === 0 || hasResolvedWalletRestore) return
@@ -227,7 +241,6 @@ export function CalcPage() {
     customExchangeRates,
   ])
 
-  const amountNum = parseInt(amount, 10)
   const amountError =
     amountTouched && (!amountNum || amountNum < 100 || amountNum > 100_000)
       ? 'Enter an amount between 100 and 100,000.'
@@ -294,12 +307,12 @@ export function CalcPage() {
     if (!amountNum || amountNum < 100 || amountNum > 100_000) return
 
     if (selectedCards.length < 2) {
-      setCardSelectorError('Select at least 2 cards to compare.')
+      setCardSelectorError('請至少選 2 張卡，才能比較你的卡包。')
       return
     }
 
     if (!selectedMerchant && !merchantFallbackCategory) {
-      setMerchantSearchError('請先選擇支援商家，或在搜尋不到時改用消費類別比較。')
+      setMerchantSearchError('請先選擇商家；找不到商家時，可改用分類場景。')
       return
     }
 
@@ -376,11 +389,11 @@ export function CalcPage() {
     <>
       <div className="mb-6">
         <h1 className="text-2xl font-bold tracking-tight">
-          這筆消費該刷哪張卡
+          這間商家該刷哪張卡？
           <span className="ml-2 text-base font-normal text-muted-foreground">Payment Decision</span>
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          輸入商家、付款方式和金額，馬上知道該刷哪張卡、實拿多少、以及哪個條件可能讓你拿不到。
+          選商家、付款方式與金額，再用你的卡包比較最高回饋與限制條件。
         </p>
       </div>
 
@@ -398,7 +411,7 @@ export function CalcPage() {
               />
 
               <div className="space-y-2">
-                <label className="text-sm font-medium">Payment method</label>
+                <label className="text-sm font-medium">付款方式</label>
                 <PaymentMethodPicker value={paymentMethod} onChange={setPaymentMethod} />
               </div>
 
@@ -409,6 +422,10 @@ export function CalcPage() {
                   setAmountTouched(false)
                 }}
                 error={amountError}
+                merchantLabel={checkoutMerchantLabel}
+                paymentMethodLabel={checkoutPaymentMethodLabel}
+                walletCardCount={selectedCards.length}
+                readiness={decisionReadiness}
               />
             </div>
 
@@ -440,7 +457,7 @@ export function CalcPage() {
               />
 
               <div className="rounded-xl border bg-muted/20">
-                {/* Mobile toggle — hidden on md+ where section is always open */}
+                {/* Mobile toggle - hidden on md+ where section is always open */}
                 <button
                   className="md:hidden flex w-full items-center justify-between px-4 py-3 text-sm font-medium text-foreground"
                   onClick={() => setShowAdvanced((v) => !v)}
@@ -490,7 +507,7 @@ export function CalcPage() {
               disabled={isPending || isAutoSelecting}
             >
               <Calculator className="h-4 w-4" />
-              {isPending ? 'Calculating...' : 'Compare cards'}
+              {isPending ? '計算中...' : '比較我的卡包'}
             </Button>
           </div>
         </div>
@@ -500,8 +517,8 @@ export function CalcPage() {
             <div className="flex min-h-56 items-center justify-center rounded-xl border border-dashed bg-muted/20">
               <div className="text-center text-muted-foreground">
                 <Calculator className="mx-auto mb-3 h-10 w-10 opacity-25" />
-                <p className="text-sm">Adjust the scenario and run a comparison.</p>
-                <p className="text-sm">Results will appear here once at least two cards are selected.</p>
+                <p className="text-sm">完成左側條件後，CardSense 會比較你的卡包。</p>
+                <p className="text-sm">結果會顯示最佳卡、回饋差距與信任檢查。</p>
               </div>
             </div>
           )}
@@ -545,7 +562,7 @@ export function CalcPage() {
                     <p className="mb-2 font-medium text-foreground">Why this happened</p>
                     <ul className="space-y-1">
                       {result.noResultReasons.map((reason) => (
-                        <li key={reason}>• {formatNoResultReason(reason)}</li>
+                        <li key={reason}>- {formatNoResultReason(reason)}</li>
                       ))}
                     </ul>
                   </div>
