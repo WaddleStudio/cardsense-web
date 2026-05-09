@@ -8,7 +8,7 @@
 
 ## 功能
 
-- **年度損失計算機 `/calc`** — 社群傳播入口頁，計算器風格金額輸入、消費類別/場景選擇、持有卡片比較、回饋排名、年度損失動畫、分享圖片生成
+- **收銀台決策頁 `/calc`** — 社群傳播入口頁，Checkout Mode 交易摘要、商家/付款方式/金額輸入、決策準備狀態、My Wallet 持有卡片比較、回饋排名、年度損失動畫、分享圖片生成
 - **情境式推薦 `/recommend`** — 輸入消費金額、類別、子類別場景、通路、支付方式、商家，比較所有已收錄卡片的預估回饋
 - **優惠明細展開** — 逐一列出每個優惠的回饋金額、條件與有效期
 - **損益平衡分析** — 疊加模式下自動計算兩張卡片的損益平衡消費點
@@ -85,7 +85,7 @@ src/
 │   ├── CardsPage.tsx         # /cards 卡片目錄
 │   ├── CardDetailPage.tsx    # /cards/:cardCode 卡片詳情
 │   └── calc/                 # /calc 子元件
-│       ├── AmountInput.tsx   # 計算機風格金額輸入
+│       ├── AmountInput.tsx   # Checkout Mode 交易摘要、金額輸入與決策狀態
 │       ├── CategoryGrid.tsx  # 消費類別選擇
 │       ├── SubcategoryGrid.tsx # 消費場景選擇
 │       ├── CardSelector.tsx  # 持有卡片勾選
