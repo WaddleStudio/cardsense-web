@@ -78,33 +78,38 @@ export function AmountInput({
       </div>
 
       <div className="space-y-4 p-4">
-        <div className="rounded-lg border bg-background">
+        <div className="overflow-hidden rounded-lg border bg-background">
+          <div className="flex items-center justify-between gap-3 border-b bg-muted/25 px-3 py-2">
+            <span className="text-xs font-medium text-muted-foreground">交易明細</span>
+            <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+              Receipt
+            </span>
+          </div>
           <CheckoutRow label="商家" value={merchantLabel} />
           <CheckoutRow label="付款方式" value={paymentMethodLabel} />
           <CheckoutRow label="我的卡包" value={walletLine} />
-        </div>
-
-        <div className="rounded-lg border border-primary/25 bg-primary/5 p-4">
-          <div className="mb-2 flex items-center justify-between gap-3 text-xs text-muted-foreground">
-            <span>本次消費</span>
-            <span className="font-mono tracking-[0.18em]">NTD</span>
+          <div className="border-t border-dashed px-3 py-3">
+            <div className="mb-2 flex items-center justify-between gap-3 text-xs text-muted-foreground">
+              <span>本次消費</span>
+              <span className="font-mono tracking-[0.18em]">NTD</span>
+            </div>
+            <div className="flex items-end gap-2">
+              <span className="pb-1 text-lg font-semibold text-muted-foreground">NT$</span>
+              <input
+                id="checkout-amount"
+                value={displayValue}
+                onChange={(event) => handleDirectInput(event.target.value)}
+                inputMode="numeric"
+                placeholder="0"
+                className={cn(
+                  'min-w-0 flex-1 bg-transparent text-right text-4xl font-bold leading-none tabular-nums outline-none',
+                  'placeholder:text-muted-foreground/35',
+                )}
+                aria-invalid={Boolean(error)}
+              />
+            </div>
+            {error && <p className="mt-2 text-right text-xs font-medium text-destructive">{error}</p>}
           </div>
-          <div className="flex items-end gap-2">
-            <span className="pb-1 text-lg font-semibold text-muted-foreground">NT$</span>
-            <input
-              id="checkout-amount"
-              value={displayValue}
-              onChange={(event) => handleDirectInput(event.target.value)}
-              inputMode="numeric"
-              placeholder="0"
-              className={cn(
-                'min-w-0 flex-1 bg-transparent text-right text-4xl font-bold leading-none tabular-nums outline-none',
-                'placeholder:text-muted-foreground/35',
-              )}
-              aria-invalid={Boolean(error)}
-            />
-          </div>
-          {error && <p className="mt-2 text-right text-xs font-medium text-destructive">{error}</p>}
         </div>
 
         <div className="grid grid-cols-[1fr_1fr_1fr_1fr_auto_auto] gap-1.5">
@@ -136,37 +141,14 @@ export function AmountInput({
           </button>
         </div>
 
-        <div
-          className={cn(
-            'rounded-lg border p-3',
-            isReady ? 'border-reward-border bg-reward-bg/70' : 'border-primary/20 bg-primary/5',
-          )}
-          aria-live="polite"
-        >
-          <div className="mb-2">
+        <div className="overflow-hidden rounded-lg border bg-background" aria-live="polite">
+          <div className="border-b bg-muted/25 px-3 py-2">
             <p className="text-sm font-semibold">{readiness.title}</p>
             <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{readiness.detail}</p>
           </div>
-          <div className="grid gap-1.5 sm:grid-cols-3">
-            {readiness.steps.map((step) => {
-              const Icon = step.complete ? CheckCircle2 : Circle
-
-              return (
-                <div key={step.key} className="flex min-w-0 items-start gap-1.5 text-xs">
-                  <Icon
-                    className={cn(
-                      'mt-0.5 h-3.5 w-3.5 shrink-0',
-                      step.complete ? 'text-reward' : 'text-muted-foreground',
-                    )}
-                  />
-                  <div className="min-w-0">
-                    <p className="truncate font-medium text-foreground">{step.label}</p>
-                    <p className="truncate text-muted-foreground">{step.detail}</p>
-                  </div>
-                </div>
-              )
-            })}
-          </div>
+          {readiness.steps.map((step) => (
+            <ReadinessRow key={step.key} step={step} />
+          ))}
         </div>
       </div>
     </section>
@@ -178,6 +160,23 @@ function CheckoutRow({ label, value }: { label: string; value: string }) {
     <div className="grid grid-cols-[72px_minmax(0,1fr)] gap-3 border-b px-3 py-2.5 text-sm last:border-b-0">
       <span className="text-xs text-muted-foreground">{label}</span>
       <span className="truncate text-right font-medium">{value}</span>
+    </div>
+  )
+}
+
+function ReadinessRow({ step }: { step: DecisionReadinessSummary['steps'][number] }) {
+  const Icon = step.complete ? CheckCircle2 : Circle
+
+  return (
+    <div className="grid grid-cols-[20px_72px_minmax(0,1fr)] items-start gap-2 border-b px-3 py-2.5 text-xs last:border-b-0">
+      <Icon
+        className={cn(
+          'mt-0.5 h-3.5 w-3.5 shrink-0',
+          step.complete ? 'text-reward' : 'text-muted-foreground',
+        )}
+      />
+      <span className="font-medium text-foreground">{step.label}</span>
+      <span className="truncate text-right text-muted-foreground">{step.detail}</span>
     </div>
   )
 }
