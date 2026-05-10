@@ -1,17 +1,27 @@
-import { CheckCircle2, ReceiptText, RefreshCw } from 'lucide-react'
+import { ReceiptText, RefreshCw } from 'lucide-react'
 import { REWARD_GAP_DISPLAY } from './reward-gap-display'
 
 interface RewardGapBoxProps {
   headlineDiff: number
+  bestLabel: string
+  currentLabel: string
+  bestReturn: number
+  currentReturn: number
 }
 
-export function RewardGapBox({ headlineDiff }: RewardGapBoxProps) {
+export function RewardGapBox({
+  headlineDiff,
+  bestLabel,
+  currentLabel,
+  bestReturn,
+  currentReturn,
+}: RewardGapBoxProps) {
   return (
     <section className="overflow-hidden rounded-xl border bg-card shadow-sm">
-      <div className="flex items-center justify-between gap-3 border-b px-4 py-3">
+      <div className="flex items-center justify-between gap-3 border-b bg-muted/35 px-4 py-3">
         <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg border bg-primary/5 text-primary">
-            <ReceiptText className="h-4.5 w-4.5" />
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg border bg-background text-primary">
+            <ReceiptText className="h-4 w-4" />
           </div>
           <div>
             <h3 className="text-sm font-semibold leading-tight">{REWARD_GAP_DISPLAY.title}</h3>
@@ -24,48 +34,80 @@ export function RewardGapBox({ headlineDiff }: RewardGapBoxProps) {
         </span>
       </div>
 
-      <div className="p-4">
-        <div className="rounded-lg border border-primary/25 bg-muted/25 px-4 py-4">
-          <div className="mb-3 flex items-start justify-between gap-3">
-            <p className="text-xs text-muted-foreground">{REWARD_GAP_DISPLAY.eyebrow}</p>
+      <div className="space-y-3 p-4">
+        <div className="overflow-hidden rounded-lg border bg-background">
+          <div className="flex items-center justify-between gap-3 border-b bg-muted/25 px-3 py-2">
+            <span className="text-xs font-medium text-muted-foreground">
+              {REWARD_GAP_DISPLAY.receiptLabel}
+            </span>
             <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
               NTD
             </span>
           </div>
-          <div className="flex items-end justify-between gap-4">
-            <span className="text-lg font-semibold text-muted-foreground">
-              {REWARD_GAP_DISPLAY.currency}
-            </span>
-            <span className="text-4xl font-bold tabular-nums tracking-normal text-foreground">
-              {headlineDiff.toLocaleString()}
-            </span>
+          <ReceiptRow
+            label={REWARD_GAP_DISPLAY.bestLabel}
+            name={bestLabel}
+            amount={bestReturn}
+            tone="reward"
+          />
+          <ReceiptRow
+            label={REWARD_GAP_DISPLAY.currentLabel}
+            name={currentLabel}
+            amount={currentReturn}
+          />
+          <div className="border-t border-dashed px-3 py-4">
+            <div className="mb-2 flex items-center justify-between gap-3 text-xs text-muted-foreground">
+              <span>{REWARD_GAP_DISPLAY.eyebrow}</span>
+              <span>{REWARD_GAP_DISPLAY.diffLabel}</span>
+            </div>
+            <div className="flex items-end justify-between gap-4">
+              <span className="text-lg font-semibold text-muted-foreground">
+                {REWARD_GAP_DISPLAY.currency}
+              </span>
+              <span className="text-4xl font-bold tabular-nums tracking-normal text-destructive">
+                {headlineDiff.toLocaleString()}
+              </span>
+            </div>
           </div>
         </div>
 
-        <div className="mt-3 rounded-lg border border-green-200 bg-green-50 p-3 text-green-900 dark:border-green-900 dark:bg-green-950/35 dark:text-green-200">
-          <p className="text-sm font-semibold">{REWARD_GAP_DISPLAY.noteTitle}</p>
-          <p className="mt-1 text-xs leading-relaxed text-green-800 dark:text-green-300">
-            {REWARD_GAP_DISPLAY.noteBody}
-          </p>
-          <div className="mt-3 grid gap-2 text-xs sm:grid-cols-3">
-            <CheckItem label="商家場景" detail="已套用本次店家條件" />
-            <CheckItem label="我的卡包" detail="只比較已選卡片" />
-            <CheckItem label="消費金額" detail={`NT$${headlineDiff.toLocaleString()} 差距`} />
-          </div>
-        </div>
+        <p className="px-1 text-xs leading-relaxed text-muted-foreground">
+          {REWARD_GAP_DISPLAY.note}
+        </p>
       </div>
     </section>
   )
 }
 
-function CheckItem({ label, detail }: { label: string; detail: string }) {
+function ReceiptRow({
+  label,
+  name,
+  amount,
+  tone,
+}: {
+  label: string
+  name: string
+  amount: number
+  tone?: 'reward'
+}) {
   return (
-    <div className="flex min-w-0 gap-2">
-      <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-      <div className="min-w-0">
-        <p className="font-medium leading-tight">{label}</p>
-        <p className="truncate text-green-700 dark:text-green-300">{detail}</p>
+    <div className="grid grid-cols-[64px_minmax(0,1fr)] items-start gap-x-3 gap-y-1 border-b px-3 py-2.5 text-sm sm:grid-cols-[72px_minmax(0,1fr)_76px]">
+      <span className="text-xs text-muted-foreground">{label}</span>
+      <div className="min-w-0 text-right">
+        <p className="truncate font-medium" title={name}>
+          {name}
+        </p>
       </div>
+      <span
+        className={[
+          'col-start-2 text-right font-semibold tabular-nums sm:col-start-auto',
+          tone === 'reward' ? 'text-reward' : 'text-muted-foreground',
+        ]
+          .filter(Boolean)
+          .join(' ')}
+      >
+        +NT${amount.toLocaleString()}
+      </span>
     </div>
   )
 }

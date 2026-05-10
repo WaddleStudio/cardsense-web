@@ -148,7 +148,13 @@ export function ResultPanel({
         </p>
       </div>
 
-      <RewardGapBox headlineDiff={result.headlineDiff} />
+      <RewardGapBox
+        headlineDiff={result.headlineDiff}
+        bestLabel={bestLabel}
+        currentLabel={worstLabel}
+        bestReturn={result.best.estimatedReturn}
+        currentReturn={result.worst.estimatedReturn}
+      />
 
       <TrustLayer rec={result.best} />
 
