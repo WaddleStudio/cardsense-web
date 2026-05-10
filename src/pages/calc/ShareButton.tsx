@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button'
 import { buildShareRateSummary } from './share-image-rate-summary'
 
 export interface ShareImageData {
-  annualLoss: number
+  rewardGap: number
   bestCardName: string
   worstCardName: string
   category: string
@@ -42,18 +42,18 @@ function generateShareCanvas(data: ShareImageData): HTMLCanvasElement {
 
   ctx.fillStyle = '#111827'
   ctx.font = 'bold 52px system-ui, -apple-system, sans-serif'
-  ctx.fillText('刷錯卡，一年可能差很多', 60, 185)
+  ctx.fillText('刷錯卡，本次可能差很多', 60, 185)
 
   ctx.fillStyle = '#e5e7eb'
   ctx.fillRect(60, 205, 400, 3)
 
   ctx.fillStyle = '#6b7280'
   ctx.font = '26px system-ui, -apple-system, sans-serif'
-  ctx.fillText('估算一年少拿回饋', 60, 260)
+  ctx.fillText('估算本次少拿回饋', 60, 260)
 
   ctx.fillStyle = '#dc2626'
   ctx.font = 'bold 88px system-ui, -apple-system, monospace'
-  ctx.fillText(`NT$ ${data.annualLoss.toLocaleString()}`, 60, 370)
+  ctx.fillText(`NT$ ${data.rewardGap.toLocaleString()}`, 60, 370)
 
   ctx.fillStyle = '#374151'
   ctx.font = '26px system-ui, -apple-system, sans-serif'
@@ -110,7 +110,7 @@ function generateShareCanvas(data: ShareImageData): HTMLCanvasElement {
 }
 
 export function ShareButton({
-  annualLoss,
+  rewardGap,
   bestCardName,
   worstCardName,
   category,
@@ -121,7 +121,7 @@ export function ShareButton({
 
   const handleShare = async () => {
     const canvas = generateShareCanvas({
-      annualLoss,
+      rewardGap,
       bestCardName,
       worstCardName,
       category,
@@ -138,7 +138,7 @@ export function ShareButton({
       try {
         await navigator.share({
           title: '刷卡回饋差距試算',
-          text: `選對卡一年可能多拿 NT$${annualLoss.toLocaleString()} 回饋，來試算看看。`,
+          text: `選對卡本次可能多拿 NT$${rewardGap.toLocaleString()} 回饋，來試算看看。`,
           files: [file],
           url: shareUrl,
         })

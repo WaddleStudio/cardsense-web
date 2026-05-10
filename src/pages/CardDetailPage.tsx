@@ -1,5 +1,5 @@
 ﻿import { useMemo } from 'react'
-import { Link, useNavigate, useParams } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 import {
   AlertCircle,
   AlertTriangle,
@@ -9,7 +9,6 @@ import {
   ExternalLink,
   RefreshCw,
   RotateCcw,
-  Search,
 } from 'lucide-react'
 import { useCard, useCardPlans, useCardPromotions } from '@/api'
 import { Badge } from '@/components/ui/badge'
@@ -34,7 +33,6 @@ const SWITCH_FREQ_LABELS: Record<string, string> = {
 
 export function CardDetailPage() {
   const { cardCode } = useParams<{ cardCode: string }>()
-  const navigate = useNavigate()
   const { data: card, isLoading, error, refetch } = useCard(cardCode!)
   const { data: promotions } = useCardPromotions(cardCode!)
   const { data: plans } = useCardPlans(cardCode!)
@@ -236,23 +234,16 @@ export function CardDetailPage() {
 
           <Separator />
 
-          <div className="flex flex-col sm:flex-row gap-3">
-            {card.applyUrl && (
+          {card.applyUrl && (
+            <div className="flex flex-col sm:flex-row gap-3">
               <Button asChild variant="outline" className="cursor-pointer">
                 <a href={card.applyUrl} target="_blank" rel="noopener noreferrer">
                   <ExternalLink className="h-4 w-4 mr-1.5" />
                   前往辦卡
                 </a>
               </Button>
-            )}
-            <Button
-              className="cursor-pointer"
-              onClick={() => navigate('/recommend', { state: { prefillCard: card.cardCode } })}
-            >
-              <Search className="h-4 w-4 mr-1.5" />
-              用這張卡做推薦
-            </Button>
-          </div>
+            </div>
+          )}
         </CardContent>
       </Card>
 
