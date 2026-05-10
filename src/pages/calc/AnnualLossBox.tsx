@@ -1,26 +1,5 @@
-import { useEffect, useState } from 'react'
-
-const ANIMATION_DURATION = 800
-const FRAME_INTERVAL = 20
-
-function AnimatedCounter({ target }: { target: number }) {
-  const [current, setCurrent] = useState(0)
-
-  useEffect(() => {
-    const steps = ANIMATION_DURATION / FRAME_INTERVAL
-    const step = Math.max(1, Math.ceil(target / steps))
-    const timer = setInterval(() => {
-      setCurrent((prev) => {
-        const next = Math.min(prev + step, target)
-        if (next >= target) clearInterval(timer)
-        return next
-      })
-    }, FRAME_INTERVAL)
-    return () => clearInterval(timer)
-  }, [target])
-
-  return <>{current.toLocaleString()}</>
-}
+import { CheckCircle2, ReceiptText, RefreshCw } from 'lucide-react'
+import { REWARD_GAP_DISPLAY } from './reward-gap-display'
 
 interface RewardGapBoxProps {
   headlineDiff: number
@@ -28,69 +7,65 @@ interface RewardGapBoxProps {
 
 export function RewardGapBox({ headlineDiff }: RewardGapBoxProps) {
   return (
-    <div className="rounded-xl bg-zinc-800 p-3 shadow-[inset_0_2px_4px_rgba(0,0,0,0.4)]">
-      <div className="mb-2 flex items-center justify-between gap-3 px-1">
-        <div>
-          <p className="text-[10px] font-mono uppercase tracking-[0.24em] text-zinc-500">
-            CardSense POS
+    <section className="overflow-hidden rounded-xl border bg-card shadow-sm">
+      <div className="flex items-center justify-between gap-3 border-b px-4 py-3">
+        <div className="flex items-center gap-3">
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg border bg-primary/5 text-primary">
+            <ReceiptText className="h-4.5 w-4.5" />
+          </div>
+          <div>
+            <h3 className="text-sm font-semibold leading-tight">{REWARD_GAP_DISPLAY.title}</h3>
+            <p className="text-xs text-muted-foreground">Checkout difference</p>
+          </div>
+        </div>
+        <span className="inline-flex items-center gap-1 rounded-full border border-green-200 bg-green-50 px-2.5 py-1 text-xs font-medium text-green-700 dark:border-green-900 dark:bg-green-950/40 dark:text-green-300">
+          <RefreshCw className="h-3 w-3" />
+          {REWARD_GAP_DISPLAY.compareBadge}
+        </span>
+      </div>
+
+      <div className="p-4">
+        <div className="rounded-lg border border-primary/25 bg-muted/25 px-4 py-4">
+          <div className="mb-3 flex items-start justify-between gap-3">
+            <p className="text-xs text-muted-foreground">{REWARD_GAP_DISPLAY.eyebrow}</p>
+            <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
+              NTD
+            </span>
+          </div>
+          <div className="flex items-end justify-between gap-4">
+            <span className="text-lg font-semibold text-muted-foreground">
+              {REWARD_GAP_DISPLAY.currency}
+            </span>
+            <span className="text-4xl font-bold tabular-nums tracking-normal text-foreground">
+              {headlineDiff.toLocaleString()}
+            </span>
+          </div>
+        </div>
+
+        <div className="mt-3 rounded-lg border border-green-200 bg-green-50 p-3 text-green-900 dark:border-green-900 dark:bg-green-950/35 dark:text-green-200">
+          <p className="text-sm font-semibold">{REWARD_GAP_DISPLAY.noteTitle}</p>
+          <p className="mt-1 text-xs leading-relaxed text-green-800 dark:text-green-300">
+            {REWARD_GAP_DISPLAY.noteBody}
           </p>
-          <p className="text-xs text-zinc-400">本次刷卡回饋差距</p>
+          <div className="mt-3 grid gap-2 text-xs sm:grid-cols-3">
+            <CheckItem label="商家場景" detail="已套用本次店家條件" />
+            <CheckItem label="我的卡包" detail="只比較已選卡片" />
+            <CheckItem label="消費金額" detail={`NT$${headlineDiff.toLocaleString()} 差距`} />
+          </div>
         </div>
-        <div className="flex gap-1">
-          {['bg-red-500', 'bg-yellow-500', 'bg-green-500'].map((color) => (
-            <span key={color} className={`inline-block h-2 w-2 rounded-full ${color} opacity-70`} />
-          ))}
-        </div>
       </div>
-
-      <div className="rounded-lg bg-[#0b150b] border border-green-950 px-4 py-4 shadow-[inset_0_1px_3px_rgba(0,0,0,0.6)]">
-        <p
-          className="mb-1 text-right text-xs font-mono tracking-[0.25em]"
-          style={{ color: '#2d6a2d' }}
-        >
-          REWARD GAP
-        </p>
-        <p
-          className="text-3xl sm:text-4xl font-mono font-semibold text-right tabular-nums leading-none"
-          style={{
-            color: '#4ade80',
-            textShadow: '0 0 10px #4ade8080, 0 0 20px #4ade8030',
-          }}
-        >
-          NT${' '}
-          <AnimatedCounter key={headlineDiff} target={headlineDiff} />
-        </p>
-        <p className="mt-2 border-t border-green-950 pt-2 text-right text-[10px] font-mono uppercase tracking-[0.16em] text-green-900">
-          PER TRANSACTION
-        </p>
-      </div>
-
-      <div className="mt-2 grid grid-cols-3 gap-1.5 border-t border-zinc-700 pt-2">
-        <ReceiptKey label="BEST" tone="reward" />
-        <ReceiptKey label="DIFF" tone="primary" />
-        <ReceiptKey label="CHECK" tone="muted" />
-      </div>
-    </div>
+    </section>
   )
 }
 
-function ReceiptKey({
-  label,
-  tone,
-}: {
-  label: string
-  tone: 'reward' | 'primary' | 'muted'
-}) {
+function CheckItem({ label, detail }: { label: string; detail: string }) {
   return (
-    <div
-      className={[
-        'h-8 rounded-lg border text-center text-[10px] font-mono font-semibold leading-8 shadow-[0_2px_0_rgba(0,0,0,0.4)]',
-        tone === 'reward' && 'border-green-700/60 bg-green-800/60 text-green-100',
-        tone === 'primary' && 'border-indigo-600/50 bg-indigo-700/70 text-indigo-100',
-        tone === 'muted' && 'border-zinc-500 bg-zinc-600 text-zinc-100',
-      ].filter(Boolean).join(' ')}
-    >
-      {label}
+    <div className="flex min-w-0 gap-2">
+      <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+      <div className="min-w-0">
+        <p className="font-medium leading-tight">{label}</p>
+        <p className="truncate text-green-700 dark:text-green-300">{detail}</p>
+      </div>
     </div>
   )
 }
