@@ -2,32 +2,16 @@
 import { cn } from '@/lib/utils'
 import { CATEGORY_LABELS, SUBCATEGORY_LABELS } from '@/types'
 import type { CardRecommendation, Category } from '@/types'
-import { AnnualLossBox } from './AnnualLossBox'
+import { RewardGapBox } from './AnnualLossBox'
 import { ShareButton } from './ShareButton'
 import { CtaStrip } from './CtaStrip'
+import { processResult } from './result-processing'
 
 interface ResultPanelProps {
   recommendations: CardRecommendation[]
   amount: number
   category: Category | null
   customExchangeRates: Record<string, number>
-}
-
-interface CalcResult {
-  ranked: CardRecommendation[]
-  best: CardRecommendation
-  worst: CardRecommendation
-  singleDiff: number
-  annualLoss: number
-}
-
-function processResult(recommendations: CardRecommendation[]): CalcResult | null {
-  if (recommendations.length < 2) return null
-  const ranked = [...recommendations].sort((a, b) => b.estimatedReturn - a.estimatedReturn)
-  const best = ranked[0]
-  const worst = ranked[ranked.length - 1]
-  const singleDiff = best.estimatedReturn - worst.estimatedReturn
-  return { ranked, best, worst, singleDiff, annualLoss: singleDiff * 12 }
 }
 
 function buildCardLabel(rec: CardRecommendation) {
@@ -156,20 +140,20 @@ export function ResultPanel({
           <span className="font-medium text-foreground">{worstLabel}</span>
           {' '}與{' '}
           <span className="font-medium text-foreground">{bestLabel}</span>
-          之間一年可能相差 NT$
+          之間本次可能相差 NT$
           <span className="font-medium text-destructive tabular-nums">
-            {result.annualLoss.toLocaleString()}
+            {result.headlineDiff.toLocaleString()}
           </span>
           的回饋。
         </p>
       </div>
 
-      <AnnualLossBox annualLoss={result.annualLoss} monthlyDiff={result.singleDiff} />
+      <RewardGapBox headlineDiff={result.headlineDiff} />
 
       <TrustLayer rec={result.best} />
 
       <ShareButton
-        annualLoss={result.annualLoss}
+        rewardGap={result.headlineDiff}
         bestCardName={bestLabel}
         worstCardName={worstLabel}
         category={categoryLabel}

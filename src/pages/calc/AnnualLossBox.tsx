@@ -7,7 +7,6 @@ function AnimatedCounter({ target }: { target: number }) {
   const [current, setCurrent] = useState(0)
 
   useEffect(() => {
-    setCurrent(0)
     const steps = ANIMATION_DURATION / FRAME_INTERVAL
     const step = Math.max(1, Math.ceil(target / steps))
     const timer = setInterval(() => {
@@ -24,11 +23,10 @@ function AnimatedCounter({ target }: { target: number }) {
 }
 
 interface AnnualLossBoxProps {
-  annualLoss: number
-  monthlyDiff: number
+  headlineDiff: number
 }
 
-export function AnnualLossBox({ annualLoss, monthlyDiff }: AnnualLossBoxProps) {
+export function RewardGapBox({ headlineDiff }: AnnualLossBoxProps) {
   return (
     <div className="rounded-xl overflow-hidden shadow-lg">
       {/* Top bezel */}
@@ -52,7 +50,7 @@ export function AnnualLossBox({ annualLoss, monthlyDiff }: AnnualLossBoxProps) {
           className="text-[9px] font-mono tracking-[0.4em] uppercase mb-3 text-right"
           style={{ color: '#1a5c1a' }}
         >
-          ANNUAL LOSS
+          REWARD GAP
         </p>
 
         {/* Main amount */}
@@ -64,19 +62,15 @@ export function AnnualLossBox({ annualLoss, monthlyDiff }: AnnualLossBoxProps) {
           }}
         >
           NT${' '}
-          <AnimatedCounter target={annualLoss} />
+          <AnimatedCounter key={headlineDiff} target={headlineDiff} />
         </p>
 
         {/* Sub display */}
         <div
-          className="mt-3 pt-3 flex items-center justify-between font-mono text-xs"
+          className="mt-3 pt-3 flex items-center justify-end font-mono text-xs"
           style={{ borderTop: '1px solid #1a3a1a', color: '#2d7a2d' }}
         >
-          <span style={{ color: '#1a4a1a' }}>×12</span>
-          <span>
-            NT${monthlyDiff.toLocaleString()}
-            <span style={{ color: '#1a4a1a' }}> /月</span>
-          </span>
+          <span style={{ color: '#1a4a1a' }}>PER TRANSACTION</span>
         </div>
       </div>
 
