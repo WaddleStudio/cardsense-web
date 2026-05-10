@@ -24,12 +24,10 @@ interface MyWalletPanelProps {
 
 function buildSummaryLine(selectedCardCount: number, activePlanCount: number, customRateCount: number) {
   const parts: string[] = []
-  parts.push(selectedCardCount === 1 ? '1 selected card' : `${selectedCardCount} selected cards`)
-  if (activePlanCount > 0)
-    parts.push(activePlanCount === 1 ? '1 active plan' : `${activePlanCount} active plans`)
-  if (customRateCount > 0)
-    parts.push(customRateCount === 1 ? '1 custom rate' : `${customRateCount} custom rates`)
-  return parts.join(', ')
+  parts.push(`${selectedCardCount} 張卡`)
+  if (activePlanCount > 0) parts.push(`${activePlanCount} 個方案`)
+  if (customRateCount > 0) parts.push(`${customRateCount} 組匯率`)
+  return parts.join(' · ')
 }
 
 function formatSavedAt(savedAt: string) {
@@ -59,8 +57,8 @@ export function MyWalletPanel({
   const statusLine =
     statusMessage ??
     (hasRestoredWallet
-      ? 'Wallet restored from saved data.'
-      : 'Save your card selection, benefit-plan state, and exchange-rate preferences so they are ready next time in this browser.')
+      ? '已載入上次儲存的卡包'
+      : '儲存卡片、方案與匯率設定，下次可直接使用。')
   const safeActiveIndex = clampWalletCarouselIndex(activeIndex, walletCards.length)
   const activeCard = walletCards[safeActiveIndex]
   const hasMultipleCards = walletCards.length > 1
@@ -68,7 +66,7 @@ export function MyWalletPanel({
   return (
     <section className="space-y-4 rounded-xl border bg-card p-4 shadow-sm">
       <div className="space-y-1">
-        <h3 className="text-sm font-semibold">My Wallet</h3>
+        <h3 className="text-sm font-semibold">我的卡包</h3>
         <p className="text-xs text-muted-foreground">{summaryLine}</p>
       </div>
 
@@ -78,7 +76,7 @@ export function MyWalletPanel({
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
                 <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
-                  Card {safeActiveIndex + 1} / {walletCards.length}
+                  卡片 {safeActiveIndex + 1} / {walletCards.length}
                 </p>
                 <p className="mt-2 truncate text-sm font-semibold">{activeCard.cardName}</p>
                 <p className="text-xs text-muted-foreground">{activeCard.bankName}</p>
@@ -95,7 +93,7 @@ export function MyWalletPanel({
                   variant="outline"
                   size="icon-sm"
                   className="cursor-pointer"
-                  aria-label="Previous wallet card"
+                  aria-label="上一張卡片"
                   onClick={() =>
                     setActiveIndex((current) =>
                       current === 0 ? walletCards.length - 1 : current - 1,
@@ -104,12 +102,12 @@ export function MyWalletPanel({
                 >
                   <ChevronLeft className="h-4 w-4" />
                 </Button>
-                <div className="flex min-w-0 flex-1 justify-center gap-1.5" aria-label="Wallet card position">
+                <div className="flex min-w-0 flex-1 justify-center gap-1.5" aria-label="卡片位置">
                   {walletCards.map((card, index) => (
                     <button
                       key={card.cardCode}
                       type="button"
-                      aria-label={`Show ${card.cardName}`}
+                      aria-label={`查看 ${card.cardName}`}
                       aria-current={index === safeActiveIndex}
                       className={`h-2 rounded-full transition-all ${
                         index === safeActiveIndex
@@ -125,7 +123,7 @@ export function MyWalletPanel({
                   variant="outline"
                   size="icon-sm"
                   className="cursor-pointer"
-                  aria-label="Next wallet card"
+                  aria-label="下一張卡片"
                   onClick={() =>
                     setActiveIndex((current) =>
                       current >= walletCards.length - 1 ? 0 : current + 1,
@@ -143,8 +141,8 @@ export function MyWalletPanel({
               <CreditCard className="h-5 w-5" />
             </div>
             <div className="min-w-0">
-              <p className="text-sm font-medium">No wallet cards selected</p>
-              <p className="text-xs text-muted-foreground">Choose cards below to build your wallet.</p>
+              <p className="text-sm font-medium">尚未選卡</p>
+              <p className="text-xs text-muted-foreground">從下方選卡後即可比較。</p>
             </div>
           </div>
         )}
@@ -160,13 +158,12 @@ export function MyWalletPanel({
           <p className="text-sm leading-relaxed">{statusLine}</p>
           {savedAt && (
             <p className="text-xs text-muted-foreground">
-              Last saved at:{' '}
+              上次儲存：{' '}
               <span className="font-medium text-foreground">{formatSavedAt(savedAt)}</span>
             </p>
           )}
           <p className="text-xs leading-relaxed text-muted-foreground">
-            Clearing removes the saved wallet and resets the current card, plan, and exchange-rate
-            setup in this browser.
+            清除後會移除本瀏覽器儲存的卡片、方案與匯率設定。
           </p>
         </div>
       )}
@@ -174,7 +171,7 @@ export function MyWalletPanel({
       <div className="space-y-1.5">
         <div className="flex flex-col gap-2 sm:flex-row">
           <Button type="button" className="flex-1 cursor-pointer" onClick={onSave}>
-            Save my wallet
+            儲存卡包
           </Button>
           <Button
             type="button"
@@ -183,11 +180,11 @@ export function MyWalletPanel({
             onClick={onClear}
             disabled={!canClear}
           >
-            Clear wallet
+            清除卡包
           </Button>
         </div>
         <p className="text-center text-xs text-muted-foreground">
-          Saves cards, benefit plans, and exchange rate settings
+          保存卡片、方案與匯率設定
         </p>
       </div>
     </section>
