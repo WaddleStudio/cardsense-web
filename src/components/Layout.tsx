@@ -1,15 +1,10 @@
 import { Link, Outlet, useLocation } from 'react-router-dom'
-import { Calculator, CreditCard, LayoutGrid, Loader2, Sparkles, Sun, Moon, Wifi, WifiOff } from 'lucide-react'
+import { CreditCard, Loader2, Moon, Sun, Wifi, WifiOff } from 'lucide-react'
 import { useHealth } from '@/api'
 import { useDarkMode } from '@/hooks/use-dark-mode'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-
-const NAV_ITEMS = [
-  { to: '/', label: '計算機', icon: Calculator },
-  { to: '/recommend', label: '推薦', icon: Sparkles },
-  { to: '/cards', label: '卡片目錄', icon: LayoutGrid },
-] as const
+import { NAV_ITEMS } from './navigation'
 
 function ColdStartBanner({ onRetry }: { onRetry: () => void }) {
   return (
@@ -40,7 +35,6 @@ export function Layout() {
     <div className="min-h-dvh flex flex-col">
       <header className="sticky top-0 z-40 border-b bg-card/80 backdrop-blur-md">
         <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4">
-          {/* Logo */}
           <Link
             to="/"
             className="flex shrink-0 items-center gap-2 font-semibold text-base tracking-tight hover:opacity-80 transition-opacity"
@@ -53,9 +47,7 @@ export function Layout() {
             </span>
           </Link>
 
-          {/* Right side */}
           <div className="flex items-center gap-1">
-            {/* Nav */}
             <nav className="flex items-center gap-0.5 mr-1">
               {NAV_ITEMS.map(({ to, label, icon: Icon }) => {
                 const isActive = location.pathname === to
@@ -78,7 +70,6 @@ export function Layout() {
               })}
             </nav>
 
-            {/* Dark mode toggle */}
             <Button
               variant="ghost"
               size="sm"
@@ -86,12 +77,9 @@ export function Layout() {
               onClick={toggleDark}
               aria-label={isDark ? '切換至淺色模式' : '切換至深色模式'}
             >
-              {isDark
-                ? <Sun className="h-4 w-4" />
-                : <Moon className="h-4 w-4" />}
+              {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
             </Button>
 
-            {/* API status */}
             <div
               className={cn(
                 'ml-1 hidden sm:flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium',
@@ -99,21 +87,18 @@ export function Layout() {
                   ? 'bg-reward-bg text-reward border border-reward-border'
                   : 'bg-destructive/10 text-destructive border border-destructive/20',
               )}
-              title={isUp ? 'API 連線正常' : 'API 離線'}
+              title={isUp ? 'API 正常' : 'API 離線'}
             >
-              {isUp
-                ? <Wifi className="h-3 w-3" />
-                : <WifiOff className="h-3 w-3" />}
-              <span>{isUp ? '連線中' : '離線'}</span>
+              {isUp ? <Wifi className="h-3 w-3" /> : <WifiOff className="h-3 w-3" />}
+              <span>{isUp ? '正常' : '離線'}</span>
             </div>
 
-            {/* Mobile API status dot */}
             <span
               className={cn(
                 'sm:hidden inline-block h-2 w-2 rounded-full ml-1',
                 isUp ? 'bg-reward' : 'bg-destructive',
               )}
-              aria-label={isUp ? 'API 連線中' : 'API 離線'}
+              aria-label={isUp ? 'API 正常' : 'API 離線'}
             />
           </div>
         </div>

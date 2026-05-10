@@ -161,7 +161,7 @@ export function ResultPanel({
         customExchangeRates={customExchangeRates}
       />
 
-      <CtaStrip amount={amount} category={category} />
+      <CtaStrip />
     </div>
   )
 }
