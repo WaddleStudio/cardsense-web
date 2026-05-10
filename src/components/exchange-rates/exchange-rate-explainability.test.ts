@@ -30,10 +30,10 @@ describe('describeExchangeRateRow', () => {
         }),
       ),
     ).toEqual({
-      sourceLabel: 'System default',
-      contextLabel: 'Generic miles baseline',
-      detailLine: '1 Miles = 0.4 TWD',
-      noteLine: 'Used as the fallback valuation when no program-specific rate is selected.',
+      sourceLabel: '系統預設',
+      contextLabel: '通用哩程',
+      detailLine: '1 Miles = NT$0.4',
+      noteLine: '未指定銀行或方案時使用。',
     })
   })
 
@@ -49,9 +49,9 @@ describe('describeExchangeRateRow', () => {
         }),
       ),
     ).toEqual({
-      sourceLabel: 'Bank program',
-      contextLabel: 'E.SUN / e point',
-      detailLine: '1 e point = 0.8 TWD',
+      sourceLabel: '銀行方案',
+      contextLabel: '玉山 / e point',
+      detailLine: '1 e point = NT$0.8',
       noteLine: 'Bank note',
     })
   })
@@ -68,10 +68,10 @@ describe('describeExchangeRateRow', () => {
         }),
       ),
     ).toEqual({
-      sourceLabel: 'Program profile',
-      contextLabel: 'Cathay Pacific / Asia Miles',
-      detailLine: '1 Asia Miles = 0.5 TWD',
-      noteLine: 'Use this when you value a specific airline or loyalty program above the generic miles baseline.',
+      sourceLabel: '哩程方案',
+      contextLabel: '國泰 / 亞洲萬里通',
+      detailLine: '1 Asia Miles = NT$0.5',
+      noteLine: '適用特定航空或會員方案。',
     })
   })
 })

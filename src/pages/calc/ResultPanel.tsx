@@ -15,8 +15,8 @@ interface ResultPanelProps {
 }
 
 function buildCardLabel(rec: CardRecommendation) {
-  const bank = rec.bankName?.trim() || 'Unknown Bank'
-  const card = rec.cardName?.trim() || 'Unknown Card'
+  const bank = rec.bankName?.trim() || '未知銀行'
+  const card = rec.cardName?.trim() || '未知卡片'
   return `${bank} ${card}`
 }
 

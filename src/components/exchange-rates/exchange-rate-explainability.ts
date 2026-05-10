@@ -1,16 +1,16 @@
 import type { ExchangeRateBoardRow } from './exchange-rate-board.types'
 
 const CONTEXT_LABELS: Record<string, string> = {
-  'POINTS._DEFAULT': 'Generic points baseline',
-  'POINTS.CTBC': 'CTBC / LINE Points',
-  'POINTS.CATHAY': 'Cathay / bank points',
-  'POINTS.TAISHIN': 'Taishin / DAWHO Points',
-  'POINTS.ESUN': 'E.SUN / e point',
-  'POINTS.FUBON': 'Fubon / momo & mmo Point',
-  'MILES._DEFAULT': 'Generic miles baseline',
-  'MILES.ASIA_MILES': 'Cathay Pacific / Asia Miles',
-  'MILES.EVA_INFINITY': 'EVA Air / Infinity MileageLands',
-  'MILES.JALPAK': 'Japan Airlines / JAL miles',
+  'POINTS._DEFAULT': '通用點數',
+  'POINTS.CTBC': '中信 / LINE Points',
+  'POINTS.CATHAY': '國泰 / 小樹點',
+  'POINTS.TAISHIN': '台新 / 台新Point',
+  'POINTS.ESUN': '玉山 / e point',
+  'POINTS.FUBON': '富邦 / momo幣與momo Point',
+  'MILES._DEFAULT': '通用哩程',
+  'MILES.ASIA_MILES': '國泰 / 亞洲萬里通',
+  'MILES.EVA_INFINITY': '長榮 / 無限萬哩遊',
+  'MILES.JALPAK': '日航 / JAL哩程',
 }
 
 function formatValue(value: number) {
@@ -22,30 +22,30 @@ function formatValue(value: number) {
 export function describeExchangeRateRow(row: ExchangeRateBoardRow) {
   if (row.bank === '_DEFAULT') {
     return {
-      sourceLabel: 'System default',
-      contextLabel: CONTEXT_LABELS[row.key] ?? 'Baseline valuation',
-      detailLine: `1 ${row.unit} = ${formatValue(row.value)} TWD`,
+      sourceLabel: '系統預設',
+      contextLabel: CONTEXT_LABELS[row.key] ?? '基準換算',
+      detailLine: `1 ${row.unit} = NT$${formatValue(row.value)}`,
       noteLine:
         row.note ??
-        'Used as the fallback valuation when no program-specific rate is selected.',
+        '未指定銀行或方案時使用。',
     }
   }
 
   if (row.type === 'MILES') {
     return {
-      sourceLabel: 'Program profile',
-      contextLabel: CONTEXT_LABELS[row.key] ?? 'Airline / loyalty program',
-      detailLine: `1 ${row.unit} = ${formatValue(row.value)} TWD`,
+      sourceLabel: '哩程方案',
+      contextLabel: CONTEXT_LABELS[row.key] ?? '航空方案',
+      detailLine: `1 ${row.unit} = NT$${formatValue(row.value)}`,
       noteLine:
         row.note ??
-        'Use this when you value a specific airline or loyalty program above the generic miles baseline.',
+        '適用特定航空或會員方案。',
     }
   }
 
   return {
-    sourceLabel: 'Bank program',
-    contextLabel: CONTEXT_LABELS[row.key] ?? 'Card-linked points',
-    detailLine: `1 ${row.unit} = ${formatValue(row.value)} TWD`,
-    noteLine: row.note ?? 'Bank-specific point valuation for this rewards program.',
+    sourceLabel: '銀行方案',
+    contextLabel: CONTEXT_LABELS[row.key] ?? '卡片點數',
+    detailLine: `1 ${row.unit} = NT$${formatValue(row.value)}`,
+    noteLine: row.note ?? '適用該銀行回饋點數。',
   }
 }

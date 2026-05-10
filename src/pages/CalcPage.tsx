@@ -388,7 +388,7 @@ export function CalcPage() {
       <div className="mb-6">
         <h1 className="text-2xl font-bold tracking-tight">
           這間商家該刷哪張卡？
-          <span className="ml-2 text-base font-normal text-muted-foreground">Payment Decision</span>
+          <span className="ml-2 text-base font-normal text-muted-foreground">刷卡決策</span>
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
           選商家、付款方式與金額，再用你的卡包比較最高回饋與限制條件。
@@ -551,13 +551,13 @@ export function CalcPage() {
           {result && result.recommendations.length < 2 && (
             <div className="flex min-h-56 items-center justify-center rounded-xl border bg-muted/20 p-5">
               <div className="max-w-md space-y-3 text-center text-sm text-muted-foreground">
-                <p className="font-medium text-foreground">Not enough recommendable cards were returned.</p>
+                <p className="font-medium text-foreground">可比較的卡片不足。</p>
                 <p>
-                  Try selecting another supported merchant, changing payment method, using category fallback, or selecting different cards.
+                  可改選商家、付款方式、分類場景，或加入其他卡片。
                 </p>
                 {result.noResultReasons?.length > 0 && (
                   <div className="rounded-lg border bg-card p-3 text-left text-xs">
-                    <p className="mb-2 font-medium text-foreground">Why this happened</p>
+                    <p className="mb-2 font-medium text-foreground">可能原因</p>
                     <ul className="space-y-1">
                       {result.noResultReasons.map((reason) => (
                         <li key={reason}>- {formatNoResultReason(reason)}</li>
@@ -577,19 +577,19 @@ export function CalcPage() {
 function formatNoResultReason(reason: string) {
   switch (reason) {
     case 'NO_ACTIVE_PROMOTIONS_FOR_DATE':
-      return 'No active promotions matched the transaction date.'
+      return '交易日期沒有符合的有效優惠。'
     case 'NO_PROMOTIONS_MATCH_SCENARIO':
-      return 'Promotions existed, but none matched this category, merchant, channel, or payment method.'
+      return '沒有符合分類、商家、通路或付款方式的優惠。'
     case 'NO_POSITIVE_REWARD_AFTER_CAPS':
-      return 'Matching promotions did not produce a positive estimated reward after caps or limits.'
+      return '套用上限後沒有正回饋。'
     case 'MERCHANT_FILTER_APPLIED':
-      return 'A merchant filter was applied.'
+      return '已套用商家條件。'
     case 'PAYMENT_METHOD_FILTER_APPLIED':
-      return 'A payment method filter was applied.'
+      return '已套用付款方式。'
     case 'CHANNEL_FILTER_APPLIED':
-      return 'A channel filter was applied.'
+      return '已套用通路條件。'
     case 'CARD_FILTER_APPLIED':
-      return 'Only selected wallet cards were compared.'
+      return '只比較卡包內的卡片。'
     default:
       return reason
   }

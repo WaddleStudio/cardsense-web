@@ -34,15 +34,15 @@ export function InlineExchangeRatesPanel({ initialCustomRates, onChange }: Props
                   <ChartNoAxesColumn className="h-4 w-4" />
                 </div>
                 <div className="space-y-1">
-                  <h2 className="text-sm font-semibold">Exchange rate board</h2>
+                  <h2 className="text-sm font-semibold">回饋換算</h2>
                   <p className="text-xs leading-relaxed text-muted-foreground">
-                    Adjust reward currency valuation before auto-select or compare runs.
+                    調整點數與哩程折算金額。
                   </p>
                 </div>
               </div>
               <div className="shrink-0 text-right text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
-                <p>{totalRowCount} rows</p>
-                <p>{activeOverrideKeys.size} active</p>
+                <p>{totalRowCount} 筆</p>
+                <p>{activeOverrideKeys.size} 啟用</p>
               </div>
             </div>
 
@@ -65,7 +65,7 @@ export function InlineExchangeRatesPanel({ initialCustomRates, onChange }: Props
               onClick={() => setIsExpanded((current) => !current)}
             >
               <span>
-                {isExpanded ? 'Hide bank-specific rates' : `Show ${hiddenRowCount} bank-specific rates`}
+                {isExpanded ? '收合銀行匯率' : `顯示 ${hiddenRowCount} 筆銀行匯率`}
               </span>
               <ChevronDown
                 className={`h-4 w-4 shrink-0 text-muted-foreground transition-transform ${
@@ -120,11 +120,11 @@ function CompactExchangeRateRow({
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-sm font-semibold">{visual.label}</span>
           <span className="rounded-md border px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-[0.12em] text-muted-foreground">
-            {row.bank === '_DEFAULT' ? 'Default' : row.bank.replaceAll('_', ' ')}
+            {row.bank === '_DEFAULT' ? '預設' : row.bank.replaceAll('_', ' ')}
           </span>
           {isActive && (
             <span className="rounded-md bg-primary px-1.5 py-0.5 text-[10px] font-semibold text-primary-foreground">
-              Active
+              已啟用
             </span>
           )}
         </div>
