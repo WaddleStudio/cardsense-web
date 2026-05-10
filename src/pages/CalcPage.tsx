@@ -103,7 +103,7 @@ export function CalcPage() {
   const hasWalletUnsavedChanges =
     walletBaselineSignature !== null && walletStateSignature !== walletBaselineSignature
   const effectiveWalletStatusMessage = hasWalletUnsavedChanges
-    ? 'Wallet has unsaved changes. Save to update the wallet stored in this browser.'
+    ? '卡包有變更，儲存後下次會沿用。'
     : walletStatusMessage
   const hasMerchantScenario = Boolean(selectedMerchant || merchantFallbackCategory)
   const decisionReadiness = buildDecisionReadinessSummary({
@@ -175,10 +175,8 @@ export function CalcPage() {
     )
     setWalletStatusMessage(
       unavailableCardCodes.size > 0
-        ? `Wallet restored, but ${unavailableCardCodes.size} unavailable card${
-            unavailableCardCodes.size === 1 ? ' was' : 's were'
-          } removed.`
-        : 'Wallet restored from saved data.',
+        ? `已載入卡包，並移除 ${unavailableCardCodes.size} 張不可用卡片。`
+        : '已載入上次儲存的卡包。',
     )
     setHasResolvedWalletRestore(true)
     setExchangeRatesPanelKey((prev) => prev + 1)
@@ -366,7 +364,7 @@ export function CalcPage() {
         customExchangeRates: snapshot.customExchangeRates,
       }),
     )
-    setWalletStatusMessage('Wallet saved for your next calculator session.')
+    setWalletStatusMessage('卡包已儲存。')
   }
 
   function handleClearWallet() {
@@ -379,7 +377,7 @@ export function CalcPage() {
     setCustomExchangeRates({})
     setWalletSavedAt(null)
     setWalletBaselineSignature(null)
-    setWalletStatusMessage('Saved wallet cleared from this browser.')
+    setWalletStatusMessage('已清除本瀏覽器的卡包。')
     setHasRestoredWallet(false)
     setHasResolvedWalletRestore(true)
     setExchangeRatesPanelKey((prev) => prev + 1)
