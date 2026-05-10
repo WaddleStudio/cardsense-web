@@ -30,7 +30,7 @@ export function CategoryGrid({ value, onChange }: CategoryGridProps) {
             onClick={() => onChange(null)}
             className="rounded-md px-2 py-1 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
           >
-            Clear
+            清除
           </button>
         )}
       </div>

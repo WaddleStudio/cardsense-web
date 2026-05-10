@@ -25,7 +25,7 @@ export function RewardGapBox({
           </div>
           <div>
             <h3 className="text-sm font-semibold leading-tight">{REWARD_GAP_DISPLAY.title}</h3>
-            <p className="text-xs text-muted-foreground">Checkout difference</p>
+            <p className="text-xs text-muted-foreground">本次差距</p>
           </div>
         </div>
         <span className="inline-flex items-center gap-1 rounded-full border border-green-200 bg-green-50 px-2.5 py-1 text-xs font-medium text-green-700 dark:border-green-900 dark:bg-green-950/40 dark:text-green-300">

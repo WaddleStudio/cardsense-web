@@ -63,7 +63,7 @@ export function AmountInput({
             <label htmlFor="checkout-amount" className="text-sm font-semibold">
               結帳金額
             </label>
-            <p className="truncate text-xs text-muted-foreground">Checkout total</p>
+            <p className="truncate text-xs text-muted-foreground">本次交易</p>
           </div>
         </div>
         <div
@@ -82,7 +82,7 @@ export function AmountInput({
           <div className="flex items-center justify-between gap-3 border-b bg-muted/25 px-3 py-2">
             <span className="text-xs font-medium text-muted-foreground">交易明細</span>
             <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
-              Receipt
+              收據
             </span>
           </div>
           <CheckoutRow label="商家" value={merchantLabel} />

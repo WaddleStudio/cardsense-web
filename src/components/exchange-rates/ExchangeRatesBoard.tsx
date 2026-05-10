@@ -36,11 +36,13 @@ function formatDisplayName(value: string) {
 }
 
 function formatSectionLabel(type: string) {
+  if (type === 'POINTS') return '點數'
+  if (type === 'MILES') return '哩程'
   return formatDisplayName(type)
 }
 
 function formatRowBadge(row: ExchangeRateBoardRow) {
-  return row.bank === '_DEFAULT' ? 'Default' : formatDisplayName(row.bank)
+  return row.bank === '_DEFAULT' ? '預設' : formatDisplayName(row.bank)
 }
 
 function groupRowsBySection(rows: ExchangeRateBoardRow[]): SectionGroup[] {
@@ -81,7 +83,7 @@ export function ExchangeRatesBoard({
               {formatSectionLabel(section.type)}
             </Badge>
             <span className="text-[11px] font-medium uppercase tracking-[0.24em] text-muted-foreground">
-              TWD board
+              台幣換算
             </span>
           </div>
 
@@ -139,7 +141,7 @@ export function ExchangeRatesBoard({
 
                     <div className="flex items-center gap-2 md:justify-end">
                       <Badge variant={isActive ? 'default' : 'outline'} className="rounded-full">
-                        {isActive ? 'Override' : 'Default'}
+                        {isActive ? '自訂' : '預設'}
                       </Badge>
                       <div className="relative w-full max-w-32">
                         <Input

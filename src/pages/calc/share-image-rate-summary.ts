@@ -4,16 +4,16 @@ export interface ShareRateSummary {
 }
 
 const RATE_LABELS: Record<string, string> = {
-  'POINTS._DEFAULT': 'Default points',
-  'POINTS.CATHAY': 'Cathay points',
-  'POINTS.CTBC': 'CTBC points',
-  'POINTS.ESUN': 'ESUN points',
-  'POINTS.FUBON': 'Fubon points',
-  'POINTS.TAISHIN': 'Taishin points',
-  'MILES._DEFAULT': 'Default miles',
-  'MILES.ASIA_MILES': 'Asia Miles',
-  'MILES.EVA_INFINITY': 'EVA Infinity',
-  'MILES.JALPAK': 'JAL miles',
+  'POINTS._DEFAULT': '預設點數',
+  'POINTS.CATHAY': '國泰點數',
+  'POINTS.CTBC': '中信點數',
+  'POINTS.ESUN': '玉山點數',
+  'POINTS.FUBON': '富邦點數',
+  'POINTS.TAISHIN': '台新點數',
+  'MILES._DEFAULT': '預設哩程',
+  'MILES.ASIA_MILES': '亞洲萬里通',
+  'MILES.EVA_INFINITY': '長榮哩程',
+  'MILES.JALPAK': '日航哩程',
 }
 
 function formatRateLabel(key: string) {
@@ -22,8 +22,8 @@ function formatRateLabel(key: string) {
   }
 
   const [type = 'POINTS', rawBank = 'DEFAULT'] = key.split('.')
-  const bank = rawBank === '_DEFAULT' ? 'Default' : rawBank.replace(/_/g, ' ')
-  const suffix = type === 'MILES' ? 'miles' : 'points'
+  const bank = rawBank === '_DEFAULT' ? '預設' : rawBank.replace(/_/g, ' ')
+  const suffix = type === 'MILES' ? '哩程' : '點數'
 
   return `${bank} ${suffix}`
 }
@@ -35,23 +35,20 @@ export function buildShareRateSummary(
 
   if (overrides.length === 0) {
     return {
-      title: 'Valuation source',
-      lines: ['Using system default rates', 'Built-in POINTS / MILES board'],
+      title: '換算來源',
+      lines: ['使用系統預設匯率', '內建點數與哩程換算'],
     }
   }
 
   const preview = overrides
     .slice(0, 2)
     .map(([key, value]) => `${formatRateLabel(key)} ${value.toFixed(2)}`)
-    .join(', ')
+    .join('，')
   const remainderCount = overrides.length - Math.min(overrides.length, 2)
-  const detailLine = remainderCount > 0 ? `${preview}, +${remainderCount} more` : preview
+  const detailLine = remainderCount > 0 ? `${preview}，另 ${remainderCount} 筆` : preview
 
   return {
-    title: 'Valuation source',
-    lines: [
-      `${overrides.length} custom override${overrides.length === 1 ? '' : 's'} active`,
-      detailLine,
-    ],
+    title: '換算來源',
+    lines: [`已自訂 ${overrides.length} 筆匯率`, detailLine],
   }
 }

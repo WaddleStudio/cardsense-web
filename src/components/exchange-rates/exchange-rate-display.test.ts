@@ -66,12 +66,12 @@ describe('getExchangeRateVisual', () => {
   it('uses stable icon metadata for known rate types', () => {
     expect(getExchangeRateVisual('POINTS')).toEqual({
       icon: 'coins',
-      label: 'Points',
+      label: '點數',
       toneClass: 'text-amber-300 bg-amber-400/10 border-amber-300/25',
     })
     expect(getExchangeRateVisual('MILES')).toEqual({
       icon: 'plane',
-      label: 'Miles',
+      label: '哩程',
       toneClass: 'text-sky-300 bg-sky-400/10 border-sky-300/25',
     })
   })
