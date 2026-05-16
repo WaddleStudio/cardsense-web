@@ -166,6 +166,7 @@ export const SWITCHING_CARD_STATE_CONFIG: SwitchingCardStateConfig[] = [
       { value: 'CATHAY_CUBE_SHOPPING', label: '樂饗購', description: '購物、餐飲、百貨' },
       { value: 'CATHAY_CUBE_TRAVEL', label: '趣旅行', description: '交通、海外、旅遊' },
       { value: 'CATHAY_CUBE_ESSENTIALS', label: '集精選', description: '超市、生活、精選通路' },
+      { value: 'CATHAY_CUBE_FULL_PAY', label: '全支付', description: '全支付綁定與合作通路' },
       { value: 'CATHAY_CUBE_BIRTHDAY', label: '慶生月', description: '生日檔期限定方案' },
       { value: 'CATHAY_CUBE_KIDS', label: '童樂匯', description: '親子與兒童場景' },
       { value: 'CATHAY_CUBE_JAPAN', label: '日本賞', description: '日本限定檔期方案' },
