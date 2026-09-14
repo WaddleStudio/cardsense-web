@@ -1,8 +1,13 @@
+> **Project status: Archived / Commercial No-Go (2026-09).**
+> Active product development and promotion-data maintenance have stopped.
+> The repositories are retained as engineering portfolio and reusable technical assets.
+> Promotion data is historical and is not guaranteed current. See [ARCHIVED.md](https://github.com/WaddleStudio/cardsense-api/blob/master/ARCHIVED.md) for rationale.
+
 # CardSense — 情境式信用卡回饋推薦平台
 
 根據消費情境（金額、類別、通路）即時比較各家信用卡回饋，找出最佳選擇。
 
-**線上版本：** https://cardsense-web.vercel.app
+**歷史部署網址（運行狀態未確認、資料不再維護）：** https://cardsense-web.vercel.app
 
 ---
 
@@ -125,4 +130,6 @@ src/
 
 ## 部署
 
-推送到 `master` 分支後，Vercel 自動觸發部署。需在 Vercel 專案設定中配置 `VITE_API_BASE_URL` 環境變數。
+歷史上由 `master` push 觸發 Vercel 部署。本次封存於 `vercel.json` 設定 `git.deploymentEnabled: false`，停用採用此設定版本的 Git 自動部署；本地修改尚未推送，既有 deployment、手動部署、deploy hooks 與外部排程仍需由管理者確認停用。
+
+原有 build / rewrite 設定保留供技術參考。詳見 [shutdown checklist](https://github.com/WaddleStudio/cardsense-api/blob/master/docs/ARCHIVE_SHUTDOWN_CHECKLIST.md)。

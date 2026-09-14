@@ -1,3 +1,5 @@
+> **Historical / superseded / not planned (2026-09).** This design/checklist is retained for engineering reference. Unfinished work is no longer planned; existing implementations are retained. [Archive decision](https://github.com/WaddleStudio/cardsense-api/blob/master/ARCHIVED.md).
+
 # Dynamic Taxonomy from Contracts Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
