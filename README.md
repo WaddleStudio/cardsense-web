@@ -130,6 +130,6 @@ src/
 
 ## 部署
 
-歷史上由 `master` push 觸發 Vercel 部署。本次封存於 `vercel.json` 設定 `git.deploymentEnabled: false`，停用採用此設定版本的 Git 自動部署；本地修改尚未推送，既有 deployment、手動部署、deploy hooks 與外部排程仍需由管理者確認停用。
+歷史上由 `master` push 觸發 Vercel 部署。本次封存於 `vercel.json` 設定 `git.deploymentEnabled: false`，停用採用此設定版本的 Git 自動部署；建立 PR 不代表預設分支已採用此設定，既有 deployment、手動部署、deploy hooks 與外部排程仍需由管理者確認停用。
 
 原有 build / rewrite 設定保留供技術參考。詳見 [shutdown checklist](https://github.com/WaddleStudio/cardsense-api/blob/master/docs/ARCHIVE_SHUTDOWN_CHECKLIST.md)。
