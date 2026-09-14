@@ -1,3 +1,5 @@
+> **Historical / superseded / not planned (2026-09).** This design/checklist is retained for engineering reference. Unfinished work is no longer planned; existing implementations are retained. [Archive decision](https://github.com/WaddleStudio/cardsense-api/blob/master/ARCHIVED.md).
+
 # Calc Settings Two-Column Layout Design
 
 Date: 2026-04-12
